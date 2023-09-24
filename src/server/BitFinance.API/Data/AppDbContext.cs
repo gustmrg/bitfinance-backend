@@ -1,4 +1,4 @@
-using BitFinance.API.Models;
+using BitFinance.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace BitFinance.API.Data;

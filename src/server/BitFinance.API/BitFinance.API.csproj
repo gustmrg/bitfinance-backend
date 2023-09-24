@@ -20,4 +20,8 @@
 
 
 
+    <ItemGroup>
+      <ProjectReference Include="..\BitFinance.Core\BitFinance.Core.csproj" />
+    </ItemGroup>
+
 </Project>

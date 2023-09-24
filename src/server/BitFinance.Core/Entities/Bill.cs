@@ -1,4 +1,4 @@
-namespace BitFinance.API.Models;
+namespace BitFinance.Core.Entities;
 
 public class Bill
 {
