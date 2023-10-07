@@ -16,9 +16,14 @@ public class BillsController : ControllerBase
     {
         _context = context;
     }
-    
+
     [HttpGet]
-    public void Get() { }
+    public async Task<IResult> Get()
+    { 
+        var bills = await _context.Bills.AsNoTracking().ToListAsync();
+
+        return Results.Ok(bills);
+    }
 
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
