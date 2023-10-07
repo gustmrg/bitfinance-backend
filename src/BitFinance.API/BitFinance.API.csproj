@@ -16,10 +16,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Controllers\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\BitFinance.Domain\BitFinance.Domain.csproj" />
       <ProjectReference Include="..\BitFinance.Infrastructure\BitFinance.Infrastructure.csproj" />
     </ItemGroup>

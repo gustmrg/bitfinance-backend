@@ -24,17 +24,17 @@ public class BillConfiguration : IEntityTypeConfiguration<Bill>
             .IsRequired();
         
         builder.Property(b => b.CreatedDate)
-            .HasColumnType("timestamp")
+            .HasColumnType("timestamp with time zone")
             .HasColumnName("created_date")
             .IsRequired();
         
         builder.Property(b => b.DueDate)
-            .HasColumnType("timestamp")
+            .HasColumnType("timestamp with time zone")
             .HasColumnName("due_date")
             .IsRequired();
         
         builder.Property(b => b.PaidDate)
-            .HasColumnType("timestamp")
+            .HasColumnType("timestamp with time zone")
             .HasColumnName("paid_date")
             .IsRequired(false);
         
