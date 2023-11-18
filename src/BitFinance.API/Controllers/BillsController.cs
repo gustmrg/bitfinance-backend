@@ -37,7 +37,7 @@ public class BillsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<IResult> CreateBillAsync([FromBody] Bill model)
+    public async Task<IResult> CreateBillAsync([FromBody] BillDTO model)
     {
         if (!ModelState.IsValid)
             return Results.UnprocessableEntity();
@@ -51,7 +51,7 @@ public class BillsController : ControllerBase
             PaidDate = model.PaidDate?.ToUniversalTime(),
             AmountDue = model.AmountDue,
             AmountPaid = model.AmountPaid,
-            IsPaid = false,
+            IsPaid = model.IsPaid,
             IsDeleted = false
         };
 
@@ -65,26 +65,26 @@ public class BillsController : ControllerBase
     
     [HttpPost]
     [Route("{id:int}")]
-    public async Task<IResult> UpdateBillById(int id, Bill bill)
+    public async Task<IResult> UpdateBillById(int id, BillDTO billDTO)
     {
-        var billToUpdate = await _context.Bills.FirstOrDefaultAsync(x => x.Id == id);
+        var bill = await _context.Bills.FirstOrDefaultAsync(x => x.Id == id);
 
-        if (billToUpdate is null)
+        if (bill is null)
             return Results.NotFound("Could not find the requested Bill");
 
-        billToUpdate.Name = bill.Name;
-        billToUpdate.Category = bill.Category;
-        billToUpdate.DueDate = bill.DueDate.ToUniversalTime();
-        billToUpdate.PaidDate = bill.PaidDate?.ToUniversalTime();
-        billToUpdate.AmountDue = bill.AmountDue;
-        billToUpdate.AmountPaid = bill.AmountPaid;
-        billToUpdate.IsPaid = bill.IsPaid;
-        billToUpdate.IsDeleted = bill.IsDeleted;
+        bill.Name = billDTO.Name;
+        bill.Category = billDTO.Category;
+        bill.DueDate = billDTO.DueDate.ToUniversalTime();
+        bill.PaidDate = billDTO.PaidDate?.ToUniversalTime();
+        bill.AmountDue = billDTO.AmountDue;
+        bill.AmountPaid = billDTO.AmountPaid;
+        bill.IsPaid = billDTO.IsPaid;
+        bill.IsDeleted = billDTO.IsDeleted;
 
-        _context.Bills.Update(billToUpdate);
+        _context.Bills.Update(bill);
         await _context.SaveChangesAsync();
         
-        return Results.Ok(billToUpdate);
+        return Results.Ok(bill);
     }
     
     [HttpDelete]
