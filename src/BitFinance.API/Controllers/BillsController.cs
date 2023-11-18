@@ -23,6 +23,15 @@ public class BillsController : ControllerBase
 
         return Results.Ok(bills);
     }
+    
+    [HttpGet]
+    [Route("{id:int}")]
+    public async Task<IResult> GetBillById(int id)
+    { 
+        var bill = await _context.Bills.FirstOrDefaultAsync(x => x.Id == id);
+
+        return Results.Ok(bill);
+    }
 
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
