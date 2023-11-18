@@ -62,4 +62,28 @@ public class BillsController : ControllerBase
         
         return Results.Created(uri, bill);
     }
+    
+    [HttpPost]
+    [Route("{id:int}")]
+    public async Task<IResult> UpdateBillById(int id, Bill bill)
+    {
+        var billToUpdate = await _context.Bills.FirstOrDefaultAsync(x => x.Id == id);
+
+        if (billToUpdate is null)
+            return Results.NotFound("Could not find the requested Bill");
+
+        billToUpdate.Name = bill.Name;
+        billToUpdate.Category = bill.Category;
+        billToUpdate.DueDate = bill.DueDate.ToUniversalTime();
+        billToUpdate.PaidDate = bill.PaidDate?.ToUniversalTime();
+        billToUpdate.AmountDue = bill.AmountDue;
+        billToUpdate.AmountPaid = bill.AmountPaid;
+        billToUpdate.IsPaid = bill.IsPaid;
+        billToUpdate.IsDeleted = bill.IsDeleted;
+
+        _context.Bills.Update(billToUpdate);
+        await _context.SaveChangesAsync();
+        
+        return Results.Ok(billToUpdate);
+    }
 }
