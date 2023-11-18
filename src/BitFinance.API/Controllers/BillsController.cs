@@ -86,4 +86,20 @@ public class BillsController : ControllerBase
         
         return Results.Ok(billToUpdate);
     }
+    
+    [HttpDelete]
+    [Route("{id:int}")]
+    public async Task<IResult> DeleteBillById(int id)
+    { 
+        var bill = await _context.Bills.FirstOrDefaultAsync(x => x.Id == id);
+        
+        if (bill is null)
+            return Results.NotFound("Could not find the requested Bill");
+
+        bill.IsDeleted = true;
+        _context.Bills.Update(bill);
+        await _context.SaveChangesAsync();
+
+        return Results.Ok("Bill deleted");
+    }
 }
