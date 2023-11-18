@@ -1,8 +1,8 @@
-using BitFinance.Domain.Entities;
+using BitFinance.API.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace BitFinance.Infrastructure.Data.Configurations;
+namespace BitFinance.API.Data.Configurations;
 
 public class BillConfiguration : IEntityTypeConfiguration<Bill>
 {
@@ -19,7 +19,7 @@ public class BillConfiguration : IEntityTypeConfiguration<Bill>
             .IsRequired();
         
         builder.Property(b => b.Category)
-            .HasColumnType("varchar(255)")
+            .HasColumnType("numeric")
             .HasColumnName("category")
             .IsRequired();
         

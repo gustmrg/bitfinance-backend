@@ -1,8 +1,8 @@
 using System.Reflection;
-using BitFinance.Domain.Entities;
+using BitFinance.API.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace BitFinance.Infrastructure.Data;
+namespace BitFinance.API.Data;
 
 public class ApplicationDbContext : DbContext
 {

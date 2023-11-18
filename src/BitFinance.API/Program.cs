@@ -1,4 +1,4 @@
-using BitFinance.Infrastructure.Data;
+using BitFinance.API.Data;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

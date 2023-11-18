@@ -1,6 +1,5 @@
+using BitFinance.API.Data;
 using BitFinance.API.Models;
-using BitFinance.Domain.Entities;
-using BitFinance.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,7 +28,7 @@ public class BillsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<IResult> CreateBillAsync([FromBody] BillInputModel model)
+    public async Task<IResult> CreateBillAsync([FromBody] Bill model)
     {
         if (!ModelState.IsValid)
             return Results.UnprocessableEntity();
