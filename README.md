@@ -1,1 +1,189 @@
-# Finances App
+<!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
+<a name="readme-top"></a>
+<!--
+*** Thanks for checking out the Best-README-Template. If you have a suggestion
+*** that would make this better, please fork the repo and create a pull request
+*** or simply open an issue with the tag "enhancement".
+*** Don't forget to give the project a star!
+*** Thanks again! Now go create something AMAZING! :D
+-->
+
+
+
+<!-- PROJECT SHIELDS -->
+<!--
+*** I'm using markdown "reference style" links for readability.
+*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
+*** See the bottom of this document for the declaration of the reference variables
+*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
+*** https://www.markdownguide.org/basic-syntax/#reference-style-links
+-->
+
+[![MIT License][license-shield]][license-url]
+[![LinkedIn][linkedin-shield]][linkedin-url]
+
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <a href="https://github.com/gustmrg/bitfinance">
+    <img src="images/logo.jpeg" alt="Logo" width="80" height="80">
+  </a>
+
+<h3 align="center">BitFinance</h3>
+  <p align="center">
+    Gerenciador de orçamento financeiro de forma simples
+    <br />
+</div>
+
+
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Conteúdo</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">Sobre o projeto</a>
+      <ul>
+        <li><a href="#built-with">Tecnologias</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#getting-started">Preparando o ambiente</a>
+      <ul>
+        <li><a href="#prerequisites">Pré-requisitos</a></li>
+        <li><a href="#installation">Instalação</a></li>
+      </ul>
+    </li>
+    <li><a href="#usage">Uso</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#license">License</a></li>
+  </ol>
+</details>
+
+
+
+<!-- ABOUT THE PROJECT -->
+## Sobre o Projeto
+
+
+
+O BitFinance é um aplicativo de finanças projetado para simplificar o acompanhamento e gerenciamento de gastos. Com uma interface simples, permite que usuários registrem e monitorem despesas de forma eficiente, proporcionando controle total sobre o orçamento, facilitando a organização das finanças da família.
+
+Desenvolvi este projeto com o objetivo de solucionar o problema da dificuldade de acompanhar os meus gastos financeiros, ajudando a entender onde estão os maiores custos e de melhorar a educação financeira. 
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+### Tecnologias
+
+[![Next][Next.js]][Next-url]
+[![React][React.js]][React-url]
+[![TailwindCSS][TailwindCSS.com]][Tailwindcss-url]
+[![.NET][.NET.com]][.NET-url]
+[![PostgreSQL][Postgresql.org]][Postgresql-url]
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- GETTING STARTED 
+## Getting Started
+
+This is an example of how you may give instructions on setting up your project locally.
+To get a local copy up and running follow these simple example steps.
+
+### Prerequisites
+
+This is an example of how to list things you need to use the software and how to install them.
+* npm
+  ```sh
+  npm install npm@latest -g
+  ```
+
+### Installation
+
+1. Get a free API Key at [https://example.com](https://example.com)
+2. Clone the repo
+   ```sh
+   git clone https://github.com/github_username/repo_name.git
+   ```
+3. Install NPM packages
+   ```sh
+   npm install
+   ```
+4. Enter your API in `config.js`
+   ```js
+   const API_KEY = 'ENTER YOUR API';
+   ```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+-->
+
+
+<!-- USAGE EXAMPLES 
+## Usage
+
+Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+
+_For more examples, please refer to the [Documentation](https://example.com)_
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+-->
+
+
+<!-- ROADMAP -->
+## Roadmap
+
+- [x] Gerenciamento de contas a pagar (adicionar/atualizar/excluir)
+- [ ] Gerenciamento de residências/famílias (adicionar/atualizar/excluir)
+- [ ] Autenticação/Autorização
+- [ ] Salvar documentos (boleto/comprovante) 
+- [ ] Tela de Dashboard
+- [ ] Tela de Login
+- [ ] Salvar arquivos localmente
+- [ ] Salvar arquivos no S3 (AWS)
+- [ ] Enviar link de convite para adicionar usuários em residências/famílias
+- [ ] Notificações de datas de vencimento
+- [ ] Sistema de agendamento de mensagens via WhatsApp
+- [ ] Containers Docker
+
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+<!-- LICENSE -->
+## Licença
+
+Este projeto está sob a licença MIT. Veja `LICENSE.md` para mais informações.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+[contributors-shield]: https://img.shields.io/github/contributors/github_username/repo_name.svg?style=for-the-badge
+[contributors-url]: https://github.com/github_username/repo_name/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/github_username/repo_name.svg?style=for-the-badge
+[forks-url]: https://github.com/github_username/repo_name/network/members
+[stars-shield]: https://img.shields.io/github/stars/github_username/repo_name.svg?style=for-the-badge
+[stars-url]: https://github.com/github_username/repo_name/stargazers
+[issues-shield]: https://img.shields.io/github/issues/github_username/repo_name.svg?style=for-the-badge
+[issues-url]: https://github.com/github_username/repo_name/issues
+[license-shield]: https://img.shields.io/github/license/gustmrg/bitfinance.svg?style=for-the-badge
+[license-url]: https://github.com/gustmrg/bitfinance/blob/main/LICENSE.md
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[linkedin-url]: https://linkedin.com/in/gustmrg
+[product-screenshot]: images/screenshot.png
+[Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
+[Next-url]: https://nextjs.org/
+[React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
+[React-url]: https://reactjs.org/
+[TailwindCSS.com]: https://img.shields.io/badge/TailwindCSS-35495E?style=for-the-badge&logo=tailwindcss&logoColor=06B6D4
+[Tailwindcss-url]: https://tailwindcss.com
+[.NET.com]: https://img.shields.io/badge/.NET-512BD4?style=for-the-badge&logo=dotnet&logoColor=white
+[.NET-url]: https://dotnet.microsoft.com/
+[Postgresql.org]: https://img.shields.io/badge/postgresql-4169E1?style=for-the-badge&logo=postgresql&logoColor=white
+[Postgresql-url]: https://www.postgresql.org
