@@ -30,4 +30,26 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+SeedDatabase(app);
+
 app.Run();
+
+static void SeedDatabase(WebApplication app)
+{
+    using var scope = app.Services.CreateScope();
+    var services = scope.ServiceProvider;
+    
+    try
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        //                    context.Database.Migrate();
+        context.Database.EnsureCreated();
+        SeedData.Initialize(services);
+    }
+    catch (Exception ex)
+    {
+        // var logger = services.GetRequiredService<ILogger<Program>>();
+        // logger.LogError(ex, "An error occurred seeding the DB. {exceptionMessage}", ex.Message);
+        Console.WriteLine("An error has occurred and could not seed database");
+    }
+}

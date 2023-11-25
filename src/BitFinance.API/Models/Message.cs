@@ -10,6 +10,7 @@ public class Message
     public string? Body { get; set; }
     public MessagePlatform Platform { get; set; }
     public DateTime CreatedDate { get; set; }
+    public DateTime? SentDate { get; set; }
     public DateTime? ScheduledDate { get; set; }
     public bool IsSent { get; set; }
     public bool? IsDeleted { get; set; }
