@@ -46,7 +46,7 @@ public class BillsController : ControllerBase
         {
             Name = model.Name,
             Category = model.Category,
-            CreatedDate = DateTime.UtcNow,
+            CreatedDate = DateTime.UtcNow.AddHours(-3),
             DueDate = model.DueDate.ToUniversalTime(),
             PaidDate = model.PaidDate?.ToUniversalTime(),
             AmountDue = model.AmountDue,
