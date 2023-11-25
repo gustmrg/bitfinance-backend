@@ -1,35 +1,26 @@
 import { Bill, columns } from "./columns"
 import { DataTable } from "./data-table"
 
-const http = require('http')
-
 async function getData(): Promise<Bill[]> {
     // Fetch data from your API here.
-    return [
-        {
-            id: 1,
-            name: "Water Bill",
-            amountDue: 80,
-            isPaid: false
-        },
-        {
-            id: 2,
-            name: "Internet Bill",
-            amountDue: 150,
-            amountPaid: 150,
-            isPaid: true
-        },
-        {
-            id: 3,
-            name: "Health Insurance",
-            amountDue: 450,
-            isPaid: false
-        }
-    ]
+    try {
+        const res = await fetch('https://127.0.0.1:7267/bills', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const data = await res.json();
+        return data;
+    } catch (err) {
+        console.log(err);
+        return [];
+    }
 }
 
 export default async function BillsPage() {
     const data = await getData()
+    console.log(data)
 
     return (
         <div className="container mx-auto py-10">
