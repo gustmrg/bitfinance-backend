@@ -33,8 +33,8 @@ public static class SeedData
         {
             Name = "Vivo Fibra",
             Category = BillCategory.Utilities,
-            CreatedDate = DateTime.UtcNow,
-            DueDate = DateTime.UtcNow,
+            CreatedDate = DateTime.UtcNow.AddHours(-3),
+            DueDate = DateTime.UtcNow.AddHours(-3),
             AmountDue = 120M,
             IsPaid = false
         };
@@ -43,9 +43,9 @@ public static class SeedData
         {
             Name = "Cagece",
             Category = BillCategory.Utilities,
-            CreatedDate = DateTime.UtcNow,
-            DueDate = DateTime.UtcNow,
-            PaidDate = DateTime.UtcNow,
+            CreatedDate = DateTime.UtcNow.AddHours(-3),
+            DueDate = DateTime.UtcNow.AddHours(-3),
+            PaidDate = DateTime.Now.ToUniversalTime().AddHours(-3),
             AmountDue = 80M,
             AmountPaid = 80M,
             IsPaid = true
@@ -55,9 +55,9 @@ public static class SeedData
         {
             Name = "Unimed CE",
             Category = BillCategory.Healthcare,
-            CreatedDate = DateTime.UtcNow,
-            DueDate = DateTime.UtcNow,
-            PaidDate = new DateTime(2023, 11, 18).ToUniversalTime(),
+            CreatedDate = DateTime.UtcNow.AddHours(-3),
+            DueDate = DateTime.UtcNow.AddHours(-3),
+            PaidDate = new DateTime(2023, 11, 18).ToUniversalTime().AddHours(-3),
             AmountDue = 350M,
             AmountPaid = 350M,
             IsPaid = true
@@ -67,8 +67,8 @@ public static class SeedData
         {
             Name = "Allianz Seguros",
             Category = BillCategory.Insurance,
-            CreatedDate = DateTime.UtcNow,
-            DueDate = new DateTime(2023, 12, 10).ToUniversalTime(),
+            CreatedDate = DateTime.UtcNow.AddHours(-3),
+            DueDate = new DateTime(2023, 12, 10).ToUniversalTime().AddHours(-3),
             AmountDue = 1000M,
             IsPaid = false
         };
@@ -77,8 +77,8 @@ public static class SeedData
         {
             Name = "Netflix",
             Category = BillCategory.Entertainment,
-            CreatedDate = DateTime.UtcNow,
-            DueDate = new DateTime(2023, 12, 01).ToUniversalTime(),
+            CreatedDate = DateTime.UtcNow.AddHours(-3),
+            DueDate = new DateTime(2023, 12, 01).ToUniversalTime().AddHours(-3),
             AmountDue = 49.90M,
             IsPaid = false,
             IsDeleted = true
