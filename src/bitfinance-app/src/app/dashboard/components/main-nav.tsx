@@ -18,16 +18,16 @@ export function MainNav({
                 Overview
             </Link>
             <Link
-                href="/dashboard"
+                href="/bills"
                 className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
             >
-                Customers
+                Bills
             </Link>
             <Link
                 href="/dashboard"
                 className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
             >
-                Products
+                Payments
             </Link>
             <Link
                 href="/dashboard"
