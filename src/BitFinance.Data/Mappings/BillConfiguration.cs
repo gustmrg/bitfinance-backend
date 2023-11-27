@@ -1,8 +1,8 @@
-using BitFinance.API.Models;
+using BitFinance.Business.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace BitFinance.API.Data.Configurations;
+namespace BitFinance.Data.Mappings;
 
 public class BillConfiguration : IEntityTypeConfiguration<Bill>
 {

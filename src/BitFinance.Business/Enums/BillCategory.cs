@@ -1,4 +1,4 @@
-namespace BitFinance.API.Enums;
+namespace BitFinance.Business.Enums;
 
 public enum BillCategory
 {

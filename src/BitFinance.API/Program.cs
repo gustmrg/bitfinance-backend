@@ -1,4 +1,4 @@
-using BitFinance.API.Data;
+using BitFinance.Data.Contexts;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,9 +44,9 @@ static void SeedDatabase(WebApplication app)
         var context = services.GetRequiredService<ApplicationDbContext>();
         //                    context.Database.Migrate();
         context.Database.EnsureCreated();
-        SeedData.Initialize(services);
+        //SeedData.Initialize(services);
     }
-    catch (Exception ex)
+    catch (Exception)
     {
         // var logger = services.GetRequiredService<ILogger<Program>>();
         // logger.LogError(ex, "An error occurred seeding the DB. {exceptionMessage}", ex.Message);

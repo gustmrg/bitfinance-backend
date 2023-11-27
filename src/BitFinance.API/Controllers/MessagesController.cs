@@ -1,5 +1,6 @@
-using BitFinance.API.Data;
-using BitFinance.API.Models;
+using BitFinance.API.DTOs;
+using BitFinance.Business.Models;
+using BitFinance.Data.Contexts;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BitFinance.API.Controllers;

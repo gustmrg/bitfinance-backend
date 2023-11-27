@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace BitFinance.API.Data.Migrations
+namespace BitFinance.Data.Migrations
 {
     /// <inheritdoc />
     public partial class create_bill_table : Migration

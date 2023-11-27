@@ -1,5 +1,6 @@
-using BitFinance.API.Data;
-using BitFinance.API.Models;
+using BitFinance.API.DTOs;
+using BitFinance.Business.Models;
+using BitFinance.Data.Contexts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -58,7 +59,7 @@ public class BillsController : ControllerBase
         _context.Bills.Add(bill);
         await _context.SaveChangesAsync();
 
-        string uri = $"/bills/" + bill.Id;
+        var uri = $"/bills/" + bill.Id;
         
         return Results.Created(uri, bill);
     }

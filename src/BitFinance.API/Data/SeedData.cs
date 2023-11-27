@@ -1,5 +1,6 @@
-using BitFinance.API.Enums;
-using BitFinance.API.Models;
+using BitFinance.Business.Enums;
+using BitFinance.Business.Models;
+using BitFinance.Data.Contexts;
 using Microsoft.EntityFrameworkCore;
 
 namespace BitFinance.API.Data;
