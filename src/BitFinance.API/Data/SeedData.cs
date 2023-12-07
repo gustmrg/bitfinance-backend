@@ -32,7 +32,7 @@ public static class SeedData
 
         Bill bill1 = new()
         {
-            Name = "Vivo Fibra",
+            Name = "Internet Bill",
             Category = BillCategory.Utilities,
             CreatedDate = DateTime.UtcNow.AddHours(-3),
             DueDate = DateTime.UtcNow.AddHours(-3),
@@ -42,7 +42,7 @@ public static class SeedData
         
         Bill bill2 = new()
         {
-            Name = "Cagece",
+            Name = "Water Charge",
             Category = BillCategory.Utilities,
             CreatedDate = DateTime.UtcNow.AddHours(-3),
             DueDate = DateTime.UtcNow.AddHours(-3),
@@ -54,7 +54,7 @@ public static class SeedData
         
         Bill bill3 = new()
         {
-            Name = "Unimed CE",
+            Name = "Health Insurance",
             Category = BillCategory.Healthcare,
             CreatedDate = DateTime.UtcNow.AddHours(-3),
             DueDate = DateTime.UtcNow.AddHours(-3),
@@ -66,7 +66,7 @@ public static class SeedData
         
         Bill bill4 = new()
         {
-            Name = "Allianz Seguros",
+            Name = "Car Insurance",
             Category = BillCategory.Insurance,
             CreatedDate = DateTime.UtcNow.AddHours(-3),
             DueDate = new DateTime(2023, 12, 10).ToUniversalTime().AddHours(-3),
@@ -76,7 +76,7 @@ public static class SeedData
         
         Bill bill5 = new()
         {
-            Name = "Netflix",
+            Name = "Streaming Subscription",
             Category = BillCategory.Entertainment,
             CreatedDate = DateTime.UtcNow.AddHours(-3),
             DueDate = new DateTime(2023, 12, 01).ToUniversalTime().AddHours(-3),
@@ -85,11 +85,18 @@ public static class SeedData
             IsDeleted = true
         };
 
-        dbContext.Bills.Add(bill1);
-        dbContext.Bills.Add(bill2);
-        dbContext.Bills.Add(bill3);
-        dbContext.Bills.Add(bill4);
-        dbContext.Bills.Add(bill5);
+        Bill bill6 = new() 
+        {
+            Name = "Mortgage",
+            Category = BillCategory.Housing,
+            CreatedDate = DateTime.UtcNow.AddHours(-3),
+            DueDate = new DateTime(2023, 12, 05).ToUniversalTime().AddHours(-3),
+            AmountDue = 2000M,
+            IsPaid = true,
+            IsDeleted = false
+        };
+        
+        dbContext.AddRange(bill1, bill2, bill3, bill4, bill5, bill6);
 
         dbContext.SaveChanges();
     }
