@@ -1,5 +1,5 @@
-using BitFinance.API.DTOs;
-using BitFinance.Business.Models;
+using BitFinance.API.Models;
+using BitFinance.Business.Entities;
 using BitFinance.Data.Contexts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace BitFinance.API.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("bills")]
 public class BillsController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
@@ -30,29 +30,46 @@ public class BillsController : ControllerBase
     public async Task<IResult> GetBillById(int id)
     { 
         var bill = await _context.Bills.FirstOrDefaultAsync(x => x.Id == id);
+        
+        if (bill is null)
+            return Results.NotFound("Could not find the requested Bill");
 
-        return Results.Ok(bill);
+        var response = new GetBillResponse
+        {
+            Id = bill.Id,
+            Name = bill.Name,
+            Category = bill.Category,
+            CreatedDate = bill.CreatedDate,
+            DueDate = bill.DueDate,
+            PaidDate = bill.PaidDate,
+            AmountDue = bill.AmountDue,
+            AmountPaid = bill.AmountPaid,
+            IsPaid = bill.IsPaid,
+            IsDeleted = bill.IsDeleted
+        };
+
+        return Results.Ok(response);
     }
 
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<IResult> CreateBillAsync([FromBody] BillDTO model)
+    public async Task<IResult> CreateBillAsync([FromBody] CreateBillRequest request)
     {
         if (!ModelState.IsValid)
             return Results.UnprocessableEntity();
 
         var bill = new Bill
         {
-            Name = model.Name,
-            Category = model.Category,
+            Name = request.Name,
+            Category = request.Category,
             CreatedDate = DateTime.UtcNow.AddHours(-3),
-            DueDate = model.DueDate.ToUniversalTime(),
-            PaidDate = model.PaidDate?.ToUniversalTime(),
-            AmountDue = model.AmountDue,
-            AmountPaid = model.AmountPaid,
-            IsPaid = model.IsPaid,
+            DueDate = request.DueDate.ToUniversalTime(),
+            PaidDate = request.PaidDate?.ToUniversalTime(),
+            AmountDue = request.AmountDue,
+            AmountPaid = request.AmountPaid,
+            IsPaid = request.IsPaid,
             IsDeleted = false
         };
 
@@ -61,31 +78,44 @@ public class BillsController : ControllerBase
 
         var uri = $"/bills/" + bill.Id;
         
-        return Results.Created(uri, bill);
+        return Results.Created(uri, new CreateBillResponse { Id = bill.Id });
     }
     
-    [HttpPost]
+    [HttpPut]
     [Route("{id:int}")]
-    public async Task<IResult> UpdateBillById(int id, BillDTO billDTO)
+    public async Task<IResult> UpdateBillById(int id, UpdateBillRequest request)
     {
         var bill = await _context.Bills.FirstOrDefaultAsync(x => x.Id == id);
 
         if (bill is null)
             return Results.NotFound("Could not find the requested Bill");
 
-        bill.Name = billDTO.Name;
-        bill.Category = billDTO.Category;
-        bill.DueDate = billDTO.DueDate.ToUniversalTime();
-        bill.PaidDate = billDTO.PaidDate?.ToUniversalTime();
-        bill.AmountDue = billDTO.AmountDue;
-        bill.AmountPaid = billDTO.AmountPaid;
-        bill.IsPaid = billDTO.IsPaid;
-        bill.IsDeleted = billDTO.IsDeleted;
+        bill.Name = request.Name;
+        bill.Category = request.Category;
+        bill.DueDate = request.DueDate.ToUniversalTime();
+        bill.PaidDate = request.PaidDate?.ToUniversalTime();
+        bill.AmountDue = request.AmountDue;
+        bill.AmountPaid = request.AmountPaid;
+        bill.IsPaid = request.IsPaid;
+        bill.IsDeleted = request.IsDeleted ?? false;
 
         _context.Bills.Update(bill);
         await _context.SaveChangesAsync();
+
+        var response = new UpdateBillResponse
+        {
+            Id = bill.Id,
+            Name = bill.Name,
+            Category = bill.Category,
+            DueDate = bill.DueDate,
+            PaidDate = bill.PaidDate,
+            AmountDue = bill.AmountDue,
+            AmountPaid = bill.AmountPaid,
+            IsPaid = bill.IsPaid,
+            IsDeleted = bill.IsDeleted
+        };
         
-        return Results.Ok(bill);
+        return Results.Ok(response);
     }
     
     [HttpDelete]
@@ -101,6 +131,12 @@ public class BillsController : ControllerBase
         _context.Bills.Update(bill);
         await _context.SaveChangesAsync();
 
-        return Results.Ok("Bill deleted");
+        var response = new DeleteBillResponse
+        {
+            Id = bill.Id,
+            IsDeleted = bill.IsDeleted
+        };
+
+        return Results.Ok(response);
     }
 }

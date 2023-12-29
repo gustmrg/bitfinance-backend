@@ -1,8 +1,8 @@
 using BitFinance.Business.Enums;
 
-namespace BitFinance.Business.Entities;
+namespace BitFinance.API.Models;
 
-public class Bill
+public class GetBillResponse
 {
     public int Id { get; set; }
     public string Name { get; set; } = null!;
