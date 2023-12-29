@@ -1,5 +1,9 @@
+using BitFinance.API.Data;
 using BitFinance.Data.Contexts;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,12 +11,29 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddCors();
 
+builder.Services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme);
+builder.Services.AddAuthorizationBuilder();
+
 builder.Services.AddDbContext<ApplicationDbContext>(options => 
     options.UseNpgsql(connectionString));
 
+builder.Services.AddIdentityCore<IdentityUser>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddApiEndpoints();
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey
+    });
+    
+    options.OperationFilter<SecurityRequirementsOperationFilter>();
+});
 
 var app = builder.Build();
 
@@ -29,6 +50,7 @@ app.UseCors(options => options.AllowAnyOrigin());
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapGroup("/account").MapIdentityApi<IdentityUser>();
 
 SeedDatabase(app);
 
@@ -42,9 +64,9 @@ static void SeedDatabase(WebApplication app)
     try
     {
         var context = services.GetRequiredService<ApplicationDbContext>();
-        //                    context.Database.Migrate();
+        context.Database.Migrate();
         context.Database.EnsureCreated();
-        //SeedData.Initialize(services);
+        SeedData.Initialize(services);
     }
     catch (Exception)
     {
