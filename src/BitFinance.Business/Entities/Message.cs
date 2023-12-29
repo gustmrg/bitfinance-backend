@@ -1,6 +1,6 @@
 using BitFinance.Business.Enums;
 
-namespace BitFinance.Business.Models;
+namespace BitFinance.Business.Entities;
 
 public class Message
 {

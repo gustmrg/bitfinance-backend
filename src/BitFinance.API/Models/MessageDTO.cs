@@ -1,6 +1,6 @@
 using BitFinance.Business.Enums;
 
-namespace BitFinance.API.DTOs;
+namespace BitFinance.API.Models;
 
 public class MessageDTO
 {

@@ -1,5 +1,5 @@
-using BitFinance.API.DTOs;
-using BitFinance.Business.Models;
+using BitFinance.API.Models;
+using BitFinance.Business.Entities;
 using BitFinance.Data.Contexts;
 using Microsoft.AspNetCore.Mvc;
 

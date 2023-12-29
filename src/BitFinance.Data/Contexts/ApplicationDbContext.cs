@@ -1,5 +1,5 @@
 using System.Reflection;
-using BitFinance.Business.Models;
+using BitFinance.Business.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 

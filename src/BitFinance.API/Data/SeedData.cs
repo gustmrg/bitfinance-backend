@@ -1,5 +1,5 @@
+using BitFinance.Business.Entities;
 using BitFinance.Business.Enums;
-using BitFinance.Business.Models;
 using BitFinance.Data.Contexts;
 using Microsoft.EntityFrameworkCore;
 

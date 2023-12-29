@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-namespace BitFinance.Business.Models;
+namespace BitFinance.Business.Entities;
 
 public class AppUser : IdentityUser
 {
