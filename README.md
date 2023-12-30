@@ -138,7 +138,7 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 
 - [x] Gerenciamento de contas a pagar (adicionar/atualizar/excluir)
 - [ ] Gerenciamento de residências/famílias (adicionar/atualizar/excluir)
-- [ ] Autenticação/Autorização
+- [x] Autenticação/Autorização
 - [ ] Salvar documentos (boleto/comprovante) 
 - [ ] Tela de Dashboard
 - [ ] Tela de Login
