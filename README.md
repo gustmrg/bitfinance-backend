@@ -26,7 +26,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/gustmrg/bitfinance">
-    <img src="images/logo.jpeg" alt="Logo" width="80" height="80">
+    <img src="/img/logo.png" alt="" height="100" >
   </a>
 
 <h3 align="center">BitFinance</h3>
@@ -76,11 +76,10 @@ Desenvolvi este projeto com o objetivo de solucionar o problema da dificuldade d
 
 ### Tecnologias
 
-[![Next][Next.js]][Next-url]
-[![React][React.js]][React-url]
-[![TailwindCSS][TailwindCSS.com]][Tailwindcss-url]
-[![.NET][.NET.com]][.NET-url]
-[![PostgreSQL][Postgresql.org]][Postgresql-url]
+* [![React][React.js]][React-url]
+* [![TailwindCSS][TailwindCSS]][Tailwindcss-url]
+* [![.NET][dotnet]][dotnet-url]
+* [![SqlServer][SqlServer]][SqlServer-url]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -181,9 +180,11 @@ Este projeto está sob a licença MIT. Veja `LICENSE.md` para mais informações
 [Next-url]: https://nextjs.org/
 [React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
 [React-url]: https://reactjs.org/
-[TailwindCSS.com]: https://img.shields.io/badge/TailwindCSS-35495E?style=for-the-badge&logo=tailwindcss&logoColor=06B6D4
+[TailwindCSS]: https://img.shields.io/badge/TailwindCSS-35495E?style=for-the-badge&logo=tailwindcss&logoColor=06B6D4
 [Tailwindcss-url]: https://tailwindcss.com
-[.NET.com]: https://img.shields.io/badge/.NET-512BD4?style=for-the-badge&logo=dotnet&logoColor=white
-[.NET-url]: https://dotnet.microsoft.com/
+[dotnet]: https://img.shields.io/badge/.NET-512BD4?style=for-the-badge&logo=dotnet&logoColor=white
+[dotnet-url]: https://dotnet.microsoft.com/
 [Postgresql.org]: https://img.shields.io/badge/postgresql-4169E1?style=for-the-badge&logo=postgresql&logoColor=white
 [Postgresql-url]: https://www.postgresql.org
+[SqlServer]: https://img.shields.io/badge/microsoft_sql_server-CC2927?style=for-the-badge&logo=microsoftsqlserver&logoColor=white
+[SqlServer-url]: https://www.microsoft.com/sql-server/
