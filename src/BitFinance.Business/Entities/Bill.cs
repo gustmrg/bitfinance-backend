@@ -4,7 +4,7 @@ namespace BitFinance.Business.Entities;
 
 public class Bill
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     public string Name { get; set; } = null!;
     public BillCategory Category { get; set; }
     public decimal AmountDue { get; set; }

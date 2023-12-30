@@ -1,4 +1,5 @@
 using BitFinance.API.Data;
+using BitFinance.Business.Entities;
 using BitFinance.Data.Contexts;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -15,9 +16,9 @@ builder.Services.AddAuthentication().AddBearerToken(IdentityConstants.BearerSche
 builder.Services.AddAuthorizationBuilder();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => 
-    options.UseNpgsql(connectionString));
+    options.UseSqlServer(connectionString));
 
-builder.Services.AddIdentityCore<IdentityUser>()
+builder.Services.AddIdentityCore<ApplicationUser>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddApiEndpoints();
 
@@ -50,7 +51,7 @@ app.UseCors(options => options.AllowAnyOrigin());
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapGroup("/account").MapIdentityApi<IdentityUser>();
+app.MapGroup("/account").MapIdentityApi<ApplicationUser>();
 
 SeedDatabase(app);
 

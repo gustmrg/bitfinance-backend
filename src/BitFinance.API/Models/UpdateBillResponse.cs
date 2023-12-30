@@ -4,7 +4,7 @@ namespace BitFinance.API.Models;
 
 public class UpdateBillResponse
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     public string Name { get; set; } = null!;
     public BillCategory Category { get; set; }
     public DateTime DueDate { get; set; }

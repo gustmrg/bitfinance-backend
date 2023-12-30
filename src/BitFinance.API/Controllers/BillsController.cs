@@ -26,8 +26,8 @@ public class BillsController : ControllerBase
     }
     
     [HttpGet]
-    [Route("{id:int}")]
-    public async Task<IResult> GetBillById(int id)
+    [Route("{id:guid}")]
+    public async Task<IResult> GetBillById(Guid id)
     { 
         var bill = await _context.Bills.FirstOrDefaultAsync(x => x.Id == id);
         
@@ -82,8 +82,8 @@ public class BillsController : ControllerBase
     }
     
     [HttpPut]
-    [Route("{id:int}")]
-    public async Task<IResult> UpdateBillById(int id, UpdateBillRequest request)
+    [Route("{id:guid}")]
+    public async Task<IResult> UpdateBillById(Guid id, UpdateBillRequest request)
     {
         var bill = await _context.Bills.FirstOrDefaultAsync(x => x.Id == id);
 
@@ -119,8 +119,8 @@ public class BillsController : ControllerBase
     }
     
     [HttpDelete]
-    [Route("{id:int}")]
-    public async Task<IResult> DeleteBillById(int id)
+    [Route("{id:guid}")]
+    public async Task<IResult> DeleteBillById(Guid id)
     { 
         var bill = await _context.Bills.FirstOrDefaultAsync(x => x.Id == id);
         
