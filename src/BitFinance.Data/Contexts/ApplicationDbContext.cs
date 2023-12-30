@@ -1,4 +1,5 @@
 using BitFinance.Business.Entities;
+using BitFinance.Data.Mappings;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,5 +12,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+        
+        new BillConfiguration().Configure(builder.Entity<Bill>());
     }
 }

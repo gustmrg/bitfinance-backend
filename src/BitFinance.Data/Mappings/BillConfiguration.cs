@@ -13,22 +13,26 @@ public class BillConfiguration : IEntityTypeConfiguration<Bill>
         builder.Property(b => b.Id);
         
         builder.Property(b => b.Name)
-            .HasColumnType("nvarchar(255)")
+            .HasColumnType("nvarchar")
+            .HasMaxLength(255)
             .IsRequired();
         
         builder.Property(b => b.Category)
             .IsRequired();
         
         builder.Property(b => b.CreatedDate)
-            .HasColumnType("datetime2(3)")
+            .HasColumnType("datetime2")
+            .HasPrecision(3)
             .IsRequired();
         
         builder.Property(b => b.DueDate)
-            .HasColumnType("datetime2(3)")
+            .HasColumnType("datetime2")
+            .HasPrecision(3)
             .IsRequired();
         
         builder.Property(b => b.PaidDate)
-            .HasColumnType("datetime2(3)")
+            .HasColumnType("datetime2")
+            .HasPrecision(3)
             .IsRequired(false);
         
         builder.Property(b => b.AmountDue)
@@ -43,7 +47,7 @@ public class BillConfiguration : IEntityTypeConfiguration<Bill>
             .IsRequired();
         
         builder.Property(b => b.IsDeleted)
-            .IsRequired(false);
+            .IsRequired();
 
         builder.ToTable("Bills");
     }
