@@ -45,8 +45,8 @@ export function Register() {
             .then((response) => {
                 console.log(response);
                 setIsLoading(false);
-            }).catch(error => {
-                console.log(error.message)
+            }).catch((error) => {
+                console.log(error.response)
                 setIsLoading(false);
             });
     }
