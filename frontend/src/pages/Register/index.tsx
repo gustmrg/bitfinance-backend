@@ -1,4 +1,4 @@
-import * as React from "react"
+import { useState } from "react"
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -26,7 +26,7 @@ const FormSchema = z.object({
 })
 
 export function Register() {
-    const [isLoading, setIsLoading] = React.useState<boolean>(false)
+    const [isLoading, setIsLoading] = useState<boolean>(false)
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
@@ -104,7 +104,7 @@ export function Register() {
                                                     <FormItem>
                                                         <FormLabel>Email</FormLabel>
                                                         <FormControl>
-                                                            <Input placeholder="email@bitfinance.com" type="email" {...field} />
+                                                            <Input placeholder="example@email.com" type="email" {...field} />
                                                         </FormControl>
                                                         <FormMessage />
                                                     </FormItem>
