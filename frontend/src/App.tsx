@@ -1,9 +1,7 @@
-import { Register } from "./pages/Register";
+import { Router } from "./Router";
 
 export function App() {
   return (
-    <>
-      <Register />
-    </>
+    <Router />
   )
 }
