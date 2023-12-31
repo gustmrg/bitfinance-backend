@@ -51,7 +51,7 @@ app.UseCors(options => options.AllowAnyOrigin().AllowAnyHeader());
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapGroup("/account").MapIdentityApi<ApplicationUser>();
+app.MapGroup("/account").MapIdentityApi<ApplicationUser>().WithTags("Account");
 
 SeedDatabase(app);
 
