@@ -1,6 +1,7 @@
 using BitFinance.API.Models;
 using BitFinance.Business.Entities;
 using BitFinance.Data.Contexts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,6 +9,7 @@ namespace BitFinance.API.Controllers;
 
 [ApiController]
 [Route("bills")]
+[Authorize]
 public class BillsController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
