@@ -25,4 +25,9 @@
       <ProjectReference Include="..\BitFinance.Data\BitFinance.Data.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Models\Request\" />
+      <Folder Include="Models\Response\" />
+    </ItemGroup>
+
 </Project>

@@ -18,6 +18,4 @@ public class GetBillResponse
     public DateTime CreatedDate { get; set; }
     public DateTime DueDate { get; set; }
     public DateTime? PaidDate { get; set; }
-    public bool IsPaid { get; set; }
-    public bool IsDeleted { get; set; }
 }

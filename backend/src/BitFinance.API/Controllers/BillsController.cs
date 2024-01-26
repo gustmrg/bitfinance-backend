@@ -23,8 +23,20 @@ public class BillsController : ControllerBase
     public async Task<IResult> Get()
     { 
         var bills = await _context.Bills.AsNoTracking().ToListAsync();
-
-        return Results.Ok(bills);
+        var response = bills.Select(bill => new GetBillResponse
+            {
+                Id = bill.Id,
+                Name = bill.Name,
+                Category = bill.Category,
+                CreatedDate = bill.CreatedDate,
+                DueDate = bill.DueDate,
+                PaidDate = bill.PaidDate,
+                AmountDue = bill.AmountDue,
+                AmountPaid = bill.AmountPaid
+            })
+            .ToList();
+        
+        return Results.Ok(response);
     }
     
     [HttpGet]
@@ -45,9 +57,7 @@ public class BillsController : ControllerBase
             DueDate = bill.DueDate,
             PaidDate = bill.PaidDate,
             AmountDue = bill.AmountDue,
-            AmountPaid = bill.AmountPaid,
-            IsPaid = bill.IsPaid,
-            IsDeleted = bill.IsDeleted
+            AmountPaid = bill.AmountPaid
         };
 
         return Results.Ok(response);

@@ -114,6 +114,9 @@ namespace BitFinance.Data.Migrations
                         .HasPrecision(3)
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("DueDate")
                         .HasPrecision(3)
                         .HasColumnType("datetime2");
@@ -132,6 +135,9 @@ namespace BitFinance.Data.Migrations
                     b.Property<DateTime?>("PaidDate")
                         .HasPrecision(3)
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
