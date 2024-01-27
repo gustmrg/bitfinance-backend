@@ -16,6 +16,7 @@
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.1" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0"/>
         <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="7.0.12" />
     </ItemGroup>
@@ -23,11 +24,6 @@
     <ItemGroup>
       <ProjectReference Include="..\BitFinance.Business\BitFinance.Business.csproj" />
       <ProjectReference Include="..\BitFinance.Data\BitFinance.Data.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Models\Request\" />
-      <Folder Include="Models\Response\" />
     </ItemGroup>
 
 </Project>

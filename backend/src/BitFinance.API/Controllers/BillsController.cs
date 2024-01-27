@@ -1,10 +1,12 @@
 using System.Globalization;
+using System.Text.Json;
 using BitFinance.API.Models;
 using BitFinance.Business.Entities;
 using BitFinance.Data.Contexts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace BitFinance.API.Controllers;
 
@@ -15,11 +17,13 @@ public class BillsController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly ILogger<BillsController> _logger;
+    private readonly IDistributedCache _distributedCache;
     
-    public BillsController(ApplicationDbContext context, ILogger<BillsController> logger)
+    public BillsController(ApplicationDbContext context, ILogger<BillsController> logger, IDistributedCache distributedCache)
     {
         _context = context;
         _logger = logger;
+        _distributedCache = distributedCache;
     }
 
     [HttpGet]
@@ -62,11 +66,26 @@ public class BillsController : ControllerBase
     {
         try
         {
-            var bill = await _context.Bills.FirstOrDefaultAsync(x => x.Id == id);
+            Bill? bill;
+
+            string key = GetCacheKey(id.ToString());
+
+            string? cachedMember = await _distributedCache.GetStringAsync(key);
+            
+            bill = await _context.Bills.FirstOrDefaultAsync(x => x.Id == id);
 
             if (bill is null)
             {
                 return NotFound("Could not find the requested Bill");
+            }
+
+            if (cachedMember is null)
+            {
+                var options = new DistributedCacheEntryOptions()
+                    .SetAbsoluteExpiration(DateTime.Now.AddMinutes(10))
+                    .SetSlidingExpiration(TimeSpan.FromMinutes(2));
+                
+                await _distributedCache.SetStringAsync(key, JsonSerializer.Serialize(bill), options);
             }
             
             var response = new GetBillResponse
@@ -206,5 +225,11 @@ public class BillsController : ControllerBase
                 DateTime.Now.ToString("s", CultureInfo.InvariantCulture), nameof(DeleteBillById), e.Message);
             return BadRequest();
         }
+    }
+
+    private string GetCacheKey(string entityId)
+    {
+        string cacheKey = "BitFinance.Business.Entities" + "_" + "1.0.0" + "_" + "Bill" + "_" + $"{entityId}";  
+        return cacheKey;
     }
 }
