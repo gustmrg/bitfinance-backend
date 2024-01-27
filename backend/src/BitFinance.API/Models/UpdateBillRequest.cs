@@ -10,6 +10,4 @@ public class UpdateBillRequest
     public DateTime? PaidDate { get; set; }
     public decimal AmountDue { get; set; }
     public decimal? AmountPaid { get; set; }
-    public bool IsPaid { get; set; }
-    public bool? IsDeleted { get; set; }
 }
