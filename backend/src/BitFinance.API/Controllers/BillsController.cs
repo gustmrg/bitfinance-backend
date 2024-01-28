@@ -1,12 +1,12 @@
 using System.Globalization;
 using System.Text.Json;
 using BitFinance.API.Models;
+using BitFinance.API.Services;
 using BitFinance.Business.Entities;
 using BitFinance.Data.Contexts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Distributed;
 
 namespace BitFinance.API.Controllers;
 
@@ -17,13 +17,13 @@ public class BillsController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly ILogger<BillsController> _logger;
-    private readonly IDistributedCache _distributedCache;
+    private readonly ICacheService _cache;
     
-    public BillsController(ApplicationDbContext context, ILogger<BillsController> logger, IDistributedCache distributedCache)
+    public BillsController(ApplicationDbContext context, ILogger<BillsController> logger, ICacheService cache)
     {
         _context = context;
         _logger = logger;
-        _distributedCache = distributedCache;
+        _cache = cache;
     }
 
     [HttpGet]
@@ -67,26 +67,25 @@ public class BillsController : ControllerBase
         try
         {
             Bill? bill;
-
-            string key = GetCacheKey(id.ToString());
-
-            string? cachedMember = await _distributedCache.GetStringAsync(key);
+            string key = _cache.GenerateKey<Bill>(id.ToString());
             
-            bill = await _context.Bills.FirstOrDefaultAsync(x => x.Id == id);
+            var billCache = await _cache.GetAsync(key);
 
+            if (!string.IsNullOrWhiteSpace(billCache))
+            {
+                bill = JsonSerializer.Deserialize<Bill>(billCache);
+            }
+            else
+            {
+                bill = await _context.Bills.FirstOrDefaultAsync(b => b.Id == id);    
+            }
+            
             if (bill is null)
             {
-                return NotFound("Could not find the requested Bill");
+                return NotFound();
             }
 
-            if (cachedMember is null)
-            {
-                var options = new DistributedCacheEntryOptions()
-                    .SetAbsoluteExpiration(DateTime.Now.AddMinutes(10))
-                    .SetSlidingExpiration(TimeSpan.FromMinutes(2));
-                
-                await _distributedCache.SetStringAsync(key, JsonSerializer.Serialize(bill), options);
-            }
+            await _cache.SetAsync(key, JsonSerializer.Serialize(bill));
             
             var response = new GetBillResponse
             {
@@ -102,10 +101,10 @@ public class BillsController : ControllerBase
 
             return Ok(response);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
             _logger.LogInformation("{Time} - Error on {MethodName} method request: {Message}", 
-                DateTime.Now.ToString("s", CultureInfo.InvariantCulture), nameof(GetBillById), e.Message);
+                DateTime.Now.ToString("s", CultureInfo.InvariantCulture), nameof(GetBillById), ex.Message);
             return BadRequest();
         }
     }
@@ -136,8 +135,11 @@ public class BillsController : ControllerBase
 
             _context.Bills.Add(bill);
             await _context.SaveChangesAsync();
+            
+            string key = _cache.GenerateKey<Bill>(bill.Id.ToString());
+            await _cache.SetAsync(key, JsonSerializer.Serialize(bill));
 
-            var response = new CreateBillResponse();
+            var response = new CreateBillResponse { Id = bill.Id };
             
             return CreatedAtAction(nameof(GetBillById), new { id = bill.Id }, response);
         }
@@ -158,10 +160,22 @@ public class BillsController : ControllerBase
     {
         try
         {
-            var bill = await _context.Bills.FirstOrDefaultAsync(x => x.Id == id);
+            Bill? bill;
+            string key = _cache.GenerateKey<Bill>(id.ToString());
+            
+            var billCache = await _cache.GetAsync(key);
+            
+            if (!string.IsNullOrWhiteSpace(billCache))
+            {
+                bill = JsonSerializer.Deserialize<Bill>(billCache);
+            }
+            else
+            {
+                bill = await _context.Bills.FirstOrDefaultAsync(b => b.Id == id);    
+            }
 
             if (bill is null)
-                return NotFound("Could not find the requested Bill");
+                return NotFound($"Could not find the requested Bill for id {id}");
 
             bill.Name = request.Name;
             bill.Category = request.Category;
@@ -173,6 +187,7 @@ public class BillsController : ControllerBase
 
             _context.Bills.Update(bill);
             await _context.SaveChangesAsync();
+            await _cache.SetAsync(key, JsonSerializer.Serialize(bill));
 
             var response = new UpdateBillResponse
             {
@@ -202,14 +217,25 @@ public class BillsController : ControllerBase
     {
         try
         {
-            var bill = await _context.Bills.FirstOrDefaultAsync(x => x.Id == id);
-        
-            if (bill is null)
-                return NotFound("Could not find the requested Bill");
+            var bill = await _context.Bills.FirstOrDefaultAsync(x => x.Id == id && x.DeletedDate == null);
 
+            if (bill is null)
+            {
+                return NotFound("Could not find the requested Bill");
+            }
+            
+            bill.DeletedDate = DateTime.UtcNow.AddHours(-3);
             bill.IsDeleted = true;
             _context.Bills.Update(bill);
             await _context.SaveChangesAsync();
+            
+            var key = _cache.GenerateKey<Bill>(id.ToString());
+            var billCache = await _cache.GetAsync(key);
+            
+            if (!string.IsNullOrWhiteSpace(billCache))
+            {
+                await _cache.RemoveAsync(key);
+            }
 
             var response = new DeleteBillResponse
             {
@@ -225,11 +251,5 @@ public class BillsController : ControllerBase
                 DateTime.Now.ToString("s", CultureInfo.InvariantCulture), nameof(DeleteBillById), e.Message);
             return BadRequest();
         }
-    }
-
-    private string GetCacheKey(string entityId)
-    {
-        string cacheKey = "BitFinance.Business.Entities" + "_" + "1.0.0" + "_" + "Bill" + "_" + $"{entityId}";  
-        return cacheKey;
     }
 }
