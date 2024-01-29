@@ -37,14 +37,31 @@ public class RedisCacheService : ICacheService
     {
         StringBuilder cacheKeyBuilder = new StringBuilder();
         var entityType = typeof(T);
-        string entityNamespacePrefix = entityType.Namespace + "_";
-        string assemblyVersionPrefix = entityType.Assembly.GetName().Version + "_";
-        string entityTypeNamePrefix = entityType.Name + "_";
-        cacheKeyBuilder.Append(entityNamespacePrefix);
-        cacheKeyBuilder.Append(assemblyVersionPrefix);
-        cacheKeyBuilder.Append(entityTypeNamePrefix);
-        cacheKeyBuilder.Append(entityId);
+        
+        if (entityType.IsGenericType && typeof(IEnumerable<>).IsAssignableFrom(entityType.GetGenericTypeDefinition()))
+        {
+            Type elementType = entityType.GetGenericArguments()[0];
+            string entityNamespacePrefix = elementType.Namespace + "_";
+            string assemblyVersionPrefix = elementType.Assembly.GetName().Version + "_";
+            string entityTypeNamePrefix = elementType.Name;
 
+            cacheKeyBuilder.Append(entityNamespacePrefix);
+            cacheKeyBuilder.Append(assemblyVersionPrefix);
+            cacheKeyBuilder.Append(entityTypeNamePrefix);
+            cacheKeyBuilder.Append(entityId);
+        }
+        else
+        {
+            string entityNamespacePrefix = entityType.Namespace + "_";
+            string assemblyVersionPrefix = entityType.Assembly.GetName().Version + "_";
+            string entityTypeNamePrefix = entityType.Name + "_";
+            
+            cacheKeyBuilder.Append(entityNamespacePrefix);
+            cacheKeyBuilder.Append(assemblyVersionPrefix);
+            cacheKeyBuilder.Append(entityTypeNamePrefix);
+            cacheKeyBuilder.Append(entityId);
+        }
+        
         return cacheKeyBuilder.ToString();
     }
 }

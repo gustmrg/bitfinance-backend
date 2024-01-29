@@ -33,8 +33,26 @@ public class BillsController : ControllerBase
     {
         try
         {
-            var bills = await _context.Bills.AsNoTracking().ToListAsync();
-            var response = bills.Select(bill => new GetBillResponse
+            IEnumerable<Bill>? bills;
+            var key = _cache.GenerateKey<IEnumerable<Bill>>(string.Empty);
+
+            var billsListCached = await _cache.GetAsync(key);
+
+            if (!string.IsNullOrWhiteSpace(billsListCached))
+            {
+                bills = JsonSerializer.Deserialize<List<Bill>>(billsListCached);
+            }
+            else
+            {
+                bills = await _context.Bills.AsNoTracking().ToListAsync();
+
+                if (bills.Any())
+                {
+                    await _cache.SetAsync(key, JsonSerializer.Serialize(bills));
+                }
+            }
+            
+            var response = bills?.Select(bill => new GetBillResponse
                 {
                     Id = bill.Id,
                     Name = bill.Name,
@@ -62,7 +80,7 @@ public class BillsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<GetBillResponse>> GetBillById(Guid id)
+    public async Task<ActionResult<GetBillResponse>> GetBillById([FromRoute] Guid id)
     {
         try
         {
@@ -167,12 +185,10 @@ public class BillsController : ControllerBase
             
             if (!string.IsNullOrWhiteSpace(billCache))
             {
-                bill = JsonSerializer.Deserialize<Bill>(billCache);
+                await _cache.RemoveAsync(key);
             }
-            else
-            {
-                bill = await _context.Bills.FirstOrDefaultAsync(b => b.Id == id);    
-            }
+            
+            bill = await _context.Bills.FirstOrDefaultAsync(b => b.Id == id);
 
             if (bill is null)
                 return NotFound($"Could not find the requested Bill for id {id}");
