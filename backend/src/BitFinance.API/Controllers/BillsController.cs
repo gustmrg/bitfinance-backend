@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text.Json;
+using BitFinance.API.Caching;
 using BitFinance.API.Models;
-using BitFinance.API.Services;
 using BitFinance.Business.Entities;
 using BitFinance.Data.Contexts;
 using Microsoft.AspNetCore.Authorization;
@@ -33,26 +33,17 @@ public class BillsController : ControllerBase
     {
         try
         {
-            IEnumerable<Bill>? bills;
-            var key = _cache.GenerateKey<IEnumerable<Bill>>(string.Empty);
+            string key = _cache.GenerateKey<Bill>(string.Empty);
+            IEnumerable<Bill>? bills = await _cache.GetAsync<List<Bill>>(key);
 
-            var billsListCached = await _cache.GetAsync(key);
-
-            if (!string.IsNullOrWhiteSpace(billsListCached))
-            {
-                bills = JsonSerializer.Deserialize<List<Bill>>(billsListCached);
-            }
-            else
+            if (bills is null)
             {
                 bills = await _context.Bills.AsNoTracking().ToListAsync();
-
-                if (bills.Any())
-                {
-                    await _cache.SetAsync(key, JsonSerializer.Serialize(bills));
-                }
             }
             
-            var response = bills?.Select(bill => new GetBillResponse
+            await _cache.SetAsync(key, bills);
+            
+            List<GetBillResponse> response = bills.Select(bill => new GetBillResponse
                 {
                     Id = bill.Id,
                     Name = bill.Name,
@@ -67,10 +58,10 @@ public class BillsController : ControllerBase
             
             return Ok(response);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
             _logger.LogInformation("{Time} - Error on {MethodName} method request: {Message}", 
-                DateTime.Now.ToString("s", CultureInfo.InvariantCulture), nameof(GetBillsAsync), e.Message);
+                DateTime.Now.ToString("s", CultureInfo.InvariantCulture), nameof(GetBillsAsync), ex.Message);
             return BadRequest();
         }
     }
@@ -80,30 +71,26 @@ public class BillsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<GetBillResponse>> GetBillById([FromRoute] Guid id)
+    public async Task<ActionResult<GetBillResponse>> GetBillById([FromRoute] Guid id, CancellationToken cancellationToken)
     {
         try
         {
             Bill? bill;
             string key = _cache.GenerateKey<Bill>(id.ToString());
             
-            var billCache = await _cache.GetAsync(key);
+            bill = await _cache.GetAsync<Bill>(key, cancellationToken);
 
-            if (!string.IsNullOrWhiteSpace(billCache))
-            {
-                bill = JsonSerializer.Deserialize<Bill>(billCache);
-            }
-            else
-            {
-                bill = await _context.Bills.FirstOrDefaultAsync(b => b.Id == id);    
-            }
-            
             if (bill is null)
             {
-                return NotFound();
+                bill = await _context.Bills.FirstOrDefaultAsync(b => b.Id == id, cancellationToken);   
+                
+                if (bill is null)
+                {
+                    return NotFound();
+                }
             }
-
-            await _cache.SetAsync(key, JsonSerializer.Serialize(bill));
+            
+            await _cache.SetAsync(key, bill, cancellationToken);
             
             var response = new GetBillResponse
             {
@@ -131,7 +118,8 @@ public class BillsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<CreateBillResponse>> CreateBillAsync([FromBody] CreateBillRequest request)
+    public async Task<ActionResult<CreateBillResponse>> CreateBillAsync([FromBody] CreateBillRequest request,
+        CancellationToken cancellationToken)
     {
         try
         {
@@ -152,19 +140,19 @@ public class BillsController : ControllerBase
             };
 
             _context.Bills.Add(bill);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
             
             string key = _cache.GenerateKey<Bill>(bill.Id.ToString());
-            await _cache.SetAsync(key, JsonSerializer.Serialize(bill));
+            await _cache.SetAsync(key, bill, cancellationToken);
 
             var response = new CreateBillResponse { Id = bill.Id };
             
             return CreatedAtAction(nameof(GetBillById), new { id = bill.Id }, response);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
             _logger.LogInformation("{Time} - Error on {MethodName} method request: {Message}", 
-                DateTime.Now.ToString("s", CultureInfo.InvariantCulture), nameof(CreateBillAsync), e.Message);
+                DateTime.Now.ToString("s", CultureInfo.InvariantCulture), nameof(CreateBillAsync), ex.Message);
             return BadRequest();
         }
     }
@@ -174,21 +162,14 @@ public class BillsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<UpdateBillResponse>> UpdateBillById(Guid id, [FromBody] UpdateBillRequest request)
+    public async Task<ActionResult<UpdateBillResponse>> UpdateBillById(Guid id, [FromBody] UpdateBillRequest request,
+        CancellationToken cancellationToken)
     {
         try
         {
             Bill? bill;
-            string key = _cache.GenerateKey<Bill>(id.ToString());
             
-            var billCache = await _cache.GetAsync(key);
-            
-            if (!string.IsNullOrWhiteSpace(billCache))
-            {
-                await _cache.RemoveAsync(key);
-            }
-            
-            bill = await _context.Bills.FirstOrDefaultAsync(b => b.Id == id);
+            bill = await _context.Bills.FirstOrDefaultAsync(b => b.Id == id, cancellationToken);
 
             if (bill is null)
                 return NotFound($"Could not find the requested Bill for id {id}");
@@ -202,8 +183,11 @@ public class BillsController : ControllerBase
             bill.IsPaid = request.AmountPaid is not null;
 
             _context.Bills.Update(bill);
-            await _context.SaveChangesAsync();
-            await _cache.SetAsync(key, JsonSerializer.Serialize(bill));
+            await _context.SaveChangesAsync(cancellationToken);
+            
+            string key = _cache.GenerateKey<Bill>(bill.Id.ToString());
+            await _cache.RemoveAsync(key, cancellationToken);
+            await _cache.SetAsync(key, bill, cancellationToken);
 
             var response = new UpdateBillResponse
             {
@@ -219,21 +203,22 @@ public class BillsController : ControllerBase
         
             return Ok(response);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
             _logger.LogInformation("{Time} - Error on {MethodName} method request: {Message}", 
-                DateTime.Now.ToString("s", CultureInfo.InvariantCulture), nameof(UpdateBillById), e.Message);
+                DateTime.Now.ToString("s", CultureInfo.InvariantCulture), nameof(UpdateBillById), 
+                ex.Message);
             return BadRequest();
         }
     }
     
     [HttpDelete]
     [Route("{id:guid}")]
-    public async Task<ActionResult<DeleteBillResponse>> DeleteBillById(Guid id)
+    public async Task<ActionResult<DeleteBillResponse>> DeleteBillById(Guid id, CancellationToken cancellationToken)
     {
         try
         {
-            var bill = await _context.Bills.FirstOrDefaultAsync(x => x.Id == id && x.DeletedDate == null);
+            var bill = await _context.Bills.FirstOrDefaultAsync(x => x.Id == id && x.DeletedDate == null, cancellationToken);
 
             if (bill is null)
             {
@@ -243,15 +228,10 @@ public class BillsController : ControllerBase
             bill.DeletedDate = DateTime.UtcNow.AddHours(-3);
             bill.IsDeleted = true;
             _context.Bills.Update(bill);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
             
-            var key = _cache.GenerateKey<Bill>(id.ToString());
-            var billCache = await _cache.GetAsync(key);
-            
-            if (!string.IsNullOrWhiteSpace(billCache))
-            {
-                await _cache.RemoveAsync(key);
-            }
+            string key = _cache.GenerateKey<Bill>(bill.Id.ToString());
+            await _cache.RemoveAsync(key, cancellationToken);
 
             var response = new DeleteBillResponse
             {
@@ -261,10 +241,11 @@ public class BillsController : ControllerBase
 
             return Ok(response);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
             _logger.LogInformation("{Time} - Error on {MethodName} method request: {Message}", 
-                DateTime.Now.ToString("s", CultureInfo.InvariantCulture), nameof(DeleteBillById), e.Message);
+                DateTime.Now.ToString("s", CultureInfo.InvariantCulture), nameof(DeleteBillById), 
+                ex.Message);
             return BadRequest();
         }
     }

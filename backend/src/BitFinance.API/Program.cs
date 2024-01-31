@@ -1,5 +1,5 @@
+using BitFinance.API.Caching;
 using BitFinance.API.Data;
-using BitFinance.API.Services;
 using BitFinance.Business.Entities;
 using BitFinance.Data.Contexts;
 using Microsoft.AspNetCore.Identity;
@@ -24,13 +24,13 @@ builder.Services.AddIdentityCore<ApplicationUser>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddApiEndpoints();
 
-builder.Services.AddScoped<ICacheService, RedisCacheService>();
+builder.Services.AddSingleton<ICacheService, RedisCacheService>();
 builder.Services.AddSingleton<DistributedCacheEntryOptions>();
 
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = builder.Configuration.GetConnectionString("Redis");
-    options.InstanceName = "BitFinance_";
+    options.InstanceName = "BitFinance";
 });
 
 builder.Services.AddControllers();
