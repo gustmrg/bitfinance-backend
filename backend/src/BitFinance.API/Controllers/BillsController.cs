@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Text.Json;
 using BitFinance.API.Caching;
 using BitFinance.API.Models;
 using BitFinance.Business.Entities;
@@ -7,6 +6,7 @@ using BitFinance.Data.Contexts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace BitFinance.API.Controllers;
 
@@ -77,21 +77,21 @@ public class BillsController : ControllerBase
         {
             Bill? bill;
             string key = _cache.GenerateKey<Bill>(id.ToString());
-            
+
             bill = await _cache.GetAsync<Bill>(key, cancellationToken);
 
             if (bill is null)
             {
-                bill = await _context.Bills.FirstOrDefaultAsync(b => b.Id == id, cancellationToken);   
-                
+                bill = await _context.Bills.FirstOrDefaultAsync(b => b.Id == id, cancellationToken);
+
                 if (bill is null)
                 {
                     return NotFound();
                 }
             }
-            
+
             await _cache.SetAsync(key, bill, cancellationToken);
-            
+
             var response = new GetBillResponse
             {
                 Id = bill.Id,
@@ -108,9 +108,13 @@ public class BillsController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogInformation("{Time} - Error on {MethodName} method request: {Message}", 
+            _logger.LogInformation("{Time} - Error on {MethodName} method request: {Message}",
                 DateTime.Now.ToString("s", CultureInfo.InvariantCulture), nameof(GetBillById), ex.Message);
             return BadRequest();
+        }
+        finally
+        {
+            Log.Warning("GetBillById executed");
         }
     }
 
