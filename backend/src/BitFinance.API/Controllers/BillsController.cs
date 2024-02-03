@@ -129,7 +129,8 @@ public class BillsController : ControllerBase
                 DueDate = request.DueDate.ToUniversalTime(),
                 PaidDate = request.PaidDate?.ToUniversalTime(),
                 AmountDue = request.AmountDue,
-                AmountPaid = request.AmountPaid
+                AmountPaid = request.AmountPaid,
+                IsPaid = request.AmountPaid is not null
             };
 
             await _repository.CreateAsync(bill);
