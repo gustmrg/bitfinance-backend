@@ -7,5 +7,6 @@ public interface IRepository<T, TId>
     IEnumerable<T> GetAll();
     Task<T?> GetByIdAsync(TId id);
     Task<T> CreateAsync(T obj);
+    Task UpdateAsync(T obj);
     Task DeleteAsync(T obj);
 }

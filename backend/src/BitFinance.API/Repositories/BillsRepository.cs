@@ -64,9 +64,29 @@ public class BillsRepository : IRepository<Bill, Guid>
         return bill;
     }
 
-    public async Task DeleteAsync(Bill obj)
+    public async Task UpdateAsync(Bill bill)
     {
-        throw new NotImplementedException();
+        _dbContext.Set<Bill>().Update(bill);
+        await _dbContext.SaveChangesAsync();
+        
+        if (IsCacheEnabled())
+        {
+            string key = _cache.GenerateKey<Bill>(bill.Id.ToString());
+            await _cache.SetAsync(key, bill);
+        }
+    }
+
+    public async Task DeleteAsync(Bill bill)
+    {
+        bill.DeletedDate = DateTime.UtcNow;
+        _dbContext.Set<Bill>().Update(bill);
+        await _dbContext.SaveChangesAsync();
+        
+        if (IsCacheEnabled())
+        {
+            string key = _cache.GenerateKey<Bill>(bill.Id.ToString());
+            await _cache.SetAsync(key, bill);
+        }
     }
 
     private bool IsCacheEnabled()

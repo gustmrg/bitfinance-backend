@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using BitFinance.Business.Enums;
 
 namespace BitFinance.API.Models.Response;
@@ -5,12 +6,20 @@ namespace BitFinance.API.Models.Response;
 public class UpdateBillResponse
 {
     public Guid Id { get; set; }
+    
     public string Name { get; set; } = null!;
+    
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public BillCategory Category { get; set; }
-    public DateTime DueDate { get; set; }
-    public DateTime? PaidDate { get; set; }
+    
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public BillStatus Status { get; set; }
+    
     public decimal AmountDue { get; set; }
+    
     public decimal? AmountPaid { get; set; }
-    public bool IsPaid { get; set; }
-    public bool? IsDeleted { get; set; }
+    
+    public DateTime DueDate { get; set; }
+    
+    public DateTime? PaidDate { get; set; }
 }

@@ -6,6 +6,7 @@ namespace BitFinance.API.Models.Response;
 public class GetBillResponse
 {
     public Guid Id { get; set; }
+    
     public string Name { get; set; } = null!;
     
     [JsonConverter(typeof(JsonStringEnumConverter))]
@@ -13,9 +14,14 @@ public class GetBillResponse
     
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public BillStatus Status { get; set; }
+    
     public decimal AmountDue { get; set; }
+    
     public decimal? AmountPaid { get; set; }
+    
     public DateTime CreatedDate { get; set; }
+    
     public DateTime DueDate { get; set; }
+    
     public DateTime? PaidDate { get; set; }
 }

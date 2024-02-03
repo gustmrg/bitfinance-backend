@@ -40,21 +40,17 @@ public class BillsController : ControllerBase
     {
         try
         {
-            string key = _cache.GenerateKey<Bill>(string.Empty);
-            IEnumerable<Bill>? bills = await _cache.GetAsync<List<Bill>>(key);
-
-            if (bills is null)
-            {
-                bills = await _context.Bills.AsNoTracking().ToListAsync();
-            }
-            
-            await _cache.SetAsync(key, bills);
+            IEnumerable<Bill>? bills = await _context.Bills
+                .AsNoTracking()
+                .Where(x => x.DeletedDate == null)
+                .ToListAsync();
             
             List<GetBillResponse> response = bills.Select(bill => new GetBillResponse
                 {
                     Id = bill.Id,
                     Name = bill.Name,
                     Category = bill.Category,
+                    Status = bill.Status,
                     CreatedDate = bill.CreatedDate,
                     DueDate = bill.DueDate,
                     PaidDate = bill.PaidDate,
@@ -80,7 +76,7 @@ public class BillsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<GetBillResponse>> GetBillById([FromRoute] Guid id, CancellationToken cancellationToken)
+    public async Task<ActionResult<GetBillResponse>> GetBillById([FromRoute] Guid id)
     {
         try
         {
@@ -96,6 +92,7 @@ public class BillsController : ControllerBase
                 Id = bill.Id,
                 Name = bill.Name,
                 Category = bill.Category,
+                Status = bill.Status,
                 CreatedDate = bill.CreatedDate,
                 DueDate = bill.DueDate,
                 PaidDate = bill.PaidDate,
@@ -131,6 +128,7 @@ public class BillsController : ControllerBase
                 Name = request.Name,
                 Category = request.Category,
                 Status = request.Status,
+                CreatedDate = DateTime.UtcNow,
                 DueDate = request.DueDate.ToUniversalTime(),
                 PaidDate = request.PaidDate?.ToUniversalTime(),
                 AmountDue = request.AmountDue,
@@ -139,7 +137,18 @@ public class BillsController : ControllerBase
 
             await _repository.CreateAsync(bill);
             
-            var response = new CreateBillResponse { Id = bill.Id };
+            var response = new CreateBillResponse
+            {
+                Id = bill.Id,
+                Name = bill.Name,
+                Category = bill.Category,
+                Status = bill.Status,
+                CreatedDate = bill.CreatedDate,
+                DueDate = bill.DueDate,
+                PaidDate = bill.PaidDate,
+                AmountDue = bill.AmountDue,
+                AmountPaid = bill.AmountPaid
+            };
             
             return CreatedAtAction(nameof(GetBillById), new { id = bill.Id }, response);
         }
@@ -158,43 +167,40 @@ public class BillsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<UpdateBillResponse>> UpdateBillById(Guid id, [FromBody] UpdateBillRequest request,
-        CancellationToken cancellationToken)
+    public async Task<ActionResult<UpdateBillResponse>> UpdateBill(Guid id, [FromBody] UpdateBillRequest request)
     {
         try
         {
             Bill? bill;
             
-            bill = await _context.Bills.FirstOrDefaultAsync(b => b.Id == id, cancellationToken);
+            bill = await _context.Bills.FirstOrDefaultAsync(b => b.Id == id && b.DeletedDate == null);
 
             if (bill is null)
-                return NotFound($"Could not find the requested Bill for id {id}");
-
+            {
+                return NotFound();
+            }
+            
             bill.Name = request.Name;
             bill.Category = request.Category;
+            bill.Status = request.Status;
             bill.DueDate = request.DueDate.ToUniversalTime();
             bill.PaidDate = request.PaidDate?.ToUniversalTime();
             bill.AmountDue = request.AmountDue;
             bill.AmountPaid = request.AmountPaid;
             bill.IsPaid = request.AmountPaid is not null;
 
-            _context.Bills.Update(bill);
-            await _context.SaveChangesAsync(cancellationToken);
-            
-            string key = _cache.GenerateKey<Bill>(bill.Id.ToString());
-            await _cache.RemoveAsync(key, cancellationToken);
-            await _cache.SetAsync(key, bill, cancellationToken);
+            await _repository.UpdateAsync(bill);
 
             var response = new UpdateBillResponse
             {
                 Id = bill.Id,
                 Name = bill.Name,
                 Category = bill.Category,
+                Status = bill.Status,
                 DueDate = bill.DueDate,
                 PaidDate = bill.PaidDate,
                 AmountDue = bill.AmountDue,
-                AmountPaid = bill.AmountPaid,
-                IsPaid = bill.IsPaid
+                AmountPaid = bill.AmountPaid
             };
         
             return Ok(response);
@@ -203,7 +209,7 @@ public class BillsController : ControllerBase
         {
             Log.Error("{Timestamp} - Error on {MethodName} method request: {Message}",
                 DateTime.Now.ToString("s", CultureInfo.InvariantCulture), 
-                nameof(UpdateBillById), 
+                nameof(UpdateBill), 
                 ex.Message);
             return BadRequest();
         }
@@ -211,38 +217,31 @@ public class BillsController : ControllerBase
     
     [HttpDelete]
     [Route("{id:guid}")]
-    public async Task<ActionResult<DeleteBillResponse>> DeleteBillById(Guid id, CancellationToken cancellationToken)
+    public async Task<ActionResult> DeleteBillById(Guid id)
     {
         try
         {
-            var bill = await _context.Bills.FirstOrDefaultAsync(x => x.Id == id && x.DeletedDate == null, cancellationToken);
+            Bill? bill = await _repository.GetByIdAsync(id);
 
             if (bill is null)
             {
-                return NotFound("Could not find the requested Bill");
+                return NotFound();
             }
-            
-            bill.DeletedDate = DateTime.UtcNow.AddHours(-3);
-            bill.IsDeleted = true;
-            _context.Bills.Update(bill);
-            await _context.SaveChangesAsync(cancellationToken);
-            
-            string key = _cache.GenerateKey<Bill>(bill.Id.ToString());
-            await _cache.RemoveAsync(key, cancellationToken);
 
-            var response = new DeleteBillResponse
+            if (bill.DeletedDate is not null)
             {
-                Id = bill.Id,
-                IsDeleted = bill.IsDeleted
-            };
+                return BadRequest();
+            }
 
-            return Ok(response);
+            await _repository.DeleteAsync(bill);
+
+            return NoContent();
         }
         catch (Exception ex)
         {
             Log.Error("{Timestamp} - Error on {MethodName} method request: {Message}",
                 DateTime.Now.ToString("s", CultureInfo.InvariantCulture), 
-                nameof(UpdateBillById), 
+                nameof(DeleteBillById), 
                 ex.Message);
             return BadRequest();
         }
