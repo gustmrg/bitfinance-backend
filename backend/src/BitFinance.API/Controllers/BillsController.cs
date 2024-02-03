@@ -1,6 +1,7 @@
 using System.Globalization;
 using BitFinance.API.Caching;
 using BitFinance.API.Models;
+using BitFinance.API.Repositories;
 using BitFinance.Business.Entities;
 using BitFinance.Data.Contexts;
 using Microsoft.AspNetCore.Authorization;
@@ -18,12 +19,14 @@ public class BillsController : ControllerBase
     private readonly ApplicationDbContext _context;
     private readonly ILogger<BillsController> _logger;
     private readonly ICacheService _cache;
+    private readonly IRepository<Bill> _repository;
     
-    public BillsController(ApplicationDbContext context, ILogger<BillsController> logger, ICacheService cache)
+    public BillsController(ApplicationDbContext context, ILogger<BillsController> logger, ICacheService cache, IRepository<Bill> repository)
     {
         _context = context;
         _logger = logger;
         _cache = cache;
+        _repository = repository;
     }
 
     [HttpGet]
@@ -60,8 +63,10 @@ public class BillsController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogInformation("{Time} - Error on {MethodName} method request: {Message}", 
-                DateTime.Now.ToString("s", CultureInfo.InvariantCulture), nameof(GetBillsAsync), ex.Message);
+            _logger.LogError("{Timestamp} - Error on {MethodName} method request: {Message}", 
+                DateTime.Now.ToString("s", CultureInfo.InvariantCulture), 
+                nameof(GetBillsAsync), 
+                ex.Message);
             return BadRequest();
         }
     }
@@ -75,22 +80,12 @@ public class BillsController : ControllerBase
     {
         try
         {
-            Bill? bill;
-            string key = _cache.GenerateKey<Bill>(id.ToString());
-
-            bill = await _cache.GetAsync<Bill>(key, cancellationToken);
+            Bill? bill = await _repository.GetById(id, cancellationToken);
 
             if (bill is null)
             {
-                bill = await _context.Bills.FirstOrDefaultAsync(b => b.Id == id, cancellationToken);
-
-                if (bill is null)
-                {
-                    return NotFound();
-                }
+                return NotFound();
             }
-
-            await _cache.SetAsync(key, bill, cancellationToken);
 
             var response = new GetBillResponse
             {
@@ -108,13 +103,11 @@ public class BillsController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogInformation("{Time} - Error on {MethodName} method request: {Message}",
-                DateTime.Now.ToString("s", CultureInfo.InvariantCulture), nameof(GetBillById), ex.Message);
+            Log.Error("{Timestamp} - Error on {MethodName} method request: {Message}",
+                DateTime.Now.ToString("s", CultureInfo.InvariantCulture), 
+                nameof(GetBillById), 
+                ex.Message);
             return BadRequest();
-        }
-        finally
-        {
-            Log.Warning("GetBillById executed");
         }
     }
 
@@ -155,8 +148,10 @@ public class BillsController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogInformation("{Time} - Error on {MethodName} method request: {Message}", 
-                DateTime.Now.ToString("s", CultureInfo.InvariantCulture), nameof(CreateBillAsync), ex.Message);
+            Log.Error("{Timestamp} - Error on {MethodName} method request: {Message}",
+                DateTime.Now.ToString("s", CultureInfo.InvariantCulture), 
+                nameof(CreateBillAsync), 
+                ex.Message);
             return BadRequest();
         }
     }
@@ -209,8 +204,9 @@ public class BillsController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogInformation("{Time} - Error on {MethodName} method request: {Message}", 
-                DateTime.Now.ToString("s", CultureInfo.InvariantCulture), nameof(UpdateBillById), 
+            Log.Error("{Timestamp} - Error on {MethodName} method request: {Message}",
+                DateTime.Now.ToString("s", CultureInfo.InvariantCulture), 
+                nameof(UpdateBillById), 
                 ex.Message);
             return BadRequest();
         }
@@ -247,8 +243,9 @@ public class BillsController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogInformation("{Time} - Error on {MethodName} method request: {Message}", 
-                DateTime.Now.ToString("s", CultureInfo.InvariantCulture), nameof(DeleteBillById), 
+            Log.Error("{Timestamp} - Error on {MethodName} method request: {Message}",
+                DateTime.Now.ToString("s", CultureInfo.InvariantCulture), 
+                nameof(UpdateBillById), 
                 ex.Message);
             return BadRequest();
         }

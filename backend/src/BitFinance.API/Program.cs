@@ -1,12 +1,15 @@
 using BitFinance.API.Caching;
 using BitFinance.API.Data;
+using BitFinance.API.Repositories;
 using BitFinance.Business.Entities;
 using BitFinance.Data.Contexts;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using Serilog.Events;
 using Serilog.Sinks.MSSqlServer;
 using Swashbuckle.AspNetCore.Filters;
 
@@ -26,6 +29,7 @@ builder.Services.AddIdentityCore<ApplicationUser>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddApiEndpoints();
 
+builder.Services.AddScoped<IRepository<Bill>, BillsRepository>();
 builder.Services.AddSingleton<ICacheService, RedisCacheService>();
 builder.Services.AddSingleton<DistributedCacheEntryOptions>();
 
@@ -50,10 +54,16 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Information()
+    .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Information)
     .WriteTo.Console()
     .WriteTo.MSSqlServer(connectionString, sinkOptions: new MSSqlServerSinkOptions { TableName = "Logs" })
     .CreateLogger();
+
+builder.Host.UseSerilog(Log.Logger);
+builder.Services.AddHttpLogging(options =>
+{
+    options.LoggingFields = HttpLoggingFields.Request | HttpLoggingFields.Response;
+});
 
 var app = builder.Build();
 
@@ -63,6 +73,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseHttpLogging();
 app.UseHttpsRedirection();
 
 app.UseCors(options => options.AllowAnyOrigin().AllowAnyHeader());
