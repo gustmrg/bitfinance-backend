@@ -18,9 +18,13 @@ public class BillsRepository : IRepository<Bill, Guid>
         _cache = cache;
     }
 
-    public IEnumerable<Bill> GetAll()
+    public async Task<List<Bill>> GetAll()
     {
-        throw new NotImplementedException();
+        List<Bill> list = await _dbContext.Set<Bill>().AsNoTracking()
+            .Where(b => b.DeletedDate == null)
+            .ToListAsync();
+
+        return list;
     }
 
     public async Task<Bill?> GetByIdAsync(Guid id)

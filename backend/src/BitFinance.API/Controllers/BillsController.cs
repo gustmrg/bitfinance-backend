@@ -40,10 +40,7 @@ public class BillsController : ControllerBase
     {
         try
         {
-            IEnumerable<Bill>? bills = await _context.Bills
-                .AsNoTracking()
-                .Where(x => x.DeletedDate == null)
-                .ToListAsync();
+            List<Bill> bills = await _repository.GetAll();
             
             List<GetBillResponse> response = bills.Select(bill => new GetBillResponse
                 {

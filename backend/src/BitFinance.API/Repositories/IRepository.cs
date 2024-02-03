@@ -4,7 +4,7 @@ public interface IRepository<T, TId>
     where TId : IEquatable<TId> 
     where T : class
 {
-    IEnumerable<T> GetAll();
+    Task<List<T>> GetAll();
     Task<T?> GetByIdAsync(TId id);
     Task<T> CreateAsync(T obj);
     Task UpdateAsync(T obj);

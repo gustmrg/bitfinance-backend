@@ -52,6 +52,8 @@ public class RedisCacheService : ICacheService
         }
 
         T? value = JsonSerializer.Deserialize<T>(cachedValue);
+        
+        await SetAsync(key, cachedValue, cancellationToken);
 
         return value;
     }
@@ -80,7 +82,7 @@ public class RedisCacheService : ICacheService
 
         await _cache.SetStringAsync(key, cacheValue, _options, cancellationToken);
 
-        CacheKeys.TryAdd(key, false);
+        CacheKeys.TryAdd(key, true);
     }
 
     public async Task SetAsync<T>(string key, T value, TimeSpan expirationTime, CancellationToken cancellationToken = default)
@@ -91,7 +93,7 @@ public class RedisCacheService : ICacheService
 
         await _cache.SetStringAsync(key, cacheValue,  _options, cancellationToken);
 
-        CacheKeys.TryAdd(key, false);
+        CacheKeys.TryAdd(key, true);
     }
 
     public async Task RemoveAsync(string key, CancellationToken cancellationToken = default)
