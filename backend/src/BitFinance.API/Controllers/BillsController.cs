@@ -1,9 +1,9 @@
 using System.Globalization;
-using BitFinance.API.Caching;
 using BitFinance.API.Models.Request;
 using BitFinance.API.Models.Response;
 using BitFinance.API.Repositories;
 using BitFinance.Business.Entities;
+using BitFinance.Data.Caching;
 using BitFinance.Data.Contexts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

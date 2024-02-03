@@ -3,7 +3,7 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Caching.Distributed;
 
-namespace BitFinance.API.Caching;
+namespace BitFinance.Data.Caching;
 
 public class RedisCacheService : ICacheService
 {

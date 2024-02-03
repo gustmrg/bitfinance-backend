@@ -1,9 +1,11 @@
-using BitFinance.API.Caching;
+using BitFinance.API.Repositories;
 using BitFinance.Business.Entities;
+using BitFinance.Data.Caching;
 using BitFinance.Data.Contexts;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
-namespace BitFinance.API.Repositories;
+namespace BitFinance.Data.Repositories;
 
 public class BillsRepository : IRepository<Bill, Guid>
 {
@@ -95,6 +97,6 @@ public class BillsRepository : IRepository<Bill, Guid>
 
     private bool IsCacheEnabled()
     {
-        return _configuration.GetValue<bool>("AppSettings:IsCacheEnabled", defaultValue: false);
+        return Convert.ToBoolean(_configuration.GetSection("AppSettings:IsCacheEnabled").Value);
     }
 }

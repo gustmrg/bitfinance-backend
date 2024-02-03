@@ -1,8 +1,9 @@
-using BitFinance.API.Caching;
 using BitFinance.API.Data;
 using BitFinance.API.Repositories;
 using BitFinance.Business.Entities;
+using BitFinance.Data.Caching;
 using BitFinance.Data.Contexts;
+using BitFinance.Data.Repositories;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

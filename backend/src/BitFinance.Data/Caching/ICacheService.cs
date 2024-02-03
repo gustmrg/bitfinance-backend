@@ -1,4 +1,4 @@
-namespace BitFinance.API.Caching;
+namespace BitFinance.Data.Caching;
 
 public interface ICacheService
 {
