@@ -1,6 +1,7 @@
 using System.Globalization;
 using BitFinance.API.Caching;
-using BitFinance.API.Models;
+using BitFinance.API.Models.Request;
+using BitFinance.API.Models.Response;
 using BitFinance.API.Repositories;
 using BitFinance.Business.Entities;
 using BitFinance.Data.Contexts;
@@ -19,9 +20,12 @@ public class BillsController : ControllerBase
     private readonly ApplicationDbContext _context;
     private readonly ILogger<BillsController> _logger;
     private readonly ICacheService _cache;
-    private readonly IRepository<Bill> _repository;
+    private readonly IRepository<Bill, Guid> _repository;
     
-    public BillsController(ApplicationDbContext context, ILogger<BillsController> logger, ICacheService cache, IRepository<Bill> repository)
+    public BillsController(ApplicationDbContext context, 
+        ILogger<BillsController> logger, 
+        ICacheService cache, 
+        IRepository<Bill, Guid> repository)
     {
         _context = context;
         _logger = logger;
@@ -80,7 +84,7 @@ public class BillsController : ControllerBase
     {
         try
         {
-            Bill? bill = await _repository.GetById(id, cancellationToken);
+            Bill? bill = await _repository.GetByIdAsync(id);
 
             if (bill is null)
             {
@@ -115,33 +119,26 @@ public class BillsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<CreateBillResponse>> CreateBillAsync([FromBody] CreateBillRequest request,
-        CancellationToken cancellationToken)
+    public async Task<ActionResult<CreateBillResponse>> CreateBillAsync([FromBody] CreateBillRequest request)
     {
         try
         {
             if (!ModelState.IsValid)
                 return UnprocessableEntity();
 
-            var bill = new Bill
+            Bill bill = new()
             {
                 Name = request.Name,
                 Category = request.Category,
-                CreatedDate = DateTime.UtcNow.AddHours(-3),
+                Status = request.Status,
                 DueDate = request.DueDate.ToUniversalTime(),
                 PaidDate = request.PaidDate?.ToUniversalTime(),
                 AmountDue = request.AmountDue,
-                AmountPaid = request.AmountPaid,
-                IsPaid = request.AmountPaid is not null,
-                IsDeleted = false
+                AmountPaid = request.AmountPaid
             };
 
-            _context.Bills.Add(bill);
-            await _context.SaveChangesAsync(cancellationToken);
+            await _repository.CreateAsync(bill);
             
-            string key = _cache.GenerateKey<Bill>(bill.Id.ToString());
-            await _cache.SetAsync(key, bill, cancellationToken);
-
             var response = new CreateBillResponse { Id = bill.Id };
             
             return CreatedAtAction(nameof(GetBillById), new { id = bill.Id }, response);

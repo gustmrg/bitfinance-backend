@@ -34,21 +34,24 @@ public static class SeedData
         {
             Name = "Internet Bill",
             Category = BillCategory.Utilities,
+            Status = BillStatus.Overdue,
             CreatedDate = DateTime.UtcNow.AddHours(-3),
             DueDate = DateTime.UtcNow.AddHours(-3),
+            PaidDate = null,
             AmountDue = 120M,
-            IsPaid = false
+            AmountPaid = null
         };
         
         Bill bill2 = new()
         {
-            Name = "Water Charge",
+            Name = "Electricity Bill",
             Category = BillCategory.Utilities,
+            Status = BillStatus.Paid,
             CreatedDate = DateTime.UtcNow.AddHours(-3),
             DueDate = DateTime.UtcNow.AddHours(-3),
             PaidDate = DateTime.Now.ToUniversalTime().AddHours(-3),
-            AmountDue = 80M,
-            AmountPaid = 80M,
+            AmountDue = 800M,
+            AmountPaid = 800M,
             IsPaid = true
         };
         
@@ -56,11 +59,12 @@ public static class SeedData
         {
             Name = "Health Insurance",
             Category = BillCategory.Healthcare,
+            Status = BillStatus.Paid,
             CreatedDate = DateTime.UtcNow.AddHours(-3),
             DueDate = DateTime.UtcNow.AddHours(-3),
-            PaidDate = new DateTime(2023, 11, 18).ToUniversalTime().AddHours(-3),
-            AmountDue = 350M,
-            AmountPaid = 350M,
+            PaidDate = DateTime.UtcNow.AddHours(-3).AddDays(-2),
+            AmountDue = 500M,
+            AmountPaid = 500M,
             IsPaid = true
         };
         
@@ -68,8 +72,9 @@ public static class SeedData
         {
             Name = "Car Insurance",
             Category = BillCategory.Insurance,
+            Status = BillStatus.Due,
             CreatedDate = DateTime.UtcNow.AddHours(-3),
-            DueDate = new DateTime(2023, 12, 10).ToUniversalTime().AddHours(-3),
+            DueDate = DateTime.UtcNow.AddHours(-3).AddDays(10),
             AmountDue = 1000M,
             IsPaid = false
         };
@@ -78,25 +83,38 @@ public static class SeedData
         {
             Name = "Streaming Subscription",
             Category = BillCategory.Entertainment,
+            Status = BillStatus.Due,
             CreatedDate = DateTime.UtcNow.AddHours(-3),
-            DueDate = new DateTime(2023, 12, 01).ToUniversalTime().AddHours(-3),
+            DueDate = DateTime.UtcNow.AddHours(-3).AddDays(15),
             AmountDue = 49.90M,
             IsPaid = false,
-            IsDeleted = true
         };
 
         Bill bill6 = new() 
         {
-            Name = "Mortgage",
+            Name = "Rent Payment",
             Category = BillCategory.Housing,
+            Status = BillStatus.Paid,
             CreatedDate = DateTime.UtcNow.AddHours(-3),
-            DueDate = new DateTime(2023, 12, 05).ToUniversalTime().AddHours(-3),
+            DueDate = DateTime.UtcNow.AddHours(-3).AddDays(-2),
+            PaidDate = DateTime.UtcNow.AddHours(-3),
             AmountDue = 2000M,
-            IsPaid = true,
-            IsDeleted = false
+            AmountPaid = 2000M,
+            IsPaid = true
+        };
+
+        Bill bill7 = new()
+        {
+            Name = "Online Course Subscription",
+            Category = BillCategory.Education,
+            Status = BillStatus.Cancelled,
+            CreatedDate = DateTime.UtcNow.AddHours(-3),
+            DueDate = DateTime.UtcNow.AddHours(-3).AddDays(20),
+            AmountDue = 250M,
+            IsPaid = false
         };
         
-        dbContext.AddRange(bill1, bill2, bill3, bill4, bill5, bill6);
+        dbContext.AddRange(bill1, bill2, bill3, bill4, bill5, bill6, bill7);
 
         dbContext.SaveChanges();
     }

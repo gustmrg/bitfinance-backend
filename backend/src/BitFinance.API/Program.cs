@@ -29,7 +29,7 @@ builder.Services.AddIdentityCore<ApplicationUser>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddApiEndpoints();
 
-builder.Services.AddScoped<IRepository<Bill>, BillsRepository>();
+builder.Services.AddScoped<IRepository<Bill, Guid>, BillsRepository>();
 builder.Services.AddSingleton<ICacheService, RedisCacheService>();
 builder.Services.AddSingleton<DistributedCacheEntryOptions>();
 
@@ -99,10 +99,10 @@ static void SeedDatabase(WebApplication app)
         context.Database.EnsureCreated();
         SeedData.Initialize(services);
     }
-    catch (Exception)
+    catch (Exception ex)
     {
-        // var logger = services.GetRequiredService<ILogger<Program>>();
-        // logger.LogError(ex, "An error occurred seeding the DB. {exceptionMessage}", ex.Message);
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred seeding the DB: {exceptionMessage}", ex.Message);
         Console.WriteLine("An error has occurred and could not seed database");
     }
 }

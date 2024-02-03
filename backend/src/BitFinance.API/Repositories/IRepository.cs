@@ -1,9 +1,11 @@
 namespace BitFinance.API.Repositories;
 
-public interface IRepository<T> 
+public interface IRepository<T, TId> 
+    where TId : IEquatable<TId> 
     where T : class
 {
     IEnumerable<T> GetAll();
-    Task<T?> GetById(Guid id, CancellationToken cancellationToken);
-    T Add();
+    Task<T?> GetByIdAsync(TId id);
+    Task<T> CreateAsync(T obj);
+    Task DeleteAsync(T obj);
 }

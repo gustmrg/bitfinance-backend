@@ -1,6 +1,6 @@
 using BitFinance.Business.Enums;
 
-namespace BitFinance.API.Models;
+namespace BitFinance.API.Models.Request;
 
 public class UpdateBillRequest
 {
