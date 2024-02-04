@@ -97,6 +97,6 @@ public class BillsRepository : IRepository<Bill, Guid>
 
     private bool IsCacheEnabled()
     {
-        return Convert.ToBoolean(_configuration.GetSection("AppSettings:IsCacheEnabled").Value);
+        return Convert.ToBoolean(_configuration.GetSection("AppSettings:CacheEnabled").Value);
     }
 }

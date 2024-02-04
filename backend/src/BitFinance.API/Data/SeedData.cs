@@ -7,7 +7,35 @@ namespace BitFinance.API.Data;
 
 public static class SeedData
 {
-    public static void Initialize(IServiceProvider serviceProvider)
+    public static void SeedDatabase(WebApplication app)
+    {
+        var isDatabaseSeedEnabled = app.Configuration.GetValue<bool>("AppSettings:DatabaseSeedEnabled");
+
+        if (!isDatabaseSeedEnabled)
+        {
+            Console.WriteLine("Database seeding is disabled. Skipping...");
+            return; 
+        }
+    
+        using var scope = app.Services.CreateScope();
+        var services = scope.ServiceProvider;
+    
+        try
+        {
+            var context = services.GetRequiredService<ApplicationDbContext>();
+            context.Database.Migrate();
+            context.Database.EnsureCreated();
+            Initialize(services);
+        }
+        catch (Exception ex)
+        {
+            var logger = services.GetRequiredService<ILogger<Program>>();
+            logger.LogError(ex, "An error occurred seeding the DB: {ExceptionMessage}", ex.Message);
+            Console.WriteLine("An error has occurred and could not seed database");
+        }
+    }
+    
+    private static void Initialize(IServiceProvider serviceProvider)
     {
         using (var dbContext = new ApplicationDbContext(
                    serviceProvider.GetRequiredService<DbContextOptions<ApplicationDbContext>>()))

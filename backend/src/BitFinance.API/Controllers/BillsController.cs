@@ -1,4 +1,5 @@
 using System.Globalization;
+using BenchmarkDotNet.Attributes;
 using BitFinance.API.Models.Request;
 using BitFinance.API.Models.Response;
 using BitFinance.API.Repositories;
@@ -32,7 +33,7 @@ public class BillsController : ControllerBase
         _cache = cache;
         _repository = repository;
     }
-
+    
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -108,7 +109,7 @@ public class BillsController : ControllerBase
             return BadRequest();
         }
     }
-
+    
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

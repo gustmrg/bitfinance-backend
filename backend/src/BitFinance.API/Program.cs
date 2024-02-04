@@ -72,38 +72,17 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseCors(options => options.AllowAnyOrigin().AllowAnyHeader());
 }
 
 app.UseHttpLogging();
 app.UseHttpsRedirection();
-
-app.UseCors(options => options.AllowAnyOrigin().AllowAnyHeader());
 
 app.UseAuthorization();
 
 app.MapControllers();
 app.MapGroup("/account").MapIdentityApi<ApplicationUser>().WithTags("Account");
 
-SeedDatabase(app);
+SeedData.SeedDatabase(app);
 
 app.Run();
-
-static void SeedDatabase(WebApplication app)
-{
-    using var scope = app.Services.CreateScope();
-    var services = scope.ServiceProvider;
-    
-    try
-    {
-        var context = services.GetRequiredService<ApplicationDbContext>();
-        context.Database.Migrate();
-        context.Database.EnsureCreated();
-        SeedData.Initialize(services);
-    }
-    catch (Exception ex)
-    {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred seeding the DB: {exceptionMessage}", ex.Message);
-        Console.WriteLine("An error has occurred and could not seed database");
-    }
-}
