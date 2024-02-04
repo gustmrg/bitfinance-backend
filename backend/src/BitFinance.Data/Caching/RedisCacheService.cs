@@ -17,7 +17,7 @@ public class RedisCacheService : ICacheService
         _options = new DistributedCacheEntryOptions
         {
             AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(3600),
-            SlidingExpiration = TimeSpan.FromSeconds(1200)
+            SlidingExpiration = TimeSpan.FromSeconds(1800)
         };
     }
 
@@ -88,10 +88,14 @@ public class RedisCacheService : ICacheService
     public async Task SetAsync<T>(string key, T value, TimeSpan expirationTime, CancellationToken cancellationToken = default)
         where T : class
     {
-        _options.AbsoluteExpirationRelativeToNow = expirationTime;
+        var options = new DistributedCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = expirationTime
+        };
+        
         string cacheValue = JsonSerializer.Serialize(value);
 
-        await _cache.SetStringAsync(key, cacheValue,  _options, cancellationToken);
+        await _cache.SetStringAsync(key, cacheValue,  options, cancellationToken);
 
         CacheKeys.TryAdd(key, true);
     }

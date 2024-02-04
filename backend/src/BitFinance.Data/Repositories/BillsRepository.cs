@@ -64,7 +64,7 @@ public class BillsRepository : IRepository<Bill, Guid>
         if (IsCacheEnabled())
         {
             string key = _cache.GenerateKey<Bill>(bill.Id.ToString());
-            await _cache.SetAsync(key, bill);
+            await _cache.SetAsync(key, bill, TimeSpan.FromHours(1));
         }
 
         return bill;
