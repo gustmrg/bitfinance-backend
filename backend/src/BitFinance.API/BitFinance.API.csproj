@@ -6,6 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <LangVersion>12</LangVersion>
         <AssemblyVersion>1.1.0</AssemblyVersion>
+        <UserSecretsId>a87c241e-7db2-4324-9feb-de5acb79da0e</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
@@ -20,6 +21,8 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
         <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.1" />
         <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
+        <PackageReference Include="Serilog.Enrichers.Environment" Version="2.3.0" />
+        <PackageReference Include="Serilog.Sinks.Elasticsearch" Version="9.0.3" />
         <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="6.5.1" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0"/>
         <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="7.0.12" />
@@ -28,10 +31,6 @@
     <ItemGroup>
       <ProjectReference Include="..\BitFinance.Business\BitFinance.Business.csproj" />
       <ProjectReference Include="..\BitFinance.Data\BitFinance.Data.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Repositories\" />
     </ItemGroup>
 
 </Project>

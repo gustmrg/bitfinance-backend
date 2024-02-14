@@ -75,7 +75,7 @@ if (app.Environment.IsDevelopment())
     app.UseCors(options => options.AllowAnyOrigin().AllowAnyHeader());
 }
 
-app.UseHttpLogging();
+//app.UseHttpLogging();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

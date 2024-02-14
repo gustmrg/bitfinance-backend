@@ -42,12 +42,6 @@ public class BillConfiguration : IEntityTypeConfiguration<Bill>
         builder.Property(b => b.AmountPaid)
             .HasColumnType("decimal(10,2)")
             .IsRequired(false);
-        
-        builder.Property(b => b.IsPaid)
-            .IsRequired();
-        
-        builder.Property(b => b.IsDeleted)
-            .IsRequired();
 
         builder.ToTable("Bills");
     }

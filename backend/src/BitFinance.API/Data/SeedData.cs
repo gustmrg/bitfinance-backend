@@ -79,8 +79,7 @@ public static class SeedData
             DueDate = DateTime.UtcNow.AddHours(-3),
             PaidDate = DateTime.Now.ToUniversalTime().AddHours(-3),
             AmountDue = 800M,
-            AmountPaid = 800M,
-            IsPaid = true
+            AmountPaid = 800M
         };
         
         Bill bill3 = new()
@@ -92,8 +91,7 @@ public static class SeedData
             DueDate = DateTime.UtcNow.AddHours(-3),
             PaidDate = DateTime.UtcNow.AddHours(-3).AddDays(-2),
             AmountDue = 500M,
-            AmountPaid = 500M,
-            IsPaid = true
+            AmountPaid = 500M
         };
         
         Bill bill4 = new()
@@ -103,8 +101,7 @@ public static class SeedData
             Status = BillStatus.Due,
             CreatedDate = DateTime.UtcNow.AddHours(-3),
             DueDate = DateTime.UtcNow.AddHours(-3).AddDays(10),
-            AmountDue = 1000M,
-            IsPaid = false
+            AmountDue = 1000M
         };
         
         Bill bill5 = new()
@@ -114,8 +111,7 @@ public static class SeedData
             Status = BillStatus.Due,
             CreatedDate = DateTime.UtcNow.AddHours(-3),
             DueDate = DateTime.UtcNow.AddHours(-3).AddDays(15),
-            AmountDue = 49.90M,
-            IsPaid = false,
+            AmountDue = 49.90M
         };
 
         Bill bill6 = new() 
@@ -127,8 +123,7 @@ public static class SeedData
             DueDate = DateTime.UtcNow.AddHours(-3).AddDays(-2),
             PaidDate = DateTime.UtcNow.AddHours(-3),
             AmountDue = 2000M,
-            AmountPaid = 2000M,
-            IsPaid = true
+            AmountPaid = 2000M
         };
 
         Bill bill7 = new()
@@ -138,8 +133,7 @@ public static class SeedData
             Status = BillStatus.Cancelled,
             CreatedDate = DateTime.UtcNow.AddHours(-3),
             DueDate = DateTime.UtcNow.AddHours(-3).AddDays(20),
-            AmountDue = 250M,
-            IsPaid = false
+            AmountDue = 250M
         };
         
         dbContext.AddRange(bill1, bill2, bill3, bill4, bill5, bill6, bill7);

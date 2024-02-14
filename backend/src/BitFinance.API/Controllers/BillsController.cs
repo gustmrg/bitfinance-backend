@@ -1,10 +1,8 @@
 using System.Globalization;
-using BenchmarkDotNet.Attributes;
 using BitFinance.API.Models.Request;
 using BitFinance.API.Models.Response;
 using BitFinance.API.Repositories;
 using BitFinance.Business.Entities;
-using BitFinance.Data.Caching;
 using BitFinance.Data.Contexts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,17 +18,14 @@ public class BillsController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly ILogger<BillsController> _logger;
-    private readonly ICacheService _cache;
     private readonly IRepository<Bill, Guid> _repository;
     
     public BillsController(ApplicationDbContext context, 
         ILogger<BillsController> logger, 
-        ICacheService cache, 
         IRepository<Bill, Guid> repository)
     {
         _context = context;
         _logger = logger;
-        _cache = cache;
         _repository = repository;
     }
     
@@ -42,7 +37,7 @@ public class BillsController : ControllerBase
         try
         {
             List<Bill> bills = await _repository.GetAll();
-            
+
             List<GetBillResponse> response = bills.Select(bill => new GetBillResponse
                 {
                     Id = bill.Id,
@@ -56,14 +51,14 @@ public class BillsController : ControllerBase
                     AmountPaid = bill.AmountPaid
                 })
                 .ToList();
-            
+
             return Ok(response);
         }
         catch (Exception ex)
         {
-            _logger.LogError("{Timestamp} - Error on {MethodName} method request: {Message}", 
-                DateTime.Now.ToString("s", CultureInfo.InvariantCulture), 
-                nameof(GetBillsAsync), 
+            _logger.LogError("{Timestamp} - Error on {MethodName} method request: {Message}",
+                DateTime.Now.ToString("s", CultureInfo.InvariantCulture),
+                nameof(GetBillsAsync),
                 ex.Message);
             return BadRequest();
         }
@@ -130,8 +125,7 @@ public class BillsController : ControllerBase
                 DueDate = request.DueDate.ToUniversalTime(),
                 PaidDate = request.PaidDate?.ToUniversalTime(),
                 AmountDue = request.AmountDue,
-                AmountPaid = request.AmountPaid,
-                IsPaid = request.AmountPaid is not null
+                AmountPaid = request.AmountPaid
             };
 
             await _repository.CreateAsync(bill);
@@ -186,7 +180,6 @@ public class BillsController : ControllerBase
             bill.PaidDate = request.PaidDate?.ToUniversalTime();
             bill.AmountDue = request.AmountDue;
             bill.AmountPaid = request.AmountPaid;
-            bill.IsPaid = request.AmountPaid is not null;
 
             await _repository.UpdateAsync(bill);
 
