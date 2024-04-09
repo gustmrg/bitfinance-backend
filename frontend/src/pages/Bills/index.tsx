@@ -12,7 +12,7 @@ export function Bills() {
                 headers: { Authorization: `Bearer ${token}` }
             };
 
-            axios.get('http://localhost:5289/bills', config)
+            axios.get(import.meta.env.API_URL + '/bills', config)
                 .then(res => {
                     console.log(res.data);
                     setIsAuthorized(true);

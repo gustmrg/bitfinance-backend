@@ -14,4 +14,5 @@ public class Bill
     public DateTime DueDate { get; set; }
     public DateTime? PaidDate { get; set; }
     public DateTime? DeletedDate { get; set; }
+    public string? ReceiptFile { get; set; }
 }

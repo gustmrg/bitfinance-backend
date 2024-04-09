@@ -19,14 +19,20 @@ public class BillsController : ControllerBase
     private readonly ApplicationDbContext _context;
     private readonly ILogger<BillsController> _logger;
     private readonly IRepository<Bill, Guid> _repository;
+    private readonly string _targetFilePath;
+    private readonly long _fileSizeLimit;
+    private readonly string[] _permittedExtensions = { ".pdf" };
     
     public BillsController(ApplicationDbContext context, 
         ILogger<BillsController> logger, 
-        IRepository<Bill, Guid> repository)
+        IRepository<Bill, Guid> repository,
+        IConfiguration config)
     {
         _context = context;
         _logger = logger;
         _repository = repository;
+        _fileSizeLimit = config.GetValue<long>("FileSizeLimit");
+        _targetFilePath = config.GetValue<string>("StoredFilesPath");
     }
     
     [HttpGet]
@@ -114,8 +120,10 @@ public class BillsController : ControllerBase
         try
         {
             if (!ModelState.IsValid)
+            {
                 return UnprocessableEntity();
-
+            }
+            
             Bill bill = new()
             {
                 Name = request.Name,
@@ -127,6 +135,11 @@ public class BillsController : ControllerBase
                 AmountDue = request.AmountDue,
                 AmountPaid = request.AmountPaid
             };
+
+            if (request.ReceiptFile is not null)
+            {
+                await UploadFileAsync(request.ReceiptFile);    
+            }
 
             await _repository.CreateAsync(bill);
             
@@ -237,5 +250,25 @@ public class BillsController : ControllerBase
                 ex.Message);
             return BadRequest();
         }
+    }
+    
+    private async Task<bool> UploadFileAsync(IFormFile file)
+    {
+        if (file.Length <= 0) return false;
+
+        var path = Path.Combine(Directory.GetCurrentDirectory(), "Uploads", Guid.NewGuid().ToString());
+
+        if (System.IO.File.Exists(path))
+        {
+            ModelState.AddModelError(string.Empty, "Já existe um arquivo com este nome!");
+            return false;
+        }
+
+        using (var stream = new FileStream(path, FileMode.Create))
+        {
+            await file.CopyToAsync(stream);
+        }
+
+        return true;
     }
 }

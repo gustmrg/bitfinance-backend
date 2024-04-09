@@ -9,4 +9,5 @@ public record CreateBillRequest(
     DateTime DueDate, 
     DateTime? PaidDate, 
     decimal AmountDue, 
-    decimal? AmountPaid);
+    decimal? AmountPaid,
+    IFormFile? ReceiptFile);

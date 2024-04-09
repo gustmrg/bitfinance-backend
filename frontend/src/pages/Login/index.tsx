@@ -13,6 +13,8 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import { useAxios } from "@/hooks/useAxios";
 
 const FormSchema = z.object({
     email: z.string().email({
@@ -34,21 +36,40 @@ export function Login() {
         },
     })
 
+    // function onSubmit(data: z.infer<typeof FormSchema>) {
+    //     event?.preventDefault();
+    //     setIsLoading(true);
+    //     console.log(data)
+
+    //     axios.post('http://localhost:5289/account/login', data)
+    //         .then((response) => {
+    //             console.log(response);
+    //             localStorage.setItem('access_token', response.data.accessToken);
+    //             localStorage.setItem('refresh_token', response.data.refreshToken);
+    //             setIsLoading(false);
+    //         }).catch((error) => {
+    //             console.log(error.response)
+    //             setIsLoading(false);
+    //         });
+    // }
+
     function onSubmit(data: z.infer<typeof FormSchema>) {
         event?.preventDefault();
         setIsLoading(true);
         console.log(data)
 
-        axios.post('http://localhost:5289/account/login', data)
-            .then((response) => {
-                console.log(response);
-                localStorage.setItem('access_token', response.data.accessToken);
-                localStorage.setItem('refresh_token', response.data.refreshToken);
-                setIsLoading(false);
-            }).catch((error) => {
-                console.log(error.response)
-                setIsLoading(false);
-            });
+        // axios.post('http://localhost:5289/account/login', data)
+        //     .then((response) => {
+        //         console.log(response);
+        //         localStorage.setItem('access_token', response.data.accessToken);
+        //         localStorage.setItem('refresh_token', response.data.refreshToken);
+        //         setIsLoading(false);
+        //     }).catch((error) => {
+        //         console.log(error.response)
+        //         setIsLoading(false);
+        //     });
+
+
     }
 
     return (
@@ -120,9 +141,9 @@ export function Login() {
 
                     <p className="mt-10 text-center text-sm text-gray-500">
                         Not registered yet?{' '}
-                        <a href="#" className="font-semibold leading-6 text-zinc-600 hover:text-zinc-500">
+                        <Link to="/register" className="font-semibold leading-6 text-zinc-600 hover:text-zinc-500">
                             Create an account.
-                        </a>
+                        </Link>
                     </p>
                 </div>
             </div>
