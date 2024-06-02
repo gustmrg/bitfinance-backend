@@ -1,11 +1,12 @@
+import { RouterProvider } from "react-router-dom"
 import { ThemeProvider } from "./components/theme/theme-provider";
-import { Bills } from "./pages/app/bills";
+import { router } from "./routes";
 
 export function App() {
 
   return (
     <ThemeProvider defaultTheme="light" storageKey="bitfinance-ui-theme">
-      <Bills />
+      <RouterProvider router={router}/>
     </ThemeProvider>
   )
 }
