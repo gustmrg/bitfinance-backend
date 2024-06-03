@@ -1,9 +1,58 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Banknote, Eye, Search, X } from "lucide-react";
+
+interface Bill {
+    id: number
+    name: string;
+    status: 'pending' | 'paid' | 'due' | 'overdue';
+    amountDue: number;
+    amountPaid?: number;
+    dueDate: string;
+    paidDate?: string;
+}
 
 export function Bills() {
-    const bills = []
+    const bills: Bill[] = [
+        {
+            id: 1,
+            name: 'Electricity Bill',
+            status: 'pending',
+            amountDue: 75.50,
+            dueDate: '2023-06-22T00:00:00Z'
+        },
+        {
+            id: 2,
+            name: 'Electricity Bill',
+            status: 'pending',
+            amountDue: 75.50,
+            dueDate: '2023-06-22T00:00:00Z'
+        },
+        {
+            id: 3,
+            name: 'Electricity Bill',
+            status: 'pending',
+            amountDue: 75.50,
+            dueDate: '2023-06-22T00:00:00Z'
+        },
+        {
+            id: 4,
+            name: 'Electricity Bill',
+            status: 'pending',
+            amountDue: 75.50,
+            dueDate: '2023-06-22T00:00:00Z'
+        },
+        {
+            id: 5,
+            name: 'Electricity Bill',
+            status: 'pending',
+            amountDue: 75.50,
+            dueDate: '2023-06-22T00:00:00Z'
+        },
+    ]
 
     return (
         <>
@@ -25,188 +74,85 @@ export function Bills() {
                     </div>
                 </div>
             ) : (
-                <div
-                className="flex flex-1 items-center justify-center rounded-lg border-solid shadow-sm"
-                    >                    
-                    <Table>
-                        <TableHeader>
-                        <TableRow>
-                            <TableHead>Customer</TableHead>
-                            <TableHead className="hidden sm:table-cell">
-                            Type
-                            </TableHead>
-                            <TableHead className="hidden sm:table-cell">
-                            Status
-                            </TableHead>
-                            <TableHead className="hidden md:table-cell">
-                            Date
-                            </TableHead>
-                            <TableHead className="text-right">Amount</TableHead>
-                        </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                        <TableRow className="bg-accent">
-                            <TableCell>
-                            <div className="font-medium">Liam Johnson</div>
-                            <div className="hidden text-sm text-muted-foreground md:inline">
-                                liam@example.com
-                            </div>
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                            Sale
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                            <Badge className="text-xs" variant="secondary">
-                                Fulfilled
-                            </Badge>
-                            </TableCell>
-                            <TableCell className="hidden md:table-cell">
-                            2023-06-23
-                            </TableCell>
-                            <TableCell className="text-right">$250.00</TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>
-                            <div className="font-medium">Olivia Smith</div>
-                            <div className="hidden text-sm text-muted-foreground md:inline">
-                                olivia@example.com
-                            </div>
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                            Refund
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                            <Badge className="text-xs" variant="outline">
-                                Declined
-                            </Badge>
-                            </TableCell>
-                            <TableCell className="hidden md:table-cell">
-                            2023-06-24
-                            </TableCell>
-                            <TableCell className="text-right">$150.00</TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>
-                            <div className="font-medium">Noah Williams</div>
-                            <div className="hidden text-sm text-muted-foreground md:inline">
-                                noah@example.com
-                            </div>
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                            Subscription
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                            <Badge className="text-xs" variant="secondary">
-                                Fulfilled
-                            </Badge>
-                            </TableCell>
-                            <TableCell className="hidden md:table-cell">
-                            2023-06-25
-                            </TableCell>
-                            <TableCell className="text-right">$350.00</TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>
-                            <div className="font-medium">Emma Brown</div>
-                            <div className="hidden text-sm text-muted-foreground md:inline">
-                                emma@example.com
-                            </div>
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                            Sale
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                            <Badge className="text-xs" variant="secondary">
-                                Fulfilled
-                            </Badge>
-                            </TableCell>
-                            <TableCell className="hidden md:table-cell">
-                            2023-06-26
-                            </TableCell>
-                            <TableCell className="text-right">$450.00</TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>
-                            <div className="font-medium">Liam Johnson</div>
-                            <div className="hidden text-sm text-muted-foreground md:inline">
-                                liam@example.com
-                            </div>
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                            Sale
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                            <Badge className="text-xs" variant="secondary">
-                                Fulfilled
-                            </Badge>
-                            </TableCell>
-                            <TableCell className="hidden md:table-cell">
-                            2023-06-23
-                            </TableCell>
-                            <TableCell className="text-right">$250.00</TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>
-                            <div className="font-medium">Liam Johnson</div>
-                            <div className="hidden text-sm text-muted-foreground md:inline">
-                                liam@example.com
-                            </div>
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                            Sale
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                            <Badge className="text-xs" variant="secondary">
-                                Fulfilled
-                            </Badge>
-                            </TableCell>
-                            <TableCell className="hidden md:table-cell">
-                            2023-06-23
-                            </TableCell>
-                            <TableCell className="text-right">$250.00</TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>
-                            <div className="font-medium">Olivia Smith</div>
-                            <div className="hidden text-sm text-muted-foreground md:inline">
-                                olivia@example.com
-                            </div>
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                            Refund
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                            <Badge className="text-xs" variant="outline">
-                                Declined
-                            </Badge>
-                            </TableCell>
-                            <TableCell className="hidden md:table-cell">
-                            2023-06-24
-                            </TableCell>
-                            <TableCell className="text-right">$150.00</TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>
-                            <div className="font-medium">Emma Brown</div>
-                            <div className="hidden text-sm text-muted-foreground md:inline">
-                                emma@example.com
-                            </div>
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                            Sale
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell">
-                            <Badge className="text-xs" variant="secondary">
-                                Fulfilled
-                            </Badge>
-                            </TableCell>
-                            <TableCell className="hidden md:table-cell">
-                            2023-06-26
-                            </TableCell>
-                            <TableCell className="text-right">$450.00</TableCell>
-                        </TableRow>
-                        </TableBody>
-                    </Table>                    
+                <div className="flex flex-col rounded-lg border border-solid p-4 space-y-1.5 gap-4">
+                    <form className="flex items-center gap-2">
+                        <span className="text-sm font-semibold">Filters:</span>
+                        <Input placeholder="Id" className="h-8 w-auto" />
+                        <Input placeholder="Name" className="h-8 w-[320px]" />
+                        <Select defaultValue="all">
+                            <SelectTrigger className="h-8 w-[180px]">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All</SelectItem>
+                                <SelectItem value="due">Due</SelectItem>
+                                <SelectItem value="paid">Paid</SelectItem>
+                                <SelectItem value="pending">Pending</SelectItem>
+                                <SelectItem value="overdue">Overdue</SelectItem>
+                                <SelectItem value="cancelled">Cancelled</SelectItem>
+                            </SelectContent>
+                        </Select>
+
+                        <Button type="submit" variant="outline">
+                            <Search className="mr-2 h-4 w-4" />
+                            Filter results
+                        </Button>
+
+                        <Button type="button" variant="outline">
+                            <X className="mr-2 h-4 w-4" />
+                            Clear filters
+                        </Button>
+                    </form>
+                    <div>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Id</TableHead>
+                                    <TableHead className="hidden sm:table-cell">Name</TableHead>
+                                    <TableHead className="hidden sm:table-cell">Status</TableHead>
+                                    <TableHead className="hidden md:table-cell">Due Date</TableHead>
+                                    <TableHead className="hidden md:table-cell">Amount Due</TableHead>
+                                    <TableHead></TableHead>
+                                    <TableHead></TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                            {bills.map((bill) => {
+                                return (
+                                    <TableRow key={bill.id}>
+                                        <TableCell>
+                                            <div className="font-mono font-medium text-xs">{bill.id}</div>
+                                        </TableCell>
+                                        <TableCell className="hidden sm:table-cell font-medium">
+                                            {bill.name}
+                                        </TableCell>
+                                        <TableCell className="hidden sm:table-cell">
+                                            <Badge className="text-xs" variant="default">
+                                                {bill.status}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell className="hidden md:table-cell">
+                                            {bill.dueDate}
+                                        </TableCell>
+                                        <TableCell className="font-medium">$ {bill.amountDue.toFixed(2)}</TableCell>
+                                        <TableCell>
+                                            <Button variant="success">
+                                                <Banknote className="h-4 w-4 mr-2" />
+                                                Pay
+                                            </Button>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Button variant="default">
+                                                <Eye className="h-4 w-4 mr-2" />
+                                                Details
+                                            </Button>
+                                        </TableCell>
+                                </TableRow> 
+                                )
+                            })}                        
+                            </TableBody>
+                        </Table>  
+                    </div>                  
                 </div>
             )}            
         </>
