@@ -1,9 +1,9 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Banknote, Eye, Search, X } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Search, X } from "lucide-react";
 
 interface Bill {
     id: number
@@ -26,29 +26,29 @@ export function Bills() {
         },
         {
             id: 2,
-            name: 'Electricity Bill',
+            name: 'Water Bill',
             status: 'pending',
             amountDue: 75.50,
             dueDate: '2023-06-22T00:00:00Z'
         },
         {
             id: 3,
-            name: 'Electricity Bill',
-            status: 'pending',
+            name: 'Mortgage',
+            status: 'due',
             amountDue: 75.50,
             dueDate: '2023-06-22T00:00:00Z'
         },
         {
             id: 4,
-            name: 'Electricity Bill',
-            status: 'pending',
+            name: 'Car Insurance',
+            status: 'paid',
             amountDue: 75.50,
             dueDate: '2023-06-22T00:00:00Z'
         },
         {
             id: 5,
-            name: 'Electricity Bill',
-            status: 'pending',
+            name: 'Internet bill',
+            status: 'overdue',
             amountDue: 75.50,
             dueDate: '2023-06-22T00:00:00Z'
         },
@@ -93,14 +93,24 @@ export function Bills() {
                             </SelectContent>
                         </Select>
 
-                        <Button type="submit" variant="outline">
-                            <Search className="mr-2 h-4 w-4" />
-                            Filter results
+                        <Button type="submit" variant="outline" className="gap-1">
+                            <Search className="h-4 w-4" />
+                            <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                                Filter results
+                            </span>
                         </Button>
 
-                        <Button type="button" variant="outline">
-                            <X className="mr-2 h-4 w-4" />
-                            Clear filters
+                        <Button type="button" variant="outline" className="gap-1">
+                            <X className="h-4 w-4" />
+                            <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                                Clear filters
+                            </span>
+                        </Button>
+                        <Button type="button" className="gap-1">
+                            <PlusCircle className="h-4 w-4" />
+                            <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                                Add Product
+                            </span>
                         </Button>
                     </form>
                     <div>
@@ -112,7 +122,6 @@ export function Bills() {
                                     <TableHead className="hidden sm:table-cell">Status</TableHead>
                                     <TableHead className="hidden md:table-cell">Due Date</TableHead>
                                     <TableHead className="hidden md:table-cell">Amount Due</TableHead>
-                                    <TableHead></TableHead>
                                     <TableHead></TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -127,26 +136,39 @@ export function Bills() {
                                             {bill.name}
                                         </TableCell>
                                         <TableCell className="hidden sm:table-cell">
-                                            <Badge className="text-xs" variant="default">
-                                                {bill.status}
-                                            </Badge>
+                                            <div className="flex items-center gap-2">
+                                                <span className="h-2 w-2 bg-slate-400 rounded-full" />
+                                                <span className="font-medium text-foreground">{bill.status}</span>
+                                            </div>
                                         </TableCell>
                                         <TableCell className="hidden md:table-cell">
                                             {bill.dueDate}
                                         </TableCell>
                                         <TableCell className="font-medium">$ {bill.amountDue.toFixed(2)}</TableCell>
                                         <TableCell>
-                                            <Button variant="success">
-                                                <Banknote className="h-4 w-4 mr-2" />
-                                                Pay
-                                            </Button>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Button variant="default">
-                                                <Eye className="h-4 w-4 mr-2" />
-                                                Details
-                                            </Button>
-                                        </TableCell>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                <Button
+                                                    aria-haspopup="true"
+                                                    size="icon"
+                                                    variant="ghost"
+                                                >
+                                                    <MoreHorizontal className="h-4 w-4" />
+                                                    <span className="sr-only">Toggle menu</span>
+                                                </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                <DropdownMenuItem>Mark as paid</DropdownMenuItem>
+                                                <DropdownMenuSeparator></DropdownMenuSeparator>
+                                                <DropdownMenuItem>View details</DropdownMenuItem>
+                                                <DropdownMenuItem>Edit</DropdownMenuItem>
+                                                <DropdownMenuItem>Delete</DropdownMenuItem>
+                                                <DropdownMenuSeparator></DropdownMenuSeparator>
+                                                <DropdownMenuItem>Download receipt</DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                            </TableCell>
                                 </TableRow> 
                                 )
                             })}                        

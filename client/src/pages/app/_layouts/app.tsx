@@ -1,5 +1,5 @@
 import { Link, Outlet } from 'react-router-dom'
-import { CircleDollarSign, CircleUser, LogOut, Search } from 'lucide-react'
+import { CircleDollarSign, LogOut, Search } from 'lucide-react'
 
 import { ThemeToggle } from '@/components/theme/theme-toggle'
 import { Button } from '@/components/ui/button'
@@ -12,6 +12,7 @@ import {
     DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 
 export function AppLayout() {
     return (
@@ -53,8 +54,10 @@ export function AppLayout() {
                         <ThemeToggle />
                         <DropdownMenuTrigger asChild>
                             <Button variant="outline" className='flex items-center gap-2'>                            
+                                <Avatar className='h-8 w-8'>
+                                    <AvatarFallback>JD</AvatarFallback>
+                                </Avatar>
                                 John Doe
-                                <CircleUser className="h-5 w-5" />
                                 <span className="sr-only">Toggle user menu</span>
                             </Button>
                         </DropdownMenuTrigger>
