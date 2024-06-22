@@ -1,4 +1,5 @@
 using System.Globalization;
+using Asp.Versioning;
 using BitFinance.API.Models.Request;
 using BitFinance.API.Models.Response;
 using BitFinance.API.Repositories;
@@ -12,7 +13,8 @@ using Serilog;
 namespace BitFinance.API.Controllers;
 
 [ApiController]
-[Route("bills")]
+[Route("api/v{version:apiVersion}/bills")]
+[ApiVersion("1.0")]
 [Authorize]
 public class BillsController : ControllerBase
 {

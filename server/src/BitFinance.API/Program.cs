@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using BitFinance.API.Data;
 using BitFinance.API.Repositories;
 using BitFinance.Business.Entities;
@@ -54,6 +55,20 @@ builder.Services.AddSwaggerGen(options =>
     options.OperationFilter<SecurityRequirementsOperationFilter>();
 });
 
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.ReportApiVersions = true;
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ApiVersionReader = ApiVersionReader.Combine(
+        new UrlSegmentApiVersionReader(),
+        new HeaderApiVersionReader("X-Api-Version"));
+}).AddApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'V";
+    options.SubstituteApiVersionInUrl = true;
+});
+
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Information)
     .WriteTo.Console()
@@ -81,7 +96,9 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapGroup("/account").MapIdentityApi<ApplicationUser>().WithTags("Account");
+app.MapGroup("api/v1/account")
+    .MapIdentityApi<ApplicationUser>()
+    .WithTags("Account");
 
 SeedData.SeedDatabase(app);
 
