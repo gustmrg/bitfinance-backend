@@ -1,5 +1,6 @@
 using Asp.Versioning;
 using BitFinance.API.Data;
+using BitFinance.API.Middlewares;
 using BitFinance.API.Repositories;
 using BitFinance.Business.Entities;
 using BitFinance.Data.Caching;
@@ -34,6 +35,7 @@ builder.Services.AddIdentityCore<ApplicationUser>()
 builder.Services.AddScoped<IRepository<Bill, Guid>, BillsRepository>();
 builder.Services.AddSingleton<ICacheService, RedisCacheService>();
 builder.Services.AddSingleton<DistributedCacheEntryOptions>();
+builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();
 
 builder.Services.AddStackExchangeRedisCache(options =>
 {
@@ -90,10 +92,10 @@ if (app.Environment.IsDevelopment())
     app.UseCors(options => options.AllowAnyOrigin().AllowAnyHeader());
 }
 
-//app.UseHttpLogging();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
 app.MapControllers();
 app.MapGroup("api/v1/account")

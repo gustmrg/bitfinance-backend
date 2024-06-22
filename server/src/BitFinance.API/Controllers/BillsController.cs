@@ -15,7 +15,7 @@ namespace BitFinance.API.Controllers;
 [ApiController]
 [Route("api/v{version:apiVersion}/bills")]
 [ApiVersion("1.0")]
-[Authorize]
+//[Authorize]
 public class BillsController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
@@ -42,6 +42,7 @@ public class BillsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<List<GetBillResponse>>> GetBillsAsync()
     {
+        throw new Exception("Custom exception");
         try
         {
             List<Bill> bills = await _repository.GetAll();
