@@ -1,7 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogHeader, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { FileText, Trash2 } from "lucide-react";
+import { Plus, FileText, Trash2 } from "lucide-react";
 
 type Bill = {
     id: string;
@@ -141,10 +142,13 @@ export function Bills() {
     ];
 
     return (
-        <div className="mt-4 mx-2 p-4 border-2 border-rose-700 rounded-xl flex flex-col">
+        <div className="mt-4 mx-2 p-4 border border-zinc-700 rounded-xl flex flex-col">
             <div className="flex flex-row justify-between mt-2 mx-4 mb-4">
                 <h1 className="font-bold text-2xl">Bills</h1>
-                <Button>Add Bill</Button>
+                <Button className="flex items-center gap-2">
+                    <Plus />
+                    Add bill
+                </Button>
             </div>
             <Table>
                 <TableHeader>
@@ -169,16 +173,32 @@ export function Bills() {
                                 </TableCell>
                                 <TableCell className="font-semibold">$ {bill.amountDue.toFixed(2)}</TableCell>
                                 <TableCell className="flex flex-row gap-2">
-                                    <Button variant="default" className="gap-2">
-                                        <FileText />
-                                        <span>Details</span>
+                                    <Button variant="outline" className="flex items-center gap-2">
+                                        <FileText /> Details
                                     </Button>
-                                    <Button variant="destructive" className="gap-2">
-                                        <Trash2 /> 
-                                        <span>
-                                            Delete
-                                        </span>
-                                    </Button>
+                                    <Dialog>
+                                        <DialogTrigger>
+                                            <Button variant="destructive" className="flex items-center gap-2">
+                                                <Trash2 /> Delete
+                                            </Button>
+                                        </DialogTrigger>
+                                        <DialogContent>
+                                            <DialogHeader>
+                                                <DialogTitle>Are you absolutely sure?</DialogTitle>
+                                                <DialogDescription>
+                                                    This action cannot be undone. This will permanently delete your bill
+                                                    and remove all its data.
+                                                </DialogDescription>
+                                            </DialogHeader>
+                                            <DialogFooter className="sm:justify-start">
+                                                <DialogClose asChild>
+                                                    <Button type="button" variant="destructive">
+                                                        Delete
+                                                    </Button>
+                                                </DialogClose>
+                                            </DialogFooter>
+                                        </DialogContent>
+                                    </Dialog>                            
                                 </TableCell>
                             </TableRow>
                         );
