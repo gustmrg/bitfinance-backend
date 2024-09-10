@@ -30,6 +30,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Plus, FileText, Trash2 } from "lucide-react";
+import { useState } from "react";
 
 type Bill = {
   id: string;
@@ -45,7 +46,7 @@ type Bill = {
 };
 
 export function Bills() {
-  const bills: Bill[] = [
+  const [bills, setBills] = useState<Bill[]>([
     {
       id: "1f3e3a1a-8c68-4537-9e4d-56c1f19a8bc9",
       name: "Electricity Bill",
@@ -166,7 +167,20 @@ export function Bills() {
       paidDate: null,
       deletedDate: null,
     },
-  ];
+  ]);
+
+  function handleCancel(id: string) {
+    const updatedBills = bills.map(bill => 
+      bill.id === id 
+        ? {
+          ...bill,
+          status: "Cancelled",
+        } 
+        : bill
+    );
+
+    setBills(updatedBills);
+  }
 
   return (
     <div className="mt-4 mx-2 p-4 flex flex-col">
@@ -174,7 +188,7 @@ export function Bills() {
         <h1 className="font-bold text-2xl">Bills</h1>
         <AlertDialog>
           <AlertDialogTrigger className="flex items-center gap-2" asChild>
-            <Button className="bg-blue-700 hover:bg-blue-700/80 text-white">
+            <Button className="bg-blue-700 hover:bg-blue-700/80">
               <Plus />
               Add bill
             </Button>
@@ -228,7 +242,7 @@ export function Bills() {
                     <DialogTrigger asChild>
                       <Button
                         variant="destructive"
-                        className="flex items-center gap-2"
+                        className="flex items-center gap-2"                        
                       >
                         <Trash2 /> Delete
                       </Button>
@@ -243,7 +257,7 @@ export function Bills() {
                       </DialogHeader>
                       <DialogFooter className="sm:justify-start">
                         <DialogClose asChild>
-                          <Button type="button" variant="destructive">
+                          <Button type="button" variant="destructive" onClick={() => handleCancel(bill.id)}>
                             Delete
                           </Button>
                         </DialogClose>
