@@ -5,12 +5,12 @@ import { Login } from "./pages/Login";
 import { Bills } from "./pages/Bills";
 
 export function Router() {
-    return (
-        <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/bills" element={<Bills />} />
-        </Routes>
-    )
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/bills" element={<Bills />} />
+    </Routes>
+  );
 }
