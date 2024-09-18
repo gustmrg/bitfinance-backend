@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/table";
 import { Plus, FileText, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 type Bill = {
   id: string;
@@ -170,13 +171,13 @@ export function Bills() {
   ]);
 
   function handleCancel(id: string) {
-    const updatedBills = bills.map(bill => 
-      bill.id === id 
+    const updatedBills = bills.map((bill) =>
+      bill.id === id
         ? {
-          ...bill,
-          status: "Cancelled",
-        } 
-        : bill
+            ...bill,
+            status: "Cancelled",
+          }
+        : bill,
     );
 
     setBills(updatedBills);
@@ -215,7 +216,7 @@ export function Bills() {
             <TableHead>Category</TableHead>
             <TableHead>Amount Due</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Actions</TableHead>
+            <TableHead></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -235,14 +236,19 @@ export function Bills() {
                   </Badge>
                 </TableCell>
                 <TableCell className="flex flex-row gap-2">
-                  <Button variant="outline" className="flex items-center gap-2">
-                    <FileText /> Details
-                  </Button>
+                  <Link to={bill.id}>
+                    <Button
+                      variant="outline"
+                      className="flex items-center gap-2"
+                    >
+                      <FileText /> Details
+                    </Button>
+                  </Link>
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button
                         variant="destructive"
-                        className="flex items-center gap-2"                        
+                        className="flex items-center gap-2"
                       >
                         <Trash2 /> Delete
                       </Button>
@@ -257,7 +263,11 @@ export function Bills() {
                       </DialogHeader>
                       <DialogFooter className="sm:justify-start">
                         <DialogClose asChild>
-                          <Button type="button" variant="destructive" onClick={() => handleCancel(bill.id)}>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            onClick={() => handleCancel(bill.id)}
+                          >
                             Delete
                           </Button>
                         </DialogClose>
