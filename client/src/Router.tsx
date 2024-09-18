@@ -3,7 +3,7 @@ import { Register } from "./pages/Register";
 import { Login } from "./pages/Login";
 import { Bills } from "./pages/Bills";
 import { Transactions } from "./pages/Transactions";
-import MainLayout from "./layouts/MainLayout";
+import MainLayout from "./layouts/main-layout";
 
 export function Router() {
   return (
