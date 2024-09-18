@@ -11,6 +11,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -43,12 +44,22 @@ import {
   CreditCard,
   Settings,
   Menu,
-  Search,
   Bell,
+  Barcode,
+  PlusCircle,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Link } from "react-router-dom";
 
 // Mock data for transactions
 const initialTransactions = [
@@ -91,11 +102,34 @@ const initialTransactions = [
 
 export function Transactions() {
   const [transactions, setTransactions] = useState(initialTransactions);
+  const [newTransaction, setNewTransaction] = useState({
+    date: "",
+    description: "",
+    amount: "",
+    status: "completed",
+  });
 
   const handleDelete = (id: number) => {
     setTransactions(
       transactions.filter((transaction) => transaction.id !== id),
     );
+  };
+
+  const handleAddTransaction = () => {
+    const transaction = {
+      id: transactions.length + 1,
+      date: newTransaction.date,
+      description: newTransaction.description,
+      amount: parseFloat(newTransaction.amount),
+      status: newTransaction.status,
+    };
+    setTransactions([...transactions, transaction]);
+    setNewTransaction({
+      date: "",
+      description: "",
+      amount: "",
+      status: "completed",
+    });
   };
 
   const getStatusBadge = (status: string) => {
@@ -137,10 +171,18 @@ export function Transactions() {
             <Home className="mr-2 h-4 w-4" />
             Dashboard
           </Button>
-          <Button variant="ghost" className="w-full justify-start">
-            <CreditCard className="mr-2 h-4 w-4" />
-            Transactions
-          </Button>
+          <Link to="/transactions">
+            <Button variant="ghost" className="w-full justify-start">
+              <CreditCard className="mr-2 h-4 w-4" />
+              Transactions
+            </Button>
+          </Link>
+          <Link to="/bills">
+            <Button variant="ghost" className="w-full justify-start">
+              <Barcode className="mr-2 h-4 w-4" />
+              Bills
+            </Button>
+          </Link>
           <Button variant="ghost" className="w-full justify-start">
             <Settings className="mr-2 h-4 w-4" />
             Settings
@@ -157,17 +199,8 @@ export function Transactions() {
               <Button variant="ghost" size="icon" className="md:hidden mr-2">
                 <Menu className="h-6 w-6" />
               </Button>
-              <h1 className="text-xl font-semibold">Transactions</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <form className="relative">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
-                <Input
-                  type="search"
-                  placeholder="Search transactions..."
-                  className="pl-8 w-full md:w-[300px]"
-                />
-              </form>
               <Button variant="ghost" size="icon">
                 <Bell className="h-5 w-5" />
               </Button>
@@ -186,13 +219,106 @@ export function Transactions() {
 
         {/* Main content area */}
         <main className="flex-1 overflow-x-hidden overflow-y-auto p-6">
+          <div className="flex items-center space-x-4 my-4 justify-between">
+            <h1 className="text-3xl font-semibold">Transactions</h1>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button>
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Add Transaction
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add New Transaction</DialogTitle>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="description" className="text-right">
+                      Description
+                    </Label>
+                    <Input
+                      id="description"
+                      className="col-span-3"
+                      value={newTransaction.description}
+                      onChange={(e) =>
+                        setNewTransaction({
+                          ...newTransaction,
+                          description: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="date" className="text-right">
+                      Date
+                    </Label>
+                    <Input
+                      id="date"
+                      type="date"
+                      className="col-span-3"
+                      value={newTransaction.date}
+                      onChange={(e) =>
+                        setNewTransaction({
+                          ...newTransaction,
+                          date: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="amount" className="text-right">
+                      Amount
+                    </Label>
+                    <Input
+                      id="amount"
+                      type="number"
+                      className="col-span-3"
+                      value={newTransaction.amount}
+                      onChange={(e) =>
+                        setNewTransaction({
+                          ...newTransaction,
+                          amount: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="status" className="text-right">
+                      Status
+                    </Label>
+                    <Select
+                      value={newTransaction.status}
+                      onValueChange={(value) =>
+                        setNewTransaction({ ...newTransaction, status: value })
+                      }
+                    >
+                      <SelectTrigger className="col-span-3">
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="failed">Failed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button onClick={handleAddTransaction}>
+                    Add Transaction
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
           <div className="rounded-md border">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Date</TableHead>
                   <TableHead>Description</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Date</TableHead>
                   <TableHead className="text-right">Amount</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -200,9 +326,9 @@ export function Transactions() {
               <TableBody>
                 {transactions.map((transaction) => (
                   <TableRow key={transaction.id}>
-                    <TableCell>{transaction.date}</TableCell>
                     <TableCell>{transaction.description}</TableCell>
                     <TableCell>{getStatusBadge(transaction.status)}</TableCell>
+                    <TableCell>{transaction.date}</TableCell>
                     <TableCell className="text-right">
                       ${transaction.amount.toFixed(2)}
                     </TableCell>
