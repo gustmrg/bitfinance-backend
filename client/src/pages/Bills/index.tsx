@@ -22,6 +22,21 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -29,7 +44,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, FileText, Trash2 } from "lucide-react";
+import {
+  Plus,
+  FileText,
+  Trash2,
+  PlusCircle,
+  MoreHorizontal,
+} from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -184,102 +205,179 @@ export function Bills() {
   }
 
   return (
-    <div className="mt-4 mx-2 p-4 flex flex-col">
-      <div className="flex flex-row justify-between mt-2 mx-4 mb-4">
-        <h1 className="font-bold text-2xl">Bills</h1>
-        <AlertDialog>
-          <AlertDialogTrigger className="flex items-center gap-2" asChild>
-            <Button className="bg-blue-700 hover:bg-blue-700/80">
-              <Plus />
-              Add bill
+    <>
+      <div className="flex items-center space-x-4 my-4 justify-between">
+        <h1 className="text-3xl font-semibold">Bills</h1>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add Bill
             </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete your
-                account and remove your data from our servers.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction>Continue</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add New Bill</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="description" className="text-right">
+                  Description
+                </Label>
+                <Input
+                  id="description"
+                  className="col-span-3"
+                  value={""}
+                  onChange={() => {}}
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="date" className="text-right">
+                  Date
+                </Label>
+                <Input
+                  id="date"
+                  type="date"
+                  className="col-span-3"
+                  value={""}
+                  onChange={() => {}}
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="amount" className="text-right">
+                  Amount
+                </Label>
+                <Input
+                  id="amount"
+                  type="number"
+                  className="col-span-3"
+                  value={""}
+                  onChange={() => {}}
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="status" className="text-right">
+                  Status
+                </Label>
+                <Select value={""} onValueChange={() => {}}>
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="failed">Failed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button onClick={() => {}}>Add Bill</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Category</TableHead>
-            <TableHead>Amount Due</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead></TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {bills.map((bill) => {
-            return (
-              <TableRow key={bill.id}>
-                <TableCell className="font-semibold">{bill.name}</TableCell>
-                <TableCell>{bill.category}</TableCell>
-                <TableCell className="font-semibold">
-                  $ {bill.amountDue.toFixed(2)}
-                </TableCell>
-                <TableCell>
-                  <Badge
-                    variant={bill.status === "Paid" ? "default" : "outline"}
-                  >
-                    {bill.status}
-                  </Badge>
-                </TableCell>
-                <TableCell className="flex flex-row gap-2">
-                  <Link to={bill.id}>
-                    <Button
-                      variant="outline"
-                      className="flex items-center gap-2"
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right">Amount</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {bills.map((bill) => {
+              return (
+                <TableRow key={bill.id}>
+                  <TableCell className="font-semibold">{bill.name}</TableCell>
+                  <TableCell>{bill.category}</TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={bill.status === "Paid" ? "default" : "outline"}
                     >
-                      <FileText /> Details
-                    </Button>
-                  </Link>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button
-                        variant="destructive"
-                        className="flex items-center gap-2"
-                      >
-                        <Trash2 /> Delete
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Are you absolutely sure?</DialogTitle>
-                        <DialogDescription>
-                          This action cannot be undone. This will permanently
-                          delete your bill and remove all its data.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <DialogFooter className="sm:justify-start">
-                        <DialogClose asChild>
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            onClick={() => handleCancel(bill.id)}
-                          >
-                            Delete
-                          </Button>
-                        </DialogClose>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </div>
+                      {bill.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    $ {bill.amountDue.toFixed(2)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <span className="sr-only">Open menu</span>
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <DropdownMenuItem
+                              onSelect={(e) => e.preventDefault()}
+                            >
+                              <FileText className="mr-2 h-4 w-4" />
+                              <span>Details</span>
+                            </DropdownMenuItem>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Transaction Details</DialogTitle>
+                            </DialogHeader>
+                            <div className="mt-4">
+                              <p>
+                                <strong>Date:</strong> {bill.createdDate}
+                              </p>
+                              <p>
+                                <strong>Description:</strong> {bill.name}
+                              </p>
+                              <p>
+                                <strong>Amount:</strong> $
+                                {bill.amountDue.toFixed(2)}
+                              </p>
+                              <p>
+                                <strong>Status:</strong> {bill.status}
+                              </p>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <DropdownMenuItem
+                              onSelect={(e) => e.preventDefault()}
+                              className="text-red-600"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              <span>Delete</span>
+                            </DropdownMenuItem>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone. This will
+                                permanently delete the transaction.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => {}}>
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+    </>
   );
 }
