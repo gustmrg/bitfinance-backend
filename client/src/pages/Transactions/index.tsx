@@ -29,11 +29,15 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  File,
   MoreHorizontal,
   FileText,
   Trash2,
@@ -41,6 +45,8 @@ import {
   CheckCircle2,
   XCircle,
   PlusCircle,
+  Paperclip,
+  ListFilter,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -156,94 +162,116 @@ export function Transactions() {
     <>
       <div className="flex items-center space-x-4 my-4 justify-between">
         <h1 className="text-3xl font-semibold">Transactions</h1>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Add Transaction
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add New Transaction</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="description" className="text-right">
-                  Description
-                </Label>
-                <Input
-                  id="description"
-                  className="col-span-3"
-                  value={newTransaction.description}
-                  onChange={(e) =>
-                    setNewTransaction({
-                      ...newTransaction,
-                      description: e.target.value,
-                    })
-                  }
-                />
+        <div className="ml-auto flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="h-8 gap-1">
+                <ListFilter className="h-3.5 w-3.5" />
+                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                  Filter
+                </span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Filter by</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuCheckboxItem checked>All</DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem>Completed</DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem>Pending</DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem>Failed</DropdownMenuCheckboxItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button size="sm" className="h-8 gap-1">
+                <PlusCircle className="h-3.5 w-3.5" />
+                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                  Add Transaction
+                </span>
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add New Transaction</DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="description" className="text-right">
+                    Description
+                  </Label>
+                  <Input
+                    id="description"
+                    className="col-span-3"
+                    value={newTransaction.description}
+                    onChange={(e) =>
+                      setNewTransaction({
+                        ...newTransaction,
+                        description: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="date" className="text-right">
+                    Date
+                  </Label>
+                  <Input
+                    id="date"
+                    type="date"
+                    className="col-span-3"
+                    value={newTransaction.date}
+                    onChange={(e) =>
+                      setNewTransaction({
+                        ...newTransaction,
+                        date: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="amount" className="text-right">
+                    Amount
+                  </Label>
+                  <Input
+                    id="amount"
+                    type="number"
+                    className="col-span-3"
+                    value={newTransaction.amount}
+                    onChange={(e) =>
+                      setNewTransaction({
+                        ...newTransaction,
+                        amount: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="status" className="text-right">
+                    Status
+                  </Label>
+                  <Select
+                    value={newTransaction.status}
+                    onValueChange={(value) =>
+                      setNewTransaction({ ...newTransaction, status: value })
+                    }
+                  >
+                    <SelectTrigger className="col-span-3">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="completed">Completed</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="failed">Failed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="date" className="text-right">
-                  Date
-                </Label>
-                <Input
-                  id="date"
-                  type="date"
-                  className="col-span-3"
-                  value={newTransaction.date}
-                  onChange={(e) =>
-                    setNewTransaction({
-                      ...newTransaction,
-                      date: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="amount" className="text-right">
-                  Amount
-                </Label>
-                <Input
-                  id="amount"
-                  type="number"
-                  className="col-span-3"
-                  value={newTransaction.amount}
-                  onChange={(e) =>
-                    setNewTransaction({
-                      ...newTransaction,
-                      amount: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="status" className="text-right">
-                  Status
-                </Label>
-                <Select
-                  value={newTransaction.status}
-                  onValueChange={(value) =>
-                    setNewTransaction({ ...newTransaction, status: value })
-                  }
-                >
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="failed">Failed</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button onClick={handleAddTransaction}>Add Transaction</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+              <DialogFooter>
+                <Button onClick={handleAddTransaction}>Add Transaction</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
       <div className="rounded-md border">
         <Table>
@@ -263,7 +291,9 @@ export function Transactions() {
                 <TableCell>{getStatusBadge(transaction.status)}</TableCell>
                 <TableCell>{transaction.date}</TableCell>
                 <TableCell className="text-right">
-                  ${transaction.amount.toFixed(2)}
+                  {transaction.amount < 0
+                    ? `- $${Math.abs(transaction.amount).toFixed(2)}`
+                    : `$${transaction.amount.toFixed(2)}`}
                 </TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
@@ -284,24 +314,115 @@ export function Transactions() {
                           </DropdownMenuItem>
                         </DialogTrigger>
                         <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Transaction Details</DialogTitle>
+                          <DialogHeader className="px-4 sm:px-0">
+                            <DialogTitle className="text-base font-semibold leading-7 text-gray-900">
+                              Transaction Details
+                            </DialogTitle>
+                            <p className="mt-1 max-w-2xl text-sm leading-6 text-gray-500">
+                              Transaction details and receipts.
+                            </p>
                           </DialogHeader>
-                          <div className="mt-4">
-                            <p>
-                              <strong>Date:</strong> {transaction.date}
-                            </p>
-                            <p>
-                              <strong>Description:</strong>{" "}
-                              {transaction.description}
-                            </p>
-                            <p>
-                              <strong>Amount:</strong> $
-                              {transaction.amount.toFixed(2)}
-                            </p>
-                            <p>
-                              <strong>Status:</strong> {transaction.status}
-                            </p>
+                          <div className="mt-6 border-t border-gray-100">
+                            <dl className="divide-y divide-gray-100">
+                              <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                <dt className="text-sm font-medium leading-6 text-gray-900">
+                                  Description
+                                </dt>
+                                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                  {transaction.description}
+                                </dd>
+                              </div>
+                              <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                <dt className="text-sm font-medium leading-6 text-gray-900">
+                                  Date
+                                </dt>
+                                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                  {transaction.date}
+                                </dd>
+                              </div>
+                              <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                <dt className="text-sm font-medium leading-6 text-gray-900">
+                                  Amount
+                                </dt>
+                                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                  {transaction.amount < 0
+                                    ? `- $${Math.abs(transaction.amount).toFixed(2)}`
+                                    : `$${transaction.amount.toFixed(2)}`}
+                                </dd>
+                              </div>
+                              <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                <dt className="text-sm font-medium leading-6 text-gray-900">
+                                  Status
+                                </dt>
+                                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                  {getStatusBadge(transaction.status)}
+                                </dd>
+                              </div>
+                              <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                <dt className="text-sm font-medium leading-6 text-gray-900">
+                                  Notes
+                                </dt>
+                                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                  Fugiat ipsum ipsum deserunt culpa aute sint do
+                                  nostrud anim incididunt cillum culpa
+                                  consequat.
+                                </dd>
+                              </div>
+                              <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                <dt className="text-sm font-medium leading-6 text-gray-900">
+                                  Attachments
+                                </dt>
+                                <dd className="mt-2 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                                  <ul
+                                    role="list"
+                                    className="divide-y divide-gray-100 rounded-md border border-gray-200"
+                                  >
+                                    <li className="flex items-center justify-between py-4 pl-4 pr-5 text-sm leading-6">
+                                      <div className="flex w-0 flex-1 items-center">
+                                        <Paperclip
+                                          aria-hidden="true"
+                                          className="h-5 w-5 flex-shrink-0 text-gray-400"
+                                        />
+                                        <div className="ml-4 flex min-w-0 flex-1 gap-2">
+                                          <span className="truncate font-medium">
+                                            resume_back_end_developer.pdf
+                                          </span>
+                                        </div>
+                                      </div>
+                                      <div className="ml-4 flex-shrink-0">
+                                        <a
+                                          href="#"
+                                          className="font-medium text-indigo-600 hover:text-indigo-500"
+                                        >
+                                          Download
+                                        </a>
+                                      </div>
+                                    </li>
+                                    <li className="flex items-center justify-between py-4 pl-4 pr-5 text-sm leading-6">
+                                      <div className="flex w-0 flex-1 items-center">
+                                        <Paperclip
+                                          aria-hidden="true"
+                                          className="h-5 w-5 flex-shrink-0 text-gray-400"
+                                        />
+                                        <div className="ml-4 flex min-w-0 flex-1 gap-2">
+                                          <span className="truncate font-medium">
+                                            coverletter_back_end_developer.pdf
+                                          </span>
+                                        </div>
+                                      </div>
+                                      <div className="ml-4 flex-shrink-0">
+                                        <a
+                                          href="#"
+                                          className="font-medium text-indigo-600 hover:text-indigo-500"
+                                        >
+                                          Download
+                                        </a>
+                                      </div>
+                                    </li>
+                                  </ul>
+                                </dd>
+                              </div>
+                            </dl>
                           </div>
                         </DialogContent>
                       </Dialog>
