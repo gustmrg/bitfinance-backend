@@ -246,11 +246,23 @@ export function Bills() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "paid":
-        return <Badge variant="success">Paid</Badge>;
+        return (
+          <Badge className="text-green-600 bg-green-200 hover:text-green-600 hover:bg-green-200/80">
+            Paid
+          </Badge>
+        );
       case "due":
-        return <Badge variant="warning">Due</Badge>;
+        return (
+          <Badge className="text-yellow-600 bg-yellow-200 hover:text-yellow-600 hover:bg-yellow-200/80">
+            Due
+          </Badge>
+        );
       case "overdue":
-        return <Badge variant="destructive">Overdue</Badge>;
+        return (
+          <Badge className="text-red-600 bg-red-200 hover:text-red-600 hover:bg-red-200/80">
+            Overdue
+          </Badge>
+        );
       case "cancelled":
         return <Badge variant="secondary">Cancelled</Badge>;
       default:
