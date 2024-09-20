@@ -37,7 +37,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  File,
   MoreHorizontal,
   FileText,
   Trash2,
@@ -67,6 +66,7 @@ const initialTransactions = [
     description: "Grocery shopping",
     amount: -50.0,
     status: "completed",
+    category: "Groceries",
   },
   {
     id: 2,
@@ -74,6 +74,7 @@ const initialTransactions = [
     description: "Salary deposit",
     amount: 2000.0,
     status: "completed",
+    category: "Income",
   },
   {
     id: 3,
@@ -81,6 +82,7 @@ const initialTransactions = [
     description: "Electric bill",
     amount: -75.5,
     status: "pending",
+    category: "Utilities",
   },
   {
     id: 4,
@@ -88,6 +90,7 @@ const initialTransactions = [
     description: "Online purchase",
     amount: -30.25,
     status: "completed",
+    category: "Shopping",
   },
   {
     id: 5,
@@ -95,6 +98,7 @@ const initialTransactions = [
     description: "Restaurant dinner",
     amount: -45.0,
     status: "failed",
+    category: "Dining",
   },
 ];
 
@@ -105,6 +109,7 @@ export function Transactions() {
     description: "",
     amount: "",
     status: "completed",
+    category: "",
   });
 
   const handleDelete = (id: number) => {
@@ -120,11 +125,13 @@ export function Transactions() {
       description: newTransaction.description,
       amount: parseFloat(newTransaction.amount),
       status: newTransaction.status,
+      category: newTransaction.category,
     };
     setTransactions([...transactions, transaction]);
     setNewTransaction({
       date: "",
       description: "",
+      category: "",
       amount: "",
       status: "completed",
     });
@@ -278,6 +285,7 @@ export function Transactions() {
           <TableHeader>
             <TableRow>
               <TableHead>Description</TableHead>
+              <TableHead>Category</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Date</TableHead>
               <TableHead className="text-right">Amount</TableHead>
@@ -287,7 +295,10 @@ export function Transactions() {
           <TableBody>
             {transactions.map((transaction) => (
               <TableRow key={transaction.id}>
-                <TableCell>{transaction.description}</TableCell>
+                <TableCell className="font-semibold">
+                  {transaction.description}
+                </TableCell>
+                <TableCell>{transaction.category}</TableCell>
                 <TableCell>{getStatusBadge(transaction.status)}</TableCell>
                 <TableCell>{transaction.date}</TableCell>
                 <TableCell className="text-right">
