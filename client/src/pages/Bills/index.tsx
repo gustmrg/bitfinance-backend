@@ -40,12 +40,11 @@ import {
   MoreHorizontal,
   FileText,
   Trash2,
-  AlertCircle,
-  CheckCircle2,
-  XCircle,
   PlusCircle,
   Paperclip,
   ListFilter,
+  SquarePen,
+  PencilLine,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -57,7 +56,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { dateFormatter, priceFormatter } from "@/utils/formatter";
+import { dateFormatter } from "@/utils/formatter";
 
 type Bill = {
   id: string;
@@ -202,7 +201,7 @@ export function Bills() {
     id: "",
     description: "",
     category: "",
-    status: "completed",
+    status: "created",
     amountDue: 0,
     createdDate: new Date().toISOString(),
     dueDate: new Date().toISOString(),
@@ -213,7 +212,7 @@ export function Bills() {
       bill.id === id
         ? {
             ...bill,
-            status: "Cancelled",
+            status: "cancelled",
           }
         : bill,
     );
@@ -277,9 +276,11 @@ export function Bills() {
               <DropdownMenuLabel>Filter by</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuCheckboxItem checked>All</DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem>Completed</DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem>Pending</DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem>Failed</DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem>Paid</DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem>Due</DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem>Overdue</DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem>Created</DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem>Cancelled</DropdownMenuCheckboxItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <Dialog>
@@ -295,26 +296,79 @@ export function Bills() {
               <DialogHeader>
                 <DialogTitle>Add New Bill</DialogTitle>
               </DialogHeader>
-              {/* <div className="grid gap-4 py-4">
+              <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="name" className="text-right">
-                    Name
+                  <Label htmlFor="description" className="text-right">
+                    Description
                   </Label>
                   <Input
-                    id="name"
+                    id="description"
                     className="col-span-3"
-                    value={newBill.name}
+                    value={newBill.description}
                     onChange={(e) =>
                       setNewBill({
                         ...newBill,
-                        name: e.target.value,
+                        description: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="category" className="text-right">
+                    Category
+                  </Label>
+                  <Select
+                    value={newBill.category}
+                    onValueChange={(value) =>
+                      setNewBill({ ...newBill, category: value })
+                    }
+                  >
+                    <SelectTrigger className="col-span-3">
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Housing">Housing</SelectItem>
+                      <SelectItem value="Transportation">
+                        Transportation
+                      </SelectItem>
+                      <SelectItem value="Food">Food</SelectItem>
+                      <SelectItem value="Utilities">Utilities</SelectItem>
+                      <SelectItem value="Clothing">Clothing</SelectItem>
+                      <SelectItem value="Healthcare">Healthcare</SelectItem>
+                      <SelectItem value="Insurance">Insurance</SelectItem>
+                      <SelectItem value="Personal">Personal</SelectItem>
+                      <SelectItem value="Debt">Debt</SelectItem>
+                      <SelectItem value="Savings">Savings</SelectItem>
+                      <SelectItem value="Education">Education</SelectItem>
+                      <SelectItem value="Entertainment">
+                        Entertainment
+                      </SelectItem>
+                      <SelectItem value="Miscellaneous">
+                        Miscellaneous
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="amount" className="text-right">
+                    Amount
+                  </Label>
+                  <Input
+                    id="amount"
+                    type="number"
+                    className="col-span-3"
+                    value={newBill.amountDue}
+                    onChange={(e) =>
+                      setNewBill({
+                        ...newBill,
+                        amountDue: parseFloat(e.target.value),
                       })
                     }
                   />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="date" className="text-right">
-                    Date
+                    Due Date
                   </Label>
                   <Input
                     id="date"
@@ -329,44 +383,7 @@ export function Bills() {
                     }
                   />
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="amount" className="text-right">
-                    Amount
-                  </Label>
-                  <Input
-                    id="amount"
-                    type="number"
-                    className="col-span-3"
-                    value={newBill.amountDue}
-                    onChange={(e) =>
-                      setNewBill({
-                        ...newBill,
-                        amountDue: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="status" className="text-right">
-                    Status
-                  </Label>
-                  <Select
-                    value={newBill.status}
-                    onValueChange={(value) =>
-                      setNewBill({ ...newBill, status: value })
-                    }
-                  >
-                    <SelectTrigger className="col-span-3">
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="completed">Completed</SelectItem>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="failed">Failed</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div> */}
+              </div>
               <DialogFooter>
                 <Button onClick={handleAddBill}>Add Bill</Button>
               </DialogFooter>
@@ -409,6 +426,10 @@ export function Bills() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
+                      <DropdownMenuItem>
+                        <PencilLine className="mr-2 h-4 w-4" />
+                        Edit
+                      </DropdownMenuItem>
                       <Dialog>
                         <DialogTrigger asChild>
                           <DropdownMenuItem
@@ -567,7 +588,7 @@ export function Bills() {
                         <AlertDialogTrigger asChild>
                           <DropdownMenuItem
                             onSelect={(e) => e.preventDefault()}
-                            className="text-red-600"
+                            className="text-red-600 focus:text-red-600"
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
                             <span>Delete</span>
@@ -582,7 +603,7 @@ export function Bills() {
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
                             <AlertDialogAction
                               className="bg-red-600 hover:bg-red-700"
                               onClick={() => handleCancel(bill.id)}

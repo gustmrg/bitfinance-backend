@@ -19,7 +19,7 @@ export function Sidebar() {
             Dashboard
           </Button>
         </Link>
-        <Link to="/transactions">
+        {/* <Link to="/transactions">
           <Button
             variant="ghost"
             className={`w-full justify-start ${matchPath({ path: "/transactions", end: true }, location.pathname) ? "bg-accent text-accent-foreground" : ""}`}
@@ -27,7 +27,7 @@ export function Sidebar() {
             <CreditCard className="mr-2 h-4 w-4" />
             Transactions
           </Button>
-        </Link>
+        </Link> */}
         <Link to="/bills">
           <Button
             variant="ghost"
@@ -37,7 +37,7 @@ export function Sidebar() {
             Bills
           </Button>
         </Link>
-        <Link to="/expenses">
+        <Link to="/">
           <Button
             variant="ghost"
             className={`w-full justify-start ${matchPath({ path: "/expenses", end: true }, location.pathname) ? "bg-accent text-accent-foreground" : ""}`}
