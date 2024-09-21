@@ -1,31 +1,10 @@
 import { useState } from "react";
+import { v4 as uuidv4 } from "uuid";
+import { dateFormatter } from "@/utils/formatter";
+
+import { MoreHorizontal, ListFilter, PencilLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -36,31 +15,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  MoreHorizontal,
-  FileText,
-  Trash2,
-  Paperclip,
-  ListFilter,
-  PencilLine,
-} from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { dateFormatter } from "@/utils/formatter";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { AddBillDialog } from "./components/AddBillDialog";
-import { v4 as uuidv4 } from "uuid";
-
-export type Bill = {
-  id: string;
-  description: string;
-  category: string;
-  status: string;
-  amountDue: number;
-  amountPaid?: number | null;
-  createdDate: string;
-  dueDate: string;
-  paidDate?: string | null;
-  deletedDate?: string | null;
-  notes?: string;
-};
+import { DeleteBillDialog } from "./components/DeleteBillDialog";
+import { BillDetailsDialog } from "./components/BillDetailsDialog";
+import { Bill } from "./types";
 
 // Mock data for bills
 const initialBills: Bill[] = [
@@ -197,6 +162,9 @@ const initialBills: Bill[] = [
 export function Bills() {
   const [bills, setBills] = useState<Bill[]>(initialBills);
 
+  // TODO: REMOVE WHEN DEVELOPMENT IS DONE
+  console.log("bills", bills);
+
   function handleCancel(id: string) {
     const updatedBills = bills.map((bill) =>
       bill.id === id
@@ -222,6 +190,19 @@ export function Bills() {
     };
     setBills([...bills, bill]);
   };
+
+  function handleDeleteBill(id: string) {
+    const updatedBills = bills.map((bill) =>
+      bill.id === id
+        ? {
+            ...bill,
+            deletedDate: new Date().toISOString(),
+          }
+        : bill,
+    );
+
+    setBills(updatedBills);
+  }
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -317,189 +298,11 @@ export function Bills() {
                         <PencilLine className="mr-2 h-4 w-4" />
                         Edit
                       </DropdownMenuItem>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <DropdownMenuItem
-                            onSelect={(e) => e.preventDefault()}
-                          >
-                            <FileText className="mr-2 h-4 w-4" />
-                            <span>Details</span>
-                          </DropdownMenuItem>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader className="px-4 sm:px-0">
-                            <DialogTitle className="text-base font-semibold leading-7 text-gray-900">
-                              Bill Details
-                            </DialogTitle>
-                            <p className="mt-1 max-w-2xl text-sm leading-6 text-gray-500">
-                              Here you can view detailed information about the
-                              selected bill, including its status, due date, and
-                              any associated receipts.
-                            </p>
-                          </DialogHeader>
-                          <div className="mt-6 border-t border-gray-100">
-                            <dl className="divide-y divide-gray-100">
-                              <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                <dt className="text-sm font-medium leading-6 text-gray-900">
-                                  Description
-                                </dt>
-                                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                  {bill.description}
-                                </dd>
-                              </div>
-                              <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                <dt className="text-sm font-medium leading-6 text-gray-900">
-                                  Category
-                                </dt>
-                                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                  {bill.category}
-                                </dd>
-                              </div>
-                              <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                <dt className="text-sm font-medium leading-6 text-gray-900">
-                                  Status
-                                </dt>
-                                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                  {getStatusBadge(bill.status)}
-                                </dd>
-                              </div>
-                              {bill.status === "paid" ? (
-                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                  <dt className="text-sm font-medium leading-6 text-gray-900">
-                                    Paid Date
-                                  </dt>
-                                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                    {bill.paidDate}
-                                  </dd>
-                                </div>
-                              ) : (
-                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                  <dt className="text-sm font-medium leading-6 text-gray-900">
-                                    Due Date
-                                  </dt>
-                                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                    {bill.dueDate}
-                                  </dd>
-                                </div>
-                              )}
-
-                              {bill.status === "paid" ? (
-                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                  <dt className="text-sm font-medium leading-6 text-gray-900">
-                                    Amount Paid
-                                  </dt>
-                                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                    {`$${bill.amountPaid?.toFixed(2)}`}
-                                  </dd>
-                                </div>
-                              ) : (
-                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                  <dt className="text-sm font-medium leading-6 text-gray-900">
-                                    Amount Due
-                                  </dt>
-                                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                    {`$${bill.amountDue.toFixed(2)}`}
-                                  </dd>
-                                </div>
-                              )}
-
-                              {bill.notes ? (
-                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                  <dt className="text-sm font-medium leading-6 text-gray-900">
-                                    Notes
-                                  </dt>
-                                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                    {bill.notes}
-                                  </dd>
-                                </div>
-                              ) : null}
-                              <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                <dt className="text-sm font-medium leading-6 text-gray-900">
-                                  Attachments
-                                </dt>
-                                <dd className="mt-2 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                                  <ul
-                                    role="list"
-                                    className="divide-y divide-gray-100 rounded-md border border-gray-200"
-                                  >
-                                    <li className="flex items-center justify-between py-4 pl-4 pr-5 text-sm leading-6">
-                                      <div className="flex w-0 flex-1 items-center">
-                                        <Paperclip
-                                          aria-hidden="true"
-                                          className="h-5 w-5 flex-shrink-0 text-gray-400"
-                                        />
-                                        <div className="ml-4 flex min-w-0 flex-1 gap-2">
-                                          <span className="truncate font-medium">
-                                            resume_back_end_developer.pdf
-                                          </span>
-                                        </div>
-                                      </div>
-                                      <div className="ml-4 flex-shrink-0">
-                                        <a
-                                          href="#"
-                                          className="font-medium text-indigo-600 hover:text-indigo-500"
-                                        >
-                                          Download
-                                        </a>
-                                      </div>
-                                    </li>
-                                    <li className="flex items-center justify-between py-4 pl-4 pr-5 text-sm leading-6">
-                                      <div className="flex w-0 flex-1 items-center">
-                                        <Paperclip
-                                          aria-hidden="true"
-                                          className="h-5 w-5 flex-shrink-0 text-gray-400"
-                                        />
-                                        <div className="ml-4 flex min-w-0 flex-1 gap-2">
-                                          <span className="truncate font-medium">
-                                            coverletter_back_end_developer.pdf
-                                          </span>
-                                        </div>
-                                      </div>
-                                      <div className="ml-4 flex-shrink-0">
-                                        <a
-                                          href="#"
-                                          className="font-medium text-indigo-600 hover:text-indigo-500"
-                                        >
-                                          Download
-                                        </a>
-                                      </div>
-                                    </li>
-                                  </ul>
-                                </dd>
-                              </div>
-                            </dl>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <DropdownMenuItem
-                            onSelect={(e) => e.preventDefault()}
-                            className="text-red-600 focus:text-red-600"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            <span>Delete</span>
-                          </DropdownMenuItem>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              This action cannot be undone. This will
-                              permanently delete the record.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                              className="bg-red-600 hover:bg-red-700"
-                              onClick={() => handleCancel(bill.id)}
-                            >
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                      <BillDetailsDialog bill={bill} />
+                      <DeleteBillDialog
+                        id={bill.id}
+                        onDelete={handleDeleteBill}
+                      />
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
