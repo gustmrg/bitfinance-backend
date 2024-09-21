@@ -7,9 +7,6 @@ const Profile = () => {
     return <div>Loading ...</div>;
   }
 
-  console.log("user", user);
-  console.log("isAuthenticated", isAuthenticated);
-
   return (
     isAuthenticated && (
       <div>

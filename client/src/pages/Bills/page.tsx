@@ -162,22 +162,6 @@ const initialBills: Bill[] = [
 export function Bills() {
   const [bills, setBills] = useState<Bill[]>(initialBills);
 
-  // TODO: REMOVE WHEN DEVELOPMENT IS DONE
-  console.log("bills", bills);
-
-  // function handleCancel(id: string) {
-  //   const updatedBills = bills.map((bill) =>
-  //     bill.id === id
-  //       ? {
-  //           ...bill,
-  //           status: "cancelled",
-  //         }
-  //       : bill,
-  //   );
-
-  //   setBills(updatedBills);
-  // }
-
   const handleAddBill = (data: any) => {
     const bill: Bill = {
       id: uuidv4(),

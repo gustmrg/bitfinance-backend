@@ -12,12 +12,14 @@ import {
 } from "./dropdown-menu";
 import LogoutButton from "./logout-button";
 import LoginButton from "./login-button";
+import { User } from "@auth0/auth0-react";
 
 interface HeaderProps {
+  user?: User;
   isAuthenticated: boolean;
 }
 
-export function Header({ isAuthenticated }: HeaderProps) {
+export function Header({ user, isAuthenticated }: HeaderProps) {
   return (
     <header className="bg-white border-b border-gray-200 p-4">
       <div className="flex items-center justify-between">
@@ -30,7 +32,7 @@ export function Header({ isAuthenticated }: HeaderProps) {
           <Button variant="ghost" size="icon">
             <Bell className="h-5 w-5" />
           </Button>
-          <UserNav isAuthenticated={isAuthenticated} />
+          <UserNav user={user} isAuthenticated={isAuthenticated} />
         </div>
       </div>
     </header>
@@ -38,10 +40,11 @@ export function Header({ isAuthenticated }: HeaderProps) {
 }
 
 interface UserNavProps {
+  user?: User;
   isAuthenticated: boolean;
 }
 
-export function UserNav({ isAuthenticated }: UserNavProps) {
+export function UserNav({ user, isAuthenticated }: UserNavProps) {
   return (
     <>
       {isAuthenticated ? (
@@ -57,9 +60,9 @@ export function UserNav({ isAuthenticated }: UserNavProps) {
           <DropdownMenuContent className="w-56" align="end" forceMount>
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">Tom Cook</p>
+                <p className="text-sm font-medium leading-none">{user?.name}</p>
                 <p className="text-xs leading-none text-muted-foreground">
-                  tomcook@mail.com
+                  {user?.nickname}
                 </p>
               </div>
             </DropdownMenuLabel>
