@@ -1,7 +1,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,7 +13,6 @@ import {
 } from "@/components/ui/form";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useAxios } from "@/hooks/useAxios";
 
 const FormSchema = z.object({
   email: z.string().email({

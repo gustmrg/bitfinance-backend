@@ -165,18 +165,18 @@ export function Bills() {
   // TODO: REMOVE WHEN DEVELOPMENT IS DONE
   console.log("bills", bills);
 
-  function handleCancel(id: string) {
-    const updatedBills = bills.map((bill) =>
-      bill.id === id
-        ? {
-            ...bill,
-            status: "cancelled",
-          }
-        : bill,
-    );
+  // function handleCancel(id: string) {
+  //   const updatedBills = bills.map((bill) =>
+  //     bill.id === id
+  //       ? {
+  //           ...bill,
+  //           status: "cancelled",
+  //         }
+  //       : bill,
+  //   );
 
-    setBills(updatedBills);
-  }
+  //   setBills(updatedBills);
+  // }
 
   const handleAddBill = (data: any) => {
     const bill: Bill = {

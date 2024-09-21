@@ -26,7 +26,7 @@ export function useAxios<T>({
         const response: AxiosResponse<T> = await axios(url, options);
         setData(response.data);
       } catch (error) {
-        setError(error);
+        setError(error as AxiosError);
       } finally {
         setLoading(false);
       }

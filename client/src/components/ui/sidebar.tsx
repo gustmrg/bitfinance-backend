@@ -1,6 +1,6 @@
 import { Link, matchPath, useLocation } from "react-router-dom";
 import { Button } from "./button";
-import { Barcode, CreditCard, Home, Receipt, Settings } from "lucide-react";
+import { Barcode, Home, Receipt, Settings } from "lucide-react";
 
 export function Sidebar() {
   const location = useLocation();
