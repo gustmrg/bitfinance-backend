@@ -1,8 +1,14 @@
-import { useAuth0 } from "@auth0/auth0-react";
+interface ProfileProps {
+  user?: any;
+  isAuthenticated?: boolean;
+  isLoading?: boolean;
+}
 
-const Profile = () => {
-  const { user, isAuthenticated, isLoading } = useAuth0();
-
+const Profile = ({
+  user,
+  isAuthenticated,
+  isLoading = false,
+}: ProfileProps) => {
   if (isLoading) {
     return <div>Loading ...</div>;
   }

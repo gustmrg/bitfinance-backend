@@ -10,16 +10,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./dropdown-menu";
-import LogoutButton from "./logout-button";
-import LoginButton from "./login-button";
-import { User } from "@auth0/auth0-react";
 
-interface HeaderProps {
-  user?: User;
-  isAuthenticated: boolean;
-}
-
-export function Header({ user, isAuthenticated }: HeaderProps) {
+export function Header() {
   return (
     <header className="bg-white border-b border-gray-200 p-4">
       <div className="flex items-center justify-between">
@@ -32,53 +24,43 @@ export function Header({ user, isAuthenticated }: HeaderProps) {
           <Button variant="ghost" size="icon">
             <Bell className="h-5 w-5" />
           </Button>
-          <UserNav user={user} isAuthenticated={isAuthenticated} />
+          <UserNav />
         </div>
       </div>
     </header>
   );
 }
 
-interface UserNavProps {
-  user?: User;
-  isAuthenticated: boolean;
-}
-
-export function UserNav({ user, isAuthenticated }: UserNavProps) {
+export function UserNav() {
   return (
     <>
-      {isAuthenticated ? (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src="/avatars/02.png" alt="@gustmrg" />
-                <AvatarFallback>SC</AvatarFallback>
-              </Avatar>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56" align="end" forceMount>
-            <DropdownMenuLabel className="font-normal">
-              <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">{user?.name}</p>
-                <p className="text-xs leading-none text-muted-foreground">
-                  {user?.nickname}
-                </p>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>New Team</DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <LogoutButton />
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ) : (
-        <LoginButton />
-      )}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+            <Avatar className="h-8 w-8">
+              <AvatarImage src="/avatars/02.png" alt="@gustmrg" />
+              <AvatarFallback>SC</AvatarFallback>
+            </Avatar>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-56" align="end" forceMount>
+          <DropdownMenuLabel className="font-normal">
+            <div className="flex flex-col space-y-1">
+              <p className="text-sm font-medium leading-none">Tom Cook</p>
+              <p className="text-xs leading-none text-muted-foreground">
+                @tomcook
+              </p>
+            </div>
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuItem>Profile</DropdownMenuItem>
+            <DropdownMenuItem>Settings</DropdownMenuItem>
+            <DropdownMenuItem>New Team</DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+        </DropdownMenuContent>
+      </DropdownMenu>
     </>
   );
 }
