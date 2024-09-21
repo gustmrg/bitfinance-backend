@@ -10,10 +10,10 @@ export function Sidebar() {
       className={`bg-gray-800 text-white w-64 min-h-screen p-4 block md:block`}
     >
       <nav className="flex flex-col space-y-2">
-        <Link to="/">
+        <Link to="/dashboard">
           <Button
             variant="ghost"
-            className={`w-full justify-start ${matchPath({ path: "/", end: true }, location.pathname) ? "bg-accent text-accent-foreground" : ""}`}
+            className={`w-full justify-start ${matchPath({ path: "/dashboard", end: true }, location.pathname) ? "bg-accent text-accent-foreground" : ""}`}
           >
             <Home className="mr-2 h-4 w-4" />
             Dashboard
