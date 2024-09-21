@@ -11,7 +11,6 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -40,25 +39,16 @@ import {
   MoreHorizontal,
   FileText,
   Trash2,
-  PlusCircle,
   Paperclip,
   ListFilter,
-  SquarePen,
   PencilLine,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { dateFormatter } from "@/utils/formatter";
+import { AddBillDialog } from "./components/AddBillDialog";
+import { v4 as uuidv4 } from "uuid";
 
-type Bill = {
+export type Bill = {
   id: string;
   description: string;
   category: string;
@@ -69,6 +59,7 @@ type Bill = {
   dueDate: string;
   paidDate?: string | null;
   deletedDate?: string | null;
+  notes?: string;
 };
 
 // Mock data for bills
@@ -84,6 +75,7 @@ const initialBills: Bill[] = [
     dueDate: "2024-09-01T00:00:00",
     paidDate: null,
     deletedDate: null,
+    notes: "This is the monthly electricity bill for the apartment.",
   },
   {
     id: "7b9c8277-f8f0-48f2-bc29-d1e38e7d79e5",
@@ -96,6 +88,7 @@ const initialBills: Bill[] = [
     dueDate: "2024-09-03T00:00:00",
     paidDate: "2024-08-20T11:00:00",
     deletedDate: null,
+    notes: "This is the monthly internet bill for the apartment.",
   },
   {
     id: "c1b232a4-8275-4fa9-a3df-cb8e18c46c73",
@@ -132,6 +125,7 @@ const initialBills: Bill[] = [
     dueDate: "2024-09-10T00:00:00",
     paidDate: null,
     deletedDate: null,
+    notes: "This is the monthly car loan payment.",
   },
   {
     id: "c68a8932-fb07-4997-bd23-13387d41e132",
@@ -144,6 +138,7 @@ const initialBills: Bill[] = [
     dueDate: "2024-09-01T00:00:00",
     paidDate: "2024-08-15T10:00:00",
     deletedDate: null,
+    notes: "This is the monthly gym membership fee.",
   },
   {
     id: "df4c2bc2-624f-4b1f-9dd9-8a5e1cf2c264",
@@ -156,6 +151,7 @@ const initialBills: Bill[] = [
     dueDate: "2024-09-08T00:00:00",
     paidDate: null,
     deletedDate: null,
+    notes: "This is the monthly credit card bill.",
   },
   {
     id: "f84d7cb5-24ad-4a94-9376-4c791b8b9634",
@@ -168,6 +164,7 @@ const initialBills: Bill[] = [
     dueDate: "2024-09-01T00:00:00",
     paidDate: "2024-08-10T08:00:00",
     deletedDate: null,
+    notes: "This is the monthly phone bill for the apartment.",
   },
   {
     id: "1b9b8b44-cc10-46df-a4d4-56425b5b25ef",
@@ -180,6 +177,7 @@ const initialBills: Bill[] = [
     dueDate: "2024-09-05T00:00:00",
     paidDate: "2024-08-06T14:00:00",
     deletedDate: null,
+    notes: "This is the monthly Netflix subscription fee.",
   },
   {
     id: "c7ad6e6d-ccbb-4a0d-a4bc-416f25e0fc68",
@@ -192,20 +190,12 @@ const initialBills: Bill[] = [
     dueDate: "2024-09-15T00:00:00",
     paidDate: null,
     deletedDate: null,
+    notes: "This is the monthly student loan payment.",
   },
 ];
 
 export function Bills() {
   const [bills, setBills] = useState<Bill[]>(initialBills);
-  const [newBill, setNewBill] = useState<Bill>({
-    id: "",
-    description: "",
-    category: "",
-    status: "created",
-    amountDue: 0,
-    createdDate: new Date().toISOString(),
-    dueDate: new Date().toISOString(),
-  });
 
   function handleCancel(id: string) {
     const updatedBills = bills.map((bill) =>
@@ -220,46 +210,36 @@ export function Bills() {
     setBills(updatedBills);
   }
 
-  const handleAddBill = () => {
+  const handleAddBill = (data: any) => {
     const bill: Bill = {
-      id: "1f3e3a1a-8c68-4537-9e4d-56c1f19a8bc9",
-      description: newBill.description,
-      category: newBill.category,
-      status: newBill.status,
-      amountDue: newBill.amountDue,
-      amountPaid: newBill.amountPaid,
+      id: uuidv4(),
+      description: data.description,
+      category: data.category,
+      status: "due",
+      amountDue: data.amount,
       createdDate: new Date().toISOString(),
-      dueDate: new Date().toISOString(),
+      dueDate: data.dueDate.toISOString(),
     };
     setBills([...bills, bill]);
-    setNewBill({
-      id: "",
-      description: "",
-      category: "",
-      status: "completed",
-      amountDue: 0,
-      createdDate: new Date().toISOString(),
-      dueDate: new Date().toISOString(),
-    });
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "paid":
         return (
-          <Badge className="text-green-600 bg-green-200 hover:text-green-600 hover:bg-green-200/80">
+          <Badge className="text-green-700 bg-green-200 hover:text-green-700 hover:bg-green-200/80">
             Paid
           </Badge>
         );
       case "due":
         return (
-          <Badge className="text-yellow-600 bg-yellow-200 hover:text-yellow-600 hover:bg-yellow-200/80">
+          <Badge className="text-amber-700 bg-amber-100 hover:text-amber-700 hover:bg-amber-100/80">
             Due
           </Badge>
         );
       case "overdue":
         return (
-          <Badge className="text-red-600 bg-red-200 hover:text-red-600 hover:bg-red-200/80">
+          <Badge className="text-red-700 bg-red-200 hover:text-red-700 hover:bg-red-200/80">
             Overdue
           </Badge>
         );
@@ -295,112 +275,7 @@ export function Bills() {
               <DropdownMenuCheckboxItem>Cancelled</DropdownMenuCheckboxItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button size="sm" className="h-8 gap-1">
-                <PlusCircle className="h-3.5 w-3.5" />
-                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                  Add Bill
-                </span>
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add New Bill</DialogTitle>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="description" className="text-right">
-                    Description
-                  </Label>
-                  <Input
-                    id="description"
-                    className="col-span-3"
-                    value={newBill.description}
-                    onChange={(e) =>
-                      setNewBill({
-                        ...newBill,
-                        description: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="category" className="text-right">
-                    Category
-                  </Label>
-                  <Select
-                    value={newBill.category}
-                    onValueChange={(value) =>
-                      setNewBill({ ...newBill, category: value })
-                    }
-                  >
-                    <SelectTrigger className="col-span-3">
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Housing">Housing</SelectItem>
-                      <SelectItem value="Transportation">
-                        Transportation
-                      </SelectItem>
-                      <SelectItem value="Food">Food</SelectItem>
-                      <SelectItem value="Utilities">Utilities</SelectItem>
-                      <SelectItem value="Clothing">Clothing</SelectItem>
-                      <SelectItem value="Healthcare">Healthcare</SelectItem>
-                      <SelectItem value="Insurance">Insurance</SelectItem>
-                      <SelectItem value="Personal">Personal</SelectItem>
-                      <SelectItem value="Debt">Debt</SelectItem>
-                      <SelectItem value="Savings">Savings</SelectItem>
-                      <SelectItem value="Education">Education</SelectItem>
-                      <SelectItem value="Entertainment">
-                        Entertainment
-                      </SelectItem>
-                      <SelectItem value="Miscellaneous">
-                        Miscellaneous
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="amount" className="text-right">
-                    Amount
-                  </Label>
-                  <Input
-                    id="amount"
-                    type="number"
-                    className="col-span-3"
-                    value={newBill.amountDue}
-                    onChange={(e) =>
-                      setNewBill({
-                        ...newBill,
-                        amountDue: parseFloat(e.target.value),
-                      })
-                    }
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="date" className="text-right">
-                    Due Date
-                  </Label>
-                  <Input
-                    id="date"
-                    type="date"
-                    className="col-span-3"
-                    value={newBill.dueDate}
-                    onChange={(e) =>
-                      setNewBill({
-                        ...newBill,
-                        dueDate: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button onClick={handleAddBill}>Add Bill</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          <AddBillDialog onAddBill={handleAddBill} />
         </div>
       </div>
       <div className="rounded-md border">
@@ -410,7 +285,7 @@ export function Bills() {
               <TableHead>Description</TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Date</TableHead>
+              <TableHead>Due Date</TableHead>
               <TableHead className="text-right">Amount</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -424,7 +299,7 @@ export function Bills() {
                 <TableCell>{bill.category}</TableCell>
                 <TableCell>{getStatusBadge(bill.status)}</TableCell>
                 <TableCell>
-                  {dateFormatter.format(new Date(bill.createdDate))}
+                  {dateFormatter.format(new Date(bill.dueDate))}
                 </TableCell>
                 <TableCell className="text-right">
                   $ {bill.amountDue.toFixed(2)}
@@ -528,16 +403,16 @@ export function Bills() {
                                 </div>
                               )}
 
-                              <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                <dt className="text-sm font-medium leading-6 text-gray-900">
-                                  Notes
-                                </dt>
-                                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                  Fugiat ipsum ipsum deserunt culpa aute sint do
-                                  nostrud anim incididunt cillum culpa
-                                  consequat.
-                                </dd>
-                              </div>
+                              {bill.notes ? (
+                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                  <dt className="text-sm font-medium leading-6 text-gray-900">
+                                    Notes
+                                  </dt>
+                                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                    {bill.notes}
+                                  </dd>
+                                </div>
+                              ) : null}
                               <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                                 <dt className="text-sm font-medium leading-6 text-gray-900">
                                   Attachments
