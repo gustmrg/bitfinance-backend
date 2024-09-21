@@ -3,7 +3,7 @@ import { Sidebar } from "@/components/ui/sidebar";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Outlet } from "react-router-dom";
 
-export default function MainLayout() {
+export default function DashboardLayout() {
   const { isAuthenticated } = useAuth0();
 
   return (

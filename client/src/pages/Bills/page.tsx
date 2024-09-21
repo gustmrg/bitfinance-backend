@@ -22,9 +22,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { AddBillDialog } from "./components/AddBillDialog";
-import { DeleteBillDialog } from "./components/DeleteBillDialog";
-import { BillDetailsDialog } from "./components/BillDetailsDialog";
+import { AddBillDialog } from "./components/add-bill-dialog";
+import { DeleteBillDialog } from "./components/delete-bill-dialog";
+import { DetailBillDialog } from "./components/detail-bill-dialog";
 import { Bill } from "./types";
 
 // Mock data for bills
@@ -298,7 +298,7 @@ export function Bills() {
                         <PencilLine className="mr-2 h-4 w-4" />
                         Edit
                       </DropdownMenuItem>
-                      <BillDetailsDialog bill={bill} />
+                      <DetailBillDialog bill={bill} />
                       <DeleteBillDialog
                         id={bill.id}
                         onDelete={handleDeleteBill}

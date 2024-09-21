@@ -13,11 +13,11 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Bill } from "../types";
 
-interface BillDetailsDialogProps {
+interface DetailBillDialogProps {
   bill: Bill;
 }
 
-export function BillDetailsDialog({ bill }: BillDetailsDialogProps) {
+export function DetailBillDialog({ bill }: DetailBillDialogProps) {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "paid":
