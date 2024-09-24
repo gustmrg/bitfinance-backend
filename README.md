@@ -1,5 +1,7 @@
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
+
 <a name="readme-top"></a>
+
 <!--
 *** Thanks for checking out the Best-README-Template. If you have a suggestion
 *** that would make this better, please fork the repo and create a pull request
@@ -7,8 +9,6 @@
 *** Don't forget to give the project a star!
 *** Thanks again! Now go create something AMAZING! :D
 -->
-
-
 
 <!-- PROJECT SHIELDS -->
 <!--
@@ -26,7 +26,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/gustmrg/bitfinance">
-    <img src="/img/logo.png" alt="" height="100" >
+    <img src="/assets/logo.png" alt="" height="100" >
   </a>
 
 <h3 align="center">BitFinance</h3>
@@ -34,7 +34,6 @@
     Gerenciador de orçamento financeiro de forma simples
     <br />
 </div>
-
 
 <!-- TABLE OF CONTENTS -->
 <details>
@@ -59,33 +58,25 @@
   </ol>
 </details>
 
-
-
 <!-- ABOUT THE PROJECT -->
+
 ## Sobre o Projeto
 
+O BitFinance é um aplicativo de finanças projetado para simplificar o acompanhamento e gerenciamento de gastos. Com uma interface simples, permite que usuários registrem e monitorem despesas de forma eficiente, proporcionando controle total sobre o orçamento, facilitando a organização das finanças da família ou da empresa.
 
-
-O BitFinance é um aplicativo de finanças projetado para simplificar o acompanhamento e gerenciamento de gastos. Com uma interface simples, permite que usuários registrem e monitorem despesas de forma eficiente, proporcionando controle total sobre o orçamento, facilitando a organização das finanças da família.
-
-Desenvolvi este projeto com o objetivo de solucionar o problema da dificuldade de acompanhar os meus gastos financeiros, ajudando a entender onde estão os maiores custos e de melhorar a educação financeira. 
+Desenvolvi este projeto com o objetivo de solucionar o problema da dificuldade de acompanhar os meus gastos financeiros, ajudando a entender onde estão os maiores custos e de melhorar a educação financeira.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 ### Tecnologias
 
-* [![React][React.js]][React-url]
-* [![TailwindCSS][TailwindCSS]][Tailwindcss-url]
-* [![.NET][dotnet]][dotnet-url]
-* [![SqlServer][SqlServer]][SqlServer-url]
+- [![React][React.js]][React-url]
+- [![TailwindCSS][TailwindCSS]][Tailwindcss-url]
+- [![.NET][dotnet]][dotnet-url]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
-<!-- GETTING STARTED 
+<!-- GETTING STARTED
 ## Getting Started
 
 This is an example of how you may give instructions on setting up your project locally.
@@ -119,8 +110,7 @@ This is an example of how to list things you need to use the software and how to
 
 -->
 
-
-<!-- USAGE EXAMPLES 
+<!-- USAGE EXAMPLES
 ## Usage
 
 Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
@@ -131,38 +121,36 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 
 -->
 
-
 <!-- ROADMAP -->
+
 ## Roadmap
 
 - [x] Gerenciamento de contas a pagar (adicionar/atualizar/excluir)
 - [ ] Gerenciamento de residências/famílias (adicionar/atualizar/excluir)
 - [x] Autenticação/Autorização
-- [ ] Salvar documentos (boleto/comprovante) 
-- [ ] Tela de Dashboard
-- [ ] Tela de Login
+- [ ] Salvar documentos (boleto/comprovante)
+- [ ] Página de Dashboard
+- [x] Página de Login
+- [x] Página de Contas a Pagar
 - [ ] Salvar arquivos localmente
 - [ ] Salvar arquivos no S3 (AWS)
 - [ ] Enviar link de convite para adicionar usuários em residências/famílias
 - [ ] Notificações de datas de vencimento
-- [ ] Sistema de agendamento de mensagens via WhatsApp
 - [ ] Containers Docker
-
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
 <!-- LICENSE -->
+
 ## Licença
 
 Este projeto está sob a licença MIT. Veja `LICENSE.md` para mais informações.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/github_username/repo_name.svg?style=for-the-badge
 [contributors-url]: https://github.com/github_username/repo_name/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/github_username/repo_name.svg?style=for-the-badge
