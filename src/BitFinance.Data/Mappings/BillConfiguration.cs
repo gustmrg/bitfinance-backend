@@ -10,39 +10,60 @@ public class BillConfiguration : IEntityTypeConfiguration<Bill>
     {
         builder.HasKey(b => b.Id);
 
-        builder.Property(b => b.Id);
+        builder.Property(b => b.Id)
+            .HasColumnName("id");
         
-        builder.Property(b => b.Name)
-            .HasColumnType("nvarchar")
-            .HasMaxLength(255)
+        builder.Property(b => b.Description)
+            .HasColumnName("description")
+            .HasColumnType("text")
             .IsRequired();
         
         builder.Property(b => b.Category)
+            .HasColumnName("category")
+            .HasColumnType("text")
             .IsRequired();
         
-        builder.Property(b => b.CreatedDate)
-            .HasColumnType("datetime2")
-            .HasPrecision(3)
+        builder.Property(b => b.Status)
+            .HasColumnName("status")
+            .HasColumnType("text")  
             .IsRequired();
         
         builder.Property(b => b.DueDate)
-            .HasColumnType("datetime2")
+            .HasColumnName("due_date")
+            .HasColumnType("timestampz")
             .HasPrecision(3)
             .IsRequired();
         
-        builder.Property(b => b.PaidDate)
-            .HasColumnType("datetime2")
-            .HasPrecision(3)
-            .IsRequired(false);
+        builder.Property(b => b.PaymentDate)
+            .HasColumnName("payment_date")
+            .HasColumnType("timestampz")
+            .HasPrecision(3);
         
         builder.Property(b => b.AmountDue)
-            .HasColumnType("decimal(10,2)")
+            .HasColumnName("amount_due")
+            .HasColumnType("numeric(10,2)")
             .IsRequired();
         
         builder.Property(b => b.AmountPaid)
-            .HasColumnType("decimal(10,2)")
-            .IsRequired(false);
+            .HasColumnName("amount_paid")
+            .HasColumnType("numeric(10,2)");
+        
+        builder.Property(b => b.CreatedAt)
+            .HasColumnName("created_at")
+            .HasColumnType("timestampz")
+            .HasPrecision(3)
+            .IsRequired();
+        
+        builder.Property(b => b.UpdatedAt)
+            .HasColumnName("updated_at")
+            .HasColumnType("timestampz")
+            .HasPrecision(3);
+        
+        builder.Property(b => b.DeletedAt)
+            .HasColumnName("deleted_at")
+            .HasColumnType("timestampz")
+            .HasPrecision(3);
 
-        builder.ToTable("Bills");
+        builder.ToTable("bills");
     }
 }

@@ -7,6 +7,6 @@ public record CreateBillRequest(
     BillCategory Category, 
     BillStatus Status, 
     DateTime DueDate, 
-    DateTime? PaidDate, 
+    DateTime? PaymentDate, 
     decimal AmountDue, 
     decimal? AmountPaid);

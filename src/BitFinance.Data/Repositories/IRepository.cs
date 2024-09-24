@@ -1,4 +1,4 @@
-namespace BitFinance.API.Repositories;
+namespace BitFinance.Data.Repositories;
 
 public interface IRepository<T, TId> 
     where TId : IEquatable<TId> 

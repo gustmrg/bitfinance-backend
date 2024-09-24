@@ -19,9 +19,9 @@ public class GetBillResponse
     
     public decimal? AmountPaid { get; set; }
     
-    public DateTime CreatedDate { get; set; }
+    public DateTime CreatedAt { get; set; }
     
     public DateTime DueDate { get; set; }
     
-    public DateTime? PaidDate { get; set; }
+    public DateTime? PaymentDate { get; set; }
 }

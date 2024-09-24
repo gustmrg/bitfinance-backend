@@ -60,78 +60,78 @@ public static class SeedData
 
         Bill bill1 = new()
         {
-            Name = "Internet Bill",
+            Description = "Internet Bill",
             Category = BillCategory.Utilities,
             Status = BillStatus.Overdue,
-            CreatedDate = DateTime.UtcNow.AddHours(-3),
+            CreatedAt = DateTime.UtcNow.AddHours(-3),
             DueDate = DateTime.UtcNow.AddHours(-3),
-            PaidDate = null,
+            PaymentDate = null,
             AmountDue = 120M,
             AmountPaid = null
         };
         
         Bill bill2 = new()
         {
-            Name = "Electricity Bill",
+            Description = "Electricity Bill",
             Category = BillCategory.Utilities,
             Status = BillStatus.Paid,
-            CreatedDate = DateTime.UtcNow.AddHours(-3),
+            CreatedAt = DateTime.UtcNow.AddHours(-3),
             DueDate = DateTime.UtcNow.AddHours(-3),
-            PaidDate = DateTime.Now.ToUniversalTime().AddHours(-3),
+            PaymentDate = DateTime.Now.ToUniversalTime().AddHours(-3),
             AmountDue = 800M,
             AmountPaid = 800M
         };
         
         Bill bill3 = new()
         {
-            Name = "Health Insurance",
+            Description = "Health Insurance",
             Category = BillCategory.Healthcare,
             Status = BillStatus.Paid,
-            CreatedDate = DateTime.UtcNow.AddHours(-3),
+            CreatedAt = DateTime.UtcNow.AddHours(-3),
             DueDate = DateTime.UtcNow.AddHours(-3),
-            PaidDate = DateTime.UtcNow.AddHours(-3).AddDays(-2),
+            PaymentDate = DateTime.UtcNow.AddHours(-3).AddDays(-2),
             AmountDue = 500M,
             AmountPaid = 500M
         };
         
         Bill bill4 = new()
         {
-            Name = "Car Insurance",
+            Description = "Car Insurance",
             Category = BillCategory.Insurance,
             Status = BillStatus.Due,
-            CreatedDate = DateTime.UtcNow.AddHours(-3),
+            CreatedAt = DateTime.UtcNow.AddHours(-3),
             DueDate = DateTime.UtcNow.AddHours(-3).AddDays(10),
             AmountDue = 1000M
         };
         
         Bill bill5 = new()
         {
-            Name = "Streaming Subscription",
+            Description = "Streaming Subscription",
             Category = BillCategory.Entertainment,
             Status = BillStatus.Due,
-            CreatedDate = DateTime.UtcNow.AddHours(-3),
+            CreatedAt = DateTime.UtcNow.AddHours(-3),
             DueDate = DateTime.UtcNow.AddHours(-3).AddDays(15),
             AmountDue = 49.90M
         };
 
         Bill bill6 = new() 
         {
-            Name = "Rent Payment",
+            Description = "Rent Payment",
             Category = BillCategory.Housing,
             Status = BillStatus.Paid,
-            CreatedDate = DateTime.UtcNow.AddHours(-3),
+            CreatedAt = DateTime.UtcNow.AddHours(-3),
             DueDate = DateTime.UtcNow.AddHours(-3).AddDays(-2),
-            PaidDate = DateTime.UtcNow.AddHours(-3),
+            PaymentDate = DateTime.UtcNow.AddHours(-3),
             AmountDue = 2000M,
             AmountPaid = 2000M
         };
 
         Bill bill7 = new()
         {
-            Name = "Online Course Subscription",
+            Description = "Online Course Subscription",
             Category = BillCategory.Education,
             Status = BillStatus.Cancelled,
-            CreatedDate = DateTime.UtcNow.AddHours(-3),
+            CreatedAt = DateTime.UtcNow.AddHours(-3),
             DueDate = DateTime.UtcNow.AddHours(-3).AddDays(20),
             AmountDue = 250M
         };

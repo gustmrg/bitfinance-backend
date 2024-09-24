@@ -2,9 +2,9 @@ using System.Globalization;
 using Asp.Versioning;
 using BitFinance.API.Models.Request;
 using BitFinance.API.Models.Response;
-using BitFinance.API.Repositories;
 using BitFinance.Business.Entities;
 using BitFinance.Data.Contexts;
+using BitFinance.Data.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -44,12 +44,12 @@ public class BillsController : ControllerBase
             List<GetBillResponse> response = bills.Select(bill => new GetBillResponse
                 {
                     Id = bill.Id,
-                    Name = bill.Name,
+                    Name = bill.Description,
                     Category = bill.Category,
                     Status = bill.Status,
-                    CreatedDate = bill.CreatedDate,
+                    CreatedAt = bill.CreatedAt,
                     DueDate = bill.DueDate,
-                    PaidDate = bill.PaidDate,
+                    PaymentDate = bill.PaymentDate,
                     AmountDue = bill.AmountDue,
                     AmountPaid = bill.AmountPaid
                 })
@@ -86,12 +86,12 @@ public class BillsController : ControllerBase
             var response = new GetBillResponse
             {
                 Id = bill.Id,
-                Name = bill.Name,
+                Name = bill.Description,
                 Category = bill.Category,
                 Status = bill.Status,
-                CreatedDate = bill.CreatedDate,
+                CreatedAt = bill.CreatedAt,
                 DueDate = bill.DueDate,
-                PaidDate = bill.PaidDate,
+                PaymentDate = bill.PaymentDate,
                 AmountDue = bill.AmountDue,
                 AmountPaid = bill.AmountPaid
             };
@@ -123,12 +123,12 @@ public class BillsController : ControllerBase
             
             Bill bill = new()
             {
-                Name = request.Name,
+                Description = request.Name,
                 Category = request.Category,
                 Status = request.Status,
-                CreatedDate = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow,
                 DueDate = request.DueDate.ToUniversalTime(),
-                PaidDate = request.PaidDate?.ToUniversalTime(),
+                PaymentDate = request.PaymentDate?.ToUniversalTime(),
                 AmountDue = request.AmountDue,
                 AmountPaid = request.AmountPaid
             };
@@ -138,12 +138,12 @@ public class BillsController : ControllerBase
             var response = new CreateBillResponse
             {
                 Id = bill.Id,
-                Name = bill.Name,
+                Name = bill.Description,
                 Category = bill.Category,
                 Status = bill.Status,
-                CreatedDate = bill.CreatedDate,
+                CreatedDate = bill.CreatedAt,
                 DueDate = bill.DueDate,
-                PaidDate = bill.PaidDate,
+                PaidDate = bill.PaymentDate,
                 AmountDue = bill.AmountDue,
                 AmountPaid = bill.AmountPaid
             };
@@ -171,18 +171,18 @@ public class BillsController : ControllerBase
         {
             Bill? bill;
             
-            bill = await _context.Bills.FirstOrDefaultAsync(b => b.Id == id && b.DeletedDate == null);
+            bill = await _context.Bills.FirstOrDefaultAsync(b => b.Id == id && b.DeletedAt == null);
 
             if (bill is null)
             {
                 return NotFound();
             }
             
-            bill.Name = request.Name;
+            bill.Description = request.Name;
             bill.Category = request.Category;
             bill.Status = request.Status;
             bill.DueDate = request.DueDate.ToUniversalTime();
-            bill.PaidDate = request.PaidDate?.ToUniversalTime();
+            bill.PaymentDate = request.PaymentDate?.ToUniversalTime();
             bill.AmountDue = request.AmountDue;
             bill.AmountPaid = request.AmountPaid;
 
@@ -191,11 +191,11 @@ public class BillsController : ControllerBase
             var response = new UpdateBillResponse
             {
                 Id = bill.Id,
-                Name = bill.Name,
+                Name = bill.Description,
                 Category = bill.Category,
                 Status = bill.Status,
                 DueDate = bill.DueDate,
-                PaidDate = bill.PaidDate,
+                PaidDate = bill.PaymentDate,
                 AmountDue = bill.AmountDue,
                 AmountPaid = bill.AmountPaid
             };
@@ -225,7 +225,7 @@ public class BillsController : ControllerBase
                 return NotFound();
             }
 
-            if (bill.DeletedDate is not null)
+            if (bill.DeletedAt is not null)
             {
                 return BadRequest();
             }

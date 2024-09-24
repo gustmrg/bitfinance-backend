@@ -1,4 +1,3 @@
-using BitFinance.API.Repositories;
 using BitFinance.Business.Entities;
 using BitFinance.Data.Caching;
 using BitFinance.Data.Contexts;
@@ -23,7 +22,7 @@ public class BillsRepository : IRepository<Bill, Guid>
     public async Task<List<Bill>> GetAll()
     {
         List<Bill> list = await _dbContext.Set<Bill>().AsNoTracking()
-            .Where(b => b.DeletedDate == null)
+            .Where(b => b.DeletedAt == null)
             .ToListAsync();
 
         return list;
@@ -40,7 +39,7 @@ public class BillsRepository : IRepository<Bill, Guid>
 
             if (bill is null)
             {
-                bill = await _dbContext.Set<Bill>().FirstOrDefaultAsync(x => x.Id == id && x.DeletedDate == null);
+                bill = await _dbContext.Set<Bill>().FirstOrDefaultAsync(x => x.Id == id && x.DeletedAt == null);
 
                 if (bill is not null)
                 {
@@ -50,7 +49,7 @@ public class BillsRepository : IRepository<Bill, Guid>
         }
         else
         {
-            bill = await _dbContext.Set<Bill>().FirstOrDefaultAsync(x => x.Id == id && x.DeletedDate == null);
+            bill = await _dbContext.Set<Bill>().FirstOrDefaultAsync(x => x.Id == id && x.DeletedAt == null);
         }
         
         return bill;
@@ -84,7 +83,7 @@ public class BillsRepository : IRepository<Bill, Guid>
 
     public async Task DeleteAsync(Bill bill)
     {
-        bill.DeletedDate = DateTime.UtcNow;
+        bill.DeletedAt = DateTime.UtcNow;
         _dbContext.Set<Bill>().Update(bill);
         await _dbContext.SaveChangesAsync();
         

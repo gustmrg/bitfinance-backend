@@ -1,7 +1,6 @@
 using Asp.Versioning;
 using BitFinance.API.Data;
 using BitFinance.API.Middlewares;
-using BitFinance.API.Repositories;
 using BitFinance.Business.Entities;
 using BitFinance.Data.Caching;
 using BitFinance.Data.Contexts;
@@ -26,9 +25,9 @@ builder.Services.AddAuthentication().AddBearerToken(IdentityConstants.BearerSche
 builder.Services.AddAuthorizationBuilder();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => 
-    options.UseSqlServer(connectionString));
+    options.UseNpgsql(connectionString));
 
-builder.Services.AddIdentityCore<ApplicationUser>()
+builder.Services.AddIdentityCore<User>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddApiEndpoints();
 
@@ -99,7 +98,7 @@ app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
 app.MapControllers();
 app.MapGroup("api/v1/account")
-    .MapIdentityApi<ApplicationUser>()
+    .MapIdentityApi<User>()
     .WithTags("Account");
 
 SeedData.SeedDatabase(app);
