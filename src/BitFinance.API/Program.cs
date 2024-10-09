@@ -1,10 +1,12 @@
 using Asp.Versioning;
 using BitFinance.API.Data;
 using BitFinance.API.Middlewares;
+using BitFinance.API.Options;
 using BitFinance.Business.Entities;
 using BitFinance.Data.Caching;
 using BitFinance.Data.Contexts;
 using BitFinance.Data.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -18,18 +20,25 @@ using Swashbuckle.AspNetCore.Filters;
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("Database");
+var auth0Options = builder.Configuration.GetSection("Auth0").Get<Auth0Options>();
 
 builder.Services.AddCors();
 
-builder.Services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme);
-builder.Services.AddAuthorizationBuilder();
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.Authority = auth0Options.Authority;
+    options.Audience = auth0Options.Audience;
+});
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => 
     options.UseNpgsql(connectionString));
 
 builder.Services.AddIdentityCore<User>()
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddApiEndpoints();
+    .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddScoped<IRepository<Bill, Guid>, BillsRepository>();
 builder.Services.AddSingleton<ICacheService, RedisCacheService>();
@@ -50,7 +59,7 @@ builder.Services.AddSwaggerGen(options =>
     {
         In = ParameterLocation.Header,
         Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey
+        Type = SecuritySchemeType.Http
     });
     
     options.OperationFilter<SecurityRequirementsOperationFilter>();
@@ -73,7 +82,7 @@ builder.Services.AddApiVersioning(options =>
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Information)
     .WriteTo.Console()
-    .WriteTo.MSSqlServer(connectionString, sinkOptions: new MSSqlServerSinkOptions { TableName = "Logs" })
+//    .WriteTo.MSSqlServer(connectionString, sinkOptions: new MSSqlServerSinkOptions { TableName = "Logs" })
     .CreateLogger();
 
 builder.Host.UseSerilog(Log.Logger);
@@ -93,13 +102,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
 app.MapControllers();
-app.MapGroup("api/v1/account")
-    .MapIdentityApi<User>()
-    .WithTags("Account");
 
 SeedData.SeedDatabase(app);
 
