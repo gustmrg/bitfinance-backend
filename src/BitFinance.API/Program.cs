@@ -96,6 +96,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
     app.UseCors(options => options.AllowAnyOrigin().AllowAnyHeader());
+    SeedData.SeedDatabase(app);
 }
 
 app.UseHttpsRedirection();
@@ -105,7 +106,5 @@ app.UseAuthorization();
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
 app.MapControllers();
-
-SeedData.SeedDatabase(app);
 
 app.Run();
