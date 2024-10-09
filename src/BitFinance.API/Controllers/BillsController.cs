@@ -3,6 +3,7 @@ using Asp.Versioning;
 using BitFinance.API.Models.Request;
 using BitFinance.API.Models.Response;
 using BitFinance.Business.Entities;
+using BitFinance.Business.Enums;
 using BitFinance.Data.Contexts;
 using BitFinance.Data.Repositories;
 using Microsoft.AspNetCore.Authorization;
@@ -121,11 +122,16 @@ public class BillsController : ControllerBase
                 return UnprocessableEntity();
             }
             
+            bool isValidCategory = Enum.TryParse(request.Category, true, out BillCategory category);
+            bool isValidStatus = Enum.TryParse(request.Status, true, out BillStatus status);
+            
+            if (!isValidCategory || !isValidStatus) return UnprocessableEntity();
+            
             Bill bill = new()
             {
                 Description = request.Name,
-                Category = request.Category,
-                Status = request.Status,
+                Category = category,
+                Status = status,
                 CreatedAt = DateTime.UtcNow,
                 DueDate = request.DueDate.ToUniversalTime(),
                 PaymentDate = request.PaymentDate?.ToUniversalTime(),
@@ -169,6 +175,9 @@ public class BillsController : ControllerBase
     {
         try
         {
+            bool isValidCategory = Enum.TryParse(request.Category, true, out BillCategory category);
+            bool isValidStatus = Enum.TryParse(request.Status, true, out BillStatus status);
+            
             Bill? bill;
             
             bill = await _context.Bills.FirstOrDefaultAsync(b => b.Id == id && b.DeletedAt == null);
@@ -179,8 +188,8 @@ public class BillsController : ControllerBase
             }
             
             bill.Description = request.Name;
-            bill.Category = request.Category;
-            bill.Status = request.Status;
+            bill.Category = category;
+            bill.Status = status;
             bill.DueDate = request.DueDate.ToUniversalTime();
             bill.PaymentDate = request.PaymentDate?.ToUniversalTime();
             bill.AmountDue = request.AmountDue;

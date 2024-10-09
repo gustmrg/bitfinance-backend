@@ -4,8 +4,8 @@ namespace BitFinance.API.Models.Request;
 
 public record CreateBillRequest(
     string Name, 
-    BillCategory Category, 
-    BillStatus Status, 
+    string Category, 
+    string Status, 
     DateTime DueDate, 
     DateTime? PaymentDate, 
     decimal AmountDue, 
