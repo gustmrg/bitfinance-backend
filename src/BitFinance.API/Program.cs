@@ -95,10 +95,10 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.UseCors(options => options.AllowAnyOrigin().AllowAnyHeader());
     SeedData.SeedDatabase(app);
 }
 
+app.UseCors(options => options.AllowAnyOrigin().AllowAnyHeader());
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
