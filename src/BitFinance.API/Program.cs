@@ -91,19 +91,19 @@ builder.Services.AddHttpLogging(options =>
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-    SeedData.SeedDatabase(app);
-}
-
+app.UseSwagger();
+app.UseSwaggerUI();
 app.UseCors(options => options.AllowAnyOrigin().AllowAnyHeader());
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
+
+if (app.Environment.IsDevelopment())
+{
+    SeedData.SeedDatabase(app);
+}
 
 app.MapControllers();
 
