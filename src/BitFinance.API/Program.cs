@@ -8,6 +8,7 @@ using BitFinance.Data.Contexts;
 using BitFinance.Data.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.OpenApi.Models;
@@ -30,6 +31,11 @@ builder.Services.AddAuthentication(options =>
 {
     options.Authority = auth0Options!.Authority;
     options.Audience = auth0Options.Audience;
+});
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
 });
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => 
@@ -94,7 +100,7 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseCors(options => options.AllowAnyOrigin().AllowAnyHeader());
-app.UseHttpsRedirection();
+app.UseForwardedHeaders();
 
 app.UseAuthentication();
 app.UseAuthorization();
