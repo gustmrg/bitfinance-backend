@@ -1,5 +1,5 @@
 using Asp.Versioning;
-using BitFinance.API.Data;
+using BitFinance.API.Extensions;
 using BitFinance.API.Middlewares;
 using BitFinance.API.Options;
 using BitFinance.Business.Entities;
@@ -51,7 +51,7 @@ builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();
 
 builder.Services.AddStackExchangeRedisCache(options =>
 {
-    options.Configuration = builder.Configuration.GetConnectionString("Redis");
+    options.Configuration = builder.Configuration.GetConnectionString("Cache");
     options.InstanceName = "BitFinance";
 });
 
@@ -108,7 +108,7 @@ app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
-    SeedData.SeedDatabase(app);
+    app.ApplyMigrations();
 }
 
 app.MapControllers();
