@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BitFinance.API.Controllers;
 
 [ApiController]
-[Route("api/v{version:apiVersion}/bills")]
+[Route("api/v{version:apiVersion}/organizations")]
 [ApiVersion("1.0")]
 [Authorize]
 public class OrganizationsController : ControllerBase
@@ -16,7 +16,7 @@ public class OrganizationsController : ControllerBase
         return Ok();
     }
 
-    [HttpGet]
+    [HttpGet("{organizationId:guid}")]
     public IActionResult GetOrganizationById(Guid organizationId)
     {
         return Ok();
@@ -28,8 +28,14 @@ public class OrganizationsController : ControllerBase
         return Ok();
     }
     
-    [HttpPatch]
-    public IActionResult UpdateOrganization()
+    [HttpPatch("{organizationId:guid}")]
+    public IActionResult UpdateOrganization(Guid organizationId)
+    {
+        return Ok();
+    }
+
+    [HttpPost("{organizationId:guid}/join")]
+    public IActionResult JoinOrganization(Guid organizationId)
     {
         return Ok();
     }
