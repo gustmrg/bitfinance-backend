@@ -19,7 +19,7 @@ public class BillsRepository : IRepository<Bill, Guid>
         _cache = cache;
     }
 
-    public async Task<List<Bill>> GetAll()
+    public async Task<List<Bill>> GetAllAsync()
     {
         List<Bill> list = await _dbContext.Set<Bill>().AsNoTracking()
             .Where(b => b.DeletedAt == null)

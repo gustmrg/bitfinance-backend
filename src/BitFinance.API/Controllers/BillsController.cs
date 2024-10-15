@@ -40,7 +40,7 @@ public class BillsController : ControllerBase
     {
         try
         {
-            List<Bill> bills = await _repository.GetAll();
+            List<Bill> bills = await _repository.GetAllAsync();
 
             List<GetBillResponse> response = bills.Select(bill => new GetBillResponse
                 {

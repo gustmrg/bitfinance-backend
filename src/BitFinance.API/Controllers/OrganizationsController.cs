@@ -1,4 +1,7 @@
 using Asp.Versioning;
+using BitFinance.API.Models.Request;
+using BitFinance.Business.Entities;
+using BitFinance.Data.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,28 +13,43 @@ namespace BitFinance.API.Controllers;
 [Authorize]
 public class OrganizationsController : ControllerBase
 {
-    [HttpGet]
-    public IActionResult GetOrganizations()
+    private readonly IRepository<Organization, Guid> _repository;
+
+    public OrganizationsController(IRepository<Organization, Guid> repository)
     {
-        return Ok();
+        _repository = repository;
     }
 
     [HttpGet("{organizationId:guid}")]
-    public IActionResult GetOrganizationById(Guid organizationId)
+    public async Task<IActionResult> GetOrganizationById(Guid organizationId)
+    {
+        var organization = await _repository.GetByIdAsync(organizationId);
+        
+        if (organization is null) return NotFound();
+        
+        return Ok(organization);
+    }
+    
+    [HttpGet("users/{userId:guid}")]
+    public IActionResult GetOrganizationsByUser(Guid userId)
     {
         return Ok();
     }
-
+    
     [HttpPost]
-    public IActionResult CreateOrganization()
+    public IActionResult CreateOrganization(CreateOrganizationRequest request)
     {
         return Ok();
     }
     
     [HttpPatch("{organizationId:guid}")]
-    public IActionResult UpdateOrganization(Guid organizationId)
+    public async Task<IActionResult> UpdateOrganization(Guid organizationId, [FromBody] UpdateOrganizationRequest request)
     {
-        return Ok();
+        var organization = await _repository.GetByIdAsync(organizationId);
+        
+        if (organization is null) return NotFound();
+        
+        return Ok(organization);
     }
 
     [HttpPost("{organizationId:guid}/join")]
