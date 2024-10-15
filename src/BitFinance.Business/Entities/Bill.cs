@@ -15,4 +15,6 @@ public class Bill
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public DateTime? DeletedAt { get; set; }
+    public Guid OrganizationId { get; set; }
+    public Organization Organization { get; set; } = null!;
 }

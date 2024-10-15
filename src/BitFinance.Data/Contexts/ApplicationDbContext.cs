@@ -1,8 +1,9 @@
+using System.Reflection;
 using BitFinance.Business.Entities;
-using BitFinance.Data.Mappings;
-using Microsoft.AspNetCore.Identity;
+using BitFinance.Business.Extensions;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace BitFinance.Data.Contexts;
 
@@ -14,71 +15,34 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     {
         base.OnModelCreating(builder);
         
-        builder.Entity<User>(entity => {
-            entity.ToTable("users");
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.UserName).HasColumnName("user_name");
-            entity.Property(e => e.NormalizedUserName).HasColumnName("normalized_user_name");
-            entity.Property(e => e.Email).HasColumnName("email");
-            entity.Property(e => e.NormalizedEmail).HasColumnName("normalized_email");
-            entity.Property(e => e.EmailConfirmed).HasColumnName("email_confirmed");
-            entity.Property(e => e.PasswordHash).HasColumnName("password_hash");
-            entity.Property(e => e.SecurityStamp).HasColumnName("security_stamp");
-            entity.Property(e => e.ConcurrencyStamp).HasColumnName("concurrency_stamp");
-            entity.Property(e => e.PhoneNumber).HasColumnName("phone_number");
-            entity.Property(e => e.PhoneNumberConfirmed).HasColumnName("phone_number_confirmed");
-            entity.Property(e => e.TwoFactorEnabled).HasColumnName("two_factor_enabled");
-            entity.Property(e => e.LockoutEnd).HasColumnName("lockout_end");
-            entity.Property(e => e.LockoutEnabled).HasColumnName("lockout_enabled");
-            entity.Property(e => e.AccessFailedCount).HasColumnName("access_failed_count");
-        });
-    
-        builder.Entity<IdentityRole>(entity => {
-            entity.ToTable("roles");
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Name).HasColumnName("name");
-            entity.Property(e => e.NormalizedName).HasColumnName("normalized_name");
-            entity.Property(e => e.ConcurrencyStamp).HasColumnName("concurrency_stamp");
-        });
-    
-        builder.Entity<IdentityUserRole<string>>(entity => {
-            entity.ToTable("user_roles");
-            entity.Property(e => e.UserId).HasColumnName("user_id");
-            entity.Property(e => e.RoleId).HasColumnName("role_id");
-        });
-        
-        builder.Entity<IdentityUserToken<string>>(entity => {
-            entity.ToTable("user_tokens");
-            entity.Property(e => e.UserId).HasColumnName("user_id");
-            entity.Property(e => e.LoginProvider).HasColumnName("login_provider");
-            entity.Property(e => e.Name).HasColumnName("name");
-            entity.Property(e => e.Value).HasColumnName("value");
-        });
-        
-        builder.Entity<IdentityUserClaim<string>>(entity => {
-            entity.ToTable("user_claims");
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.UserId).HasColumnName("user_id");
-            entity.Property(e => e.ClaimType).HasColumnName("claim_type");
-            entity.Property(e => e.ClaimValue).HasColumnName("claim_value");
-        });
-        
-        builder.Entity<IdentityRoleClaim<string>>(entity => {
-            entity.ToTable("role_claims");
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.RoleId).HasColumnName("role_id");
-            entity.Property(e => e.ClaimType).HasColumnName("claim_type");
-            entity.Property(e => e.ClaimValue).HasColumnName("claim_value");
-        });
+        foreach(var entity in builder.Model.GetEntityTypes())
+        {
+            // Replace table names
+            entity.SetTableName(entity.GetTableName().ToSnakeCase());
 
-        builder.Entity<IdentityUserLogin<string>>(entity => {
-            entity.ToTable("user_logins");
-            entity.Property(e => e.LoginProvider).HasColumnName("login_provider");
-            entity.Property(e => e.ProviderKey).HasColumnName("provider_key");
-            entity.Property(e => e.ProviderDisplayName).HasColumnName("provider_display_name");
-            entity.Property(e => e.UserId).HasColumnName("user_id");
-        });
+            // Replace column names            
+            foreach(var property in entity.GetProperties())
+            {
+                var columnName = property.GetColumnName(StoreObjectIdentifier.Table(property.DeclaringEntityType.GetTableName(), null));
+                property.SetColumnName(columnName.ToSnakeCase());
+            }
+
+            foreach(var key in entity.GetKeys())
+            {
+                key.SetName(key.GetName().ToSnakeCase());
+            }
+
+            foreach(var key in entity.GetForeignKeys())
+            {
+                key.SetConstraintName(key.GetConstraintName().ToSnakeCase());
+            }
+
+            foreach(var index in entity.GetIndexes())
+            {
+                index.SetDatabaseName(index.GetDatabaseName().ToSnakeCase());
+            }
+        }
         
-        new BillConfiguration().Configure(builder.Entity<Bill>());
+        builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
 }
