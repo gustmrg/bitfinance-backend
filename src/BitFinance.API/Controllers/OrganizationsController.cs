@@ -37,9 +37,19 @@ public class OrganizationsController : ControllerBase
     }
     
     [HttpPost]
-    public IActionResult CreateOrganization(CreateOrganizationRequest request)
+    public async Task<IActionResult> CreateOrganization(CreateOrganizationRequest request)
     {
-        return Ok();
+        var organization = new Organization
+        {
+            Name = request.Name,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = null,
+            DeletedAt = null,
+        };
+        
+        await _repository.CreateAsync(organization);
+        
+        return CreatedAtAction(nameof(GetOrganizationById), new { id = organization.Id }, new { id = organization.Id, name = organization.Name, createdAt = organization.CreatedAt });
     }
     
     [HttpPatch("{organizationId:guid}")]

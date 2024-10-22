@@ -1,14 +1,13 @@
 using Asp.Versioning;
 using BitFinance.API.Extensions;
 using BitFinance.API.Middlewares;
-using BitFinance.API.Options;
 using BitFinance.Business.Entities;
 using BitFinance.Data.Caching;
 using BitFinance.Data.Contexts;
 using BitFinance.Data.Repositories;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.OpenApi.Models;
@@ -19,19 +18,9 @@ using Swashbuckle.AspNetCore.Filters;
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("Database");
-var auth0Options = builder.Configuration.GetSection("Auth0").Get<Auth0Options>();
 
 builder.Services.AddCors();
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
-{
-    options.Authority = auth0Options!.Authority;
-    options.Audience = auth0Options.Audience;
-});
+builder.Services.AddAuthentication();
 
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
@@ -42,9 +31,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
 
 builder.Services.AddIdentityCore<User>()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
 
 builder.Services.AddScoped<IRepository<Bill, Guid>, BillsRepository>();
+builder.Services.AddScoped<IRepository<Organization, Guid>, OrganizationsRepository>();
 builder.Services.AddSingleton<ICacheService, RedisCacheService>();
 builder.Services.AddSingleton<DistributedCacheEntryOptions>();
 builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();
@@ -57,13 +48,20 @@ builder.Services.AddStackExchangeRedisCache(options =>
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services
+    .AddIdentityApiEndpoints<User>()
+    .AddEntityFrameworkStores<ApplicationDbContext>();
+
 builder.Services.AddSwaggerGen(options =>
 {
-    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+    options.AddSecurityDefinition("http", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
         Name = "Authorization",
-        Type = SecuritySchemeType.Http
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Description = "Enter 'Bearer' and then your token in the input below. Example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'."
     });
     
     options.OperationFilter<SecurityRequirementsOperationFilter>();
@@ -99,7 +97,11 @@ var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
-app.UseCors(options => options.AllowAnyOrigin().AllowAnyHeader());
+app.UseCors(options => 
+    options.WithOrigins("http://localhost:3000") // Replace with your frontend's URL
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials()); 
 app.UseForwardedHeaders();
 
 app.UseAuthentication();
@@ -112,5 +114,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapControllers();
+app.MapGroup("api/v1/identity")
+    .MapIdentityApi<User>()
+    .WithTags("Identity");
 
 app.Run();
