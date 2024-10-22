@@ -21,16 +21,19 @@ public class BillsController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly ILogger<BillsController> _logger;
-    private readonly IRepository<Bill, Guid> _repository;
+    private readonly IRepository<Bill, Guid> _billsRepository;
+    private readonly IRepository<Organization, Guid> _organizationsRepository;
     
     public BillsController(ApplicationDbContext context, 
         ILogger<BillsController> logger, 
-        IRepository<Bill, Guid> repository,
-        IConfiguration config)
+        IConfiguration config, 
+        IRepository<Bill, Guid> billsRepository, 
+        IRepository<Organization, Guid> organizationsRepository)
     {
         _context = context;
         _logger = logger;
-        _repository = repository;
+        _billsRepository = billsRepository;
+        _organizationsRepository = organizationsRepository;
     }
     
     [HttpGet]
@@ -40,12 +43,12 @@ public class BillsController : ControllerBase
     {
         try
         {
-            List<Bill> bills = await _repository.GetAllAsync();
+            List<Bill> bills = await _billsRepository.GetAllAsync();
 
             List<GetBillResponse> response = bills.Select(bill => new GetBillResponse
                 {
                     Id = bill.Id,
-                    Name = bill.Description,
+                    Description = bill.Description,
                     Category = bill.Category,
                     Status = bill.Status,
                     CreatedAt = bill.CreatedAt,
@@ -77,7 +80,7 @@ public class BillsController : ControllerBase
     {
         try
         {
-            Bill? bill = await _repository.GetByIdAsync(id);
+            Bill? bill = await _billsRepository.GetByIdAsync(id);
 
             if (bill is null)
             {
@@ -87,7 +90,7 @@ public class BillsController : ControllerBase
             var response = new GetBillResponse
             {
                 Id = bill.Id,
-                Name = bill.Description,
+                Description = bill.Description,
                 Category = bill.Category,
                 Status = bill.Status,
                 CreatedAt = bill.CreatedAt,
@@ -126,25 +129,30 @@ public class BillsController : ControllerBase
             bool isValidStatus = Enum.TryParse(request.Status, true, out BillStatus status);
             
             if (!isValidCategory || !isValidStatus) return UnprocessableEntity();
+
+            // Get organization from database to pass while it's still not fully implemented
+            var organizations = await _organizationsRepository.GetAllAsync();
+            var organization = organizations.First();
             
             Bill bill = new()
             {
-                Description = request.Name,
+                Description = request.Description,
                 Category = category,
                 Status = status,
                 CreatedAt = DateTime.UtcNow,
                 DueDate = request.DueDate.ToUniversalTime(),
                 PaymentDate = request.PaymentDate?.ToUniversalTime(),
                 AmountDue = request.AmountDue,
-                AmountPaid = request.AmountPaid
+                AmountPaid = request.AmountPaid,
+                OrganizationId = organization.Id,
             };
 
-            await _repository.CreateAsync(bill);
+            await _billsRepository.CreateAsync(bill);
             
             var response = new CreateBillResponse
             {
                 Id = bill.Id,
-                Name = bill.Description,
+                Description = bill.Description,
                 Category = bill.Category,
                 Status = bill.Status,
                 CreatedDate = bill.CreatedAt,
@@ -178,6 +186,8 @@ public class BillsController : ControllerBase
             bool isValidCategory = Enum.TryParse(request.Category, true, out BillCategory category);
             bool isValidStatus = Enum.TryParse(request.Status, true, out BillStatus status);
             
+            if (!isValidCategory || !isValidStatus) return UnprocessableEntity();
+            
             Bill? bill;
             
             bill = await _context.Bills.FirstOrDefaultAsync(b => b.Id == id && b.DeletedAt == null);
@@ -195,7 +205,7 @@ public class BillsController : ControllerBase
             bill.AmountDue = request.AmountDue;
             bill.AmountPaid = request.AmountPaid;
 
-            await _repository.UpdateAsync(bill);
+            await _billsRepository.UpdateAsync(bill);
 
             var response = new UpdateBillResponse
             {
@@ -227,7 +237,7 @@ public class BillsController : ControllerBase
     {
         try
         {
-            Bill? bill = await _repository.GetByIdAsync(id);
+            Bill? bill = await _billsRepository.GetByIdAsync(id);
 
             if (bill is null)
             {
@@ -239,7 +249,7 @@ public class BillsController : ControllerBase
                 return BadRequest();
             }
 
-            await _repository.DeleteAsync(bill);
+            await _billsRepository.DeleteAsync(bill);
 
             return NoContent();
         }

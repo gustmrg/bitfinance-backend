@@ -3,7 +3,7 @@ using BitFinance.Business.Enums;
 namespace BitFinance.API.Models.Request;
 
 public record CreateBillRequest(
-    string Name, 
+    string Description, 
     string Category, 
     string Status, 
     DateTime DueDate, 
