@@ -7,7 +7,7 @@ public class CreateBillResponse
 {
     public Guid Id { get; set; }
     
-    public string Name { get; set; } = null!;
+    public string Description { get; set; } = null!;
     
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public BillCategory Category { get; set; }

@@ -6,5 +6,6 @@ public enum BillStatus
     Due = 1,
     Paid = 2,
     Overdue = 3,
-    Cancelled = 4
+    Cancelled = 4,
+    Upcoming = 5
 }
