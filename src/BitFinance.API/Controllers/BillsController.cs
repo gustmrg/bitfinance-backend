@@ -174,7 +174,7 @@ public class BillsController : ControllerBase
         }
     }
     
-    [HttpPut]
+    [HttpPatch]
     [Route("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -197,7 +197,7 @@ public class BillsController : ControllerBase
                 return NotFound();
             }
             
-            bill.Description = request.Name;
+            bill.Description = request.Description;
             bill.Category = category;
             bill.Status = status;
             bill.DueDate = request.DueDate.ToUniversalTime();
@@ -205,12 +205,19 @@ public class BillsController : ControllerBase
             bill.AmountDue = request.AmountDue;
             bill.AmountPaid = request.AmountPaid;
 
-            await _billsRepository.UpdateAsync(bill);
+            await _billsRepository.UpdateAsync(bill, 
+                b => b.Description, 
+                b => b.Category, 
+                b => b.Status, 
+                b => b.DueDate, 
+                b => b.PaymentDate,
+                b => b.AmountDue,
+                b => b.AmountPaid);
 
             var response = new UpdateBillResponse
             {
                 Id = bill.Id,
-                Name = bill.Description,
+                Description = bill.Description,
                 Category = bill.Category,
                 Status = bill.Status,
                 DueDate = bill.DueDate,

@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using BitFinance.Business.Entities;
 using BitFinance.Data.Caching;
 using BitFinance.Data.Contexts;
@@ -21,8 +22,10 @@ public class BillsRepository : IRepository<Bill, Guid>
 
     public async Task<List<Bill>> GetAllAsync()
     {
-        List<Bill> list = await _dbContext.Set<Bill>().AsNoTracking()
+        List<Bill> list = await _dbContext.Set<Bill>()
+            .AsNoTracking()
             .Where(b => b.DeletedAt == null)
+            .OrderBy(b => b.DueDate)
             .ToListAsync();
 
         return list;
@@ -79,6 +82,23 @@ public class BillsRepository : IRepository<Bill, Guid>
             string key = _cache.GenerateKey<Bill>(bill.Id.ToString());
             await _cache.SetAsync(key, bill);
         }
+    }
+
+    public async Task UpdateAsync(Bill bill, params Expression<Func<Bill, object>>[] properties)
+    {
+        _dbContext.Attach(bill);
+        
+        var entry = _dbContext.Entry(bill);
+
+        foreach (var property in properties)
+        {
+            entry.Property(property).IsModified = true;
+        }
+        
+        bill.UpdatedAt = DateTime.UtcNow;
+        entry.Property(x => x.UpdatedAt).IsModified = true;
+        
+        await _dbContext.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(Bill bill)

@@ -1,3 +1,5 @@
+using System.Linq.Expressions;
+
 namespace BitFinance.Data.Repositories;
 
 public interface IRepository<T, TId> 
@@ -6,7 +8,8 @@ public interface IRepository<T, TId>
 {
     Task<List<T>> GetAllAsync();
     Task<T?> GetByIdAsync(TId id);
-    Task<T> CreateAsync(T obj);
-    Task UpdateAsync(T obj);
-    Task DeleteAsync(T obj);
+    Task<T> CreateAsync(T entity);
+    Task UpdateAsync(T entity);
+    Task UpdateAsync(T entity, params Expression<Func<T, object>>[] properties);
+    Task DeleteAsync(T entity);
 }
