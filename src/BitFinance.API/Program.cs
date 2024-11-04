@@ -98,7 +98,7 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseCors(options => 
-    options.WithOrigins("http://localhost:3000") // Replace with your frontend's URL
+    options.WithOrigins("http://localhost:3000", "https://gustavomiranda.dev")
         .AllowAnyHeader()
         .AllowAnyMethod()
         .AllowCredentials()); 

@@ -3,16 +3,17 @@ USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
+ENV ASPNETCORE_URLS=http://0.0.0.0:8080
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["src/BitFinance.API/BitFinance.API.csproj", "src/BitFinance.API/"]
-COPY ["src/BitFinance.Business/BitFinance.Business.csproj", "src/BitFinance.Business/"]
-COPY ["src/BitFinance.Data/BitFinance.Data.csproj", "src/BitFinance.Data/"]
-RUN dotnet restore "src/BitFinance.API/BitFinance.API.csproj"
+COPY ["BitFinance.API/BitFinance.API.csproj", "BitFinance.API/"]
+COPY ["BitFinance.Business/BitFinance.Business.csproj", "BitFinance.Business/"]
+COPY ["BitFinance.Data/BitFinance.Data.csproj", "BitFinance.Data/"]
+RUN dotnet restore "BitFinance.API/BitFinance.API.csproj"
 COPY . .
-WORKDIR "/src/src/BitFinance.API"
+WORKDIR "/src/BitFinance.API"
 RUN dotnet build "BitFinance.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
