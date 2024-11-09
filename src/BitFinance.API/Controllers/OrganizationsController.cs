@@ -28,7 +28,7 @@ public class OrganizationsController : ControllerBase
         _usersRepository = usersRepository;
     }
     
-    [HttpGet("organizations")]
+    [HttpGet]
     public async Task<IActionResult> GetOrganizations()
     {
         var userId = User.Claims.FirstOrDefault(a => a.Type == ClaimTypes.NameIdentifier)?.Value;
@@ -97,7 +97,7 @@ public class OrganizationsController : ControllerBase
         
         await _organizationsRepository.CreateAsync(organization);
         
-        return CreatedAtAction(nameof(GetOrganizationById), new { id = organization.Id }, new { id = organization.Id, name = organization.Name, createdAt = organization.CreatedAt });
+        return CreatedAtAction(nameof(GetOrganizationById), new { organizationId = organization.Id }, new OrganizationResponseModel(organization.Id, organization.Name));
     }
     
     [HttpPatch("{organizationId:guid}")]
