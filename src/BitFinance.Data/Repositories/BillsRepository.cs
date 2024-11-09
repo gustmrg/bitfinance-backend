@@ -2,12 +2,13 @@ using System.Linq.Expressions;
 using BitFinance.Business.Entities;
 using BitFinance.Data.Caching;
 using BitFinance.Data.Contexts;
+using BitFinance.Data.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace BitFinance.Data.Repositories;
 
-public class BillsRepository : IRepository<Bill, Guid>
+public class BillsRepository : IBillsRepository
 {
     private readonly IConfiguration _configuration;
     private readonly ApplicationDbContext _dbContext;
@@ -29,6 +30,16 @@ public class BillsRepository : IRepository<Bill, Guid>
             .ToListAsync();
 
         return list;
+    }
+    
+    public async Task<List<Bill>> GetAllByOrganizationAsync(Guid organizationId)
+    {
+        return await _dbContext.Set<Bill>()
+            .AsNoTracking()
+            .Where(b => b.DeletedAt == null)
+            .Where(b => b.OrganizationId == organizationId)
+            .OrderBy(b => b.DueDate)
+            .ToListAsync();
     }
 
     public async Task<Bill?> GetByIdAsync(Guid id)

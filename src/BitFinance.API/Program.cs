@@ -5,6 +5,7 @@ using BitFinance.Business.Entities;
 using BitFinance.Data.Caching;
 using BitFinance.Data.Contexts;
 using BitFinance.Data.Repositories;
+using BitFinance.Data.Repositories.Interfaces;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
@@ -34,8 +35,9 @@ builder.Services.AddIdentityCore<User>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-builder.Services.AddScoped<IRepository<Bill, Guid>, BillsRepository>();
-builder.Services.AddScoped<IRepository<Organization, Guid>, OrganizationsRepository>();
+builder.Services.AddScoped<IBillsRepository, BillsRepository>();
+builder.Services.AddScoped<IOrganizationsRepository, OrganizationsRepository>();
+builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 builder.Services.AddSingleton<ICacheService, RedisCacheService>();
 builder.Services.AddSingleton<DistributedCacheEntryOptions>();
 builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();

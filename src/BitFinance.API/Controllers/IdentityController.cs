@@ -1,7 +1,9 @@
 using System.Security.Claims;
 using Asp.Versioning;
+using BitFinance.API.Models;
 using BitFinance.API.Models.Response;
 using BitFinance.Business.Entities;
+using BitFinance.Data.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -15,11 +17,11 @@ namespace BitFinance.API.Controllers;
 [Route("api/v{version:apiVersion}/identity/me")]
 public class IdentityController : ControllerBase
 {
-    private readonly UserManager<User> _userManager;
+    private readonly IUsersRepository _usersRepository;
 
-    public IdentityController(UserManager<User> userManager)
+    public IdentityController(IUsersRepository usersRepository)
     {
-        _userManager = userManager;
+        _usersRepository = usersRepository;
     }
 
     [HttpGet]
@@ -29,11 +31,18 @@ public class IdentityController : ControllerBase
 
         if (string.IsNullOrEmpty(userId)) return BadRequest("Invalid user");
             
-        var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        var user = await _usersRepository.GetByIdAsync(userId);
             
         if (user == null) return BadRequest("Invalid user");
+
+        List<OrganizationResponseModel> organizations = [];
+
+        foreach (var organization in user.Organizations)
+        {
+            organizations.Add(new OrganizationResponseModel(organization.Id, organization.Name));
+        }
         
-        var response = new GetMeResponse(user.Id, user.UserName ?? string.Empty, user.Email ?? string.Empty);
+        var response = new GetMeResponse(user.Id, user.UserName ?? string.Empty, user.Email ?? string.Empty, organizations);
         
         return Ok(response);
     }

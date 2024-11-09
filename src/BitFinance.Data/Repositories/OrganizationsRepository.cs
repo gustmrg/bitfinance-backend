@@ -1,11 +1,12 @@
 using System.Linq.Expressions;
 using BitFinance.Business.Entities;
 using BitFinance.Data.Contexts;
+using BitFinance.Data.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace BitFinance.Data.Repositories;
 
-public class OrganizationsRepository : IRepository<Organization, Guid>
+public class OrganizationsRepository : IOrganizationsRepository
 {
     private readonly ApplicationDbContext _dbContext;
 
@@ -22,15 +23,20 @@ public class OrganizationsRepository : IRepository<Organization, Guid>
             .ToListAsync();
     }
     
-    public Task<List<Organization>> GetAllByUserIdAsync(Guid userId)
+    public async Task<List<Organization>> GetAllByUserIdAsync(string userId)
     {
-        throw new NotImplementedException();
+        return await _dbContext.Set<Organization>()
+            .AsNoTracking()
+            .Where(x => x.DeletedAt == null)
+            .Where(x => x.Members.Any(m => m.Id == userId))
+            .ToListAsync();
     }
 
     public async Task<Organization?> GetByIdAsync(Guid id)
     {
         return await _dbContext.Set<Organization>()
             .Where(x => x.Id == id && x.DeletedAt == null)
+            .Include(x => x.Members)
             .FirstOrDefaultAsync();
     }
 
