@@ -118,7 +118,7 @@ namespace BitFinance.Data.Migrations
                         .HasColumnName("updated_at");
 
                     b.HasKey("Id")
-                        .HasName("pk_organization");
+                        .HasName("pk_organizations");
 
                     b.ToTable("organizations", (string)null);
                 });
@@ -175,10 +175,6 @@ namespace BitFinance.Data.Migrations
                         .HasColumnType("character varying(256)")
                         .HasColumnName("normalized_user_name");
 
-                    b.Property<Guid?>("OrganizationId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("organization_id");
-
                     b.Property<string>("PasswordHash")
                         .HasColumnType("text")
                         .HasColumnName("password_hash");
@@ -213,9 +209,6 @@ namespace BitFinance.Data.Migrations
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
                         .HasDatabaseName("user_name_index");
-
-                    b.HasIndex("OrganizationId")
-                        .HasDatabaseName("ix_asp_net_users_organization_id");
 
                     b.ToTable("asp_net_users", (string)null);
                 });
@@ -384,6 +377,25 @@ namespace BitFinance.Data.Migrations
                     b.ToTable("asp_net_user_tokens", (string)null);
                 });
 
+            modelBuilder.Entity("OrganizationUser", b =>
+                {
+                    b.Property<string>("MembersId")
+                        .HasColumnType("text")
+                        .HasColumnName("members_id");
+
+                    b.Property<Guid>("OrganizationsId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organizations_id");
+
+                    b.HasKey("MembersId", "OrganizationsId")
+                        .HasName("pk_organization_user");
+
+                    b.HasIndex("OrganizationsId")
+                        .HasDatabaseName("ix_organization_user_organizations_id");
+
+                    b.ToTable("organization_user");
+                });
+
             modelBuilder.Entity("BitFinance.Business.Entities.Bill", b =>
                 {
                     b.HasOne("BitFinance.Business.Entities.Organization", "Organization")
@@ -391,17 +403,7 @@ namespace BitFinance.Data.Migrations
                         .HasForeignKey("OrganizationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_bills_organization_organization_id");
-
-                    b.Navigation("Organization");
-                });
-
-            modelBuilder.Entity("BitFinance.Business.Entities.User", b =>
-                {
-                    b.HasOne("BitFinance.Business.Entities.Organization", "Organization")
-                        .WithMany("Members")
-                        .HasForeignKey("OrganizationId")
-                        .HasConstraintName("fk_asp_net_users_organization_organization_id");
+                        .HasConstraintName("fk_bills_organizations_organization_id");
 
                     b.Navigation("Organization");
                 });
@@ -463,11 +465,26 @@ namespace BitFinance.Data.Migrations
                         .HasConstraintName("fk_asp_net_user_tokens_asp_net_users_user_id");
                 });
 
+            modelBuilder.Entity("OrganizationUser", b =>
+                {
+                    b.HasOne("BitFinance.Business.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("MembersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_organization_user_asp_net_users_members_id");
+
+                    b.HasOne("BitFinance.Business.Entities.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_organization_user_organizations_organizations_id");
+                });
+
             modelBuilder.Entity("BitFinance.Business.Entities.Organization", b =>
                 {
                     b.Navigation("Bills");
-
-                    b.Navigation("Members");
                 });
 #pragma warning restore 612, 618
         }

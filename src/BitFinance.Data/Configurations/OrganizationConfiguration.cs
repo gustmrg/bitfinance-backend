@@ -31,11 +31,6 @@ public class OrganizationConfiguration : IEntityTypeConfiguration<Organization>
         builder.HasMany(o => o.Bills)
             .WithOne(b => b.Organization)
             .HasForeignKey(b => b.OrganizationId);
-        
-        builder.HasMany(o => o.Members)
-            .WithOne(u => u.Organization)
-            .HasForeignKey(u => u.OrganizationId)
-            .IsRequired(false);
             
         builder.ToTable("organizations");
     }

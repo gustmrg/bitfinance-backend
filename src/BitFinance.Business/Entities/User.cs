@@ -7,8 +7,7 @@ public class User : IdentityUser
 {
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
-    public Guid? OrganizationId { get; set; }
-    public Organization? Organization { get; set; }
+    public List<Organization> Organizations { get; } = [];
     
     [NotMapped]
     public string FullName => $"{FirstName} {LastName}";
