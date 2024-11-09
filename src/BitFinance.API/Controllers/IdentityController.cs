@@ -42,8 +42,13 @@ public class IdentityController : ControllerBase
             organizations.Add(new OrganizationResponseModel(organization.Id, organization.Name));
         }
         
-        var response = new GetMeResponse(user.Id, user.UserName ?? string.Empty, user.Email ?? string.Empty, organizations);
+        var response = new GetMeResponse(user.Id, ReplaceUserName(user?.UserName) ?? string.Empty, user.Email ?? string.Empty, organizations);
         
         return Ok(response);
+    }
+
+    private string ReplaceUserName(string? email)
+    {
+        return email.Split('@')[0];
     }
 }

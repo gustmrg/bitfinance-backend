@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 
-namespace BitFinance.Data.Repositories;
+namespace BitFinance.Data.Repositories.Interfaces;
 
 public interface IRepository<T, TId> 
     where TId : IEquatable<TId> 
