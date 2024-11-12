@@ -23,13 +23,10 @@ public class BillsRepository : IBillsRepository
 
     public async Task<List<Bill>> GetAllAsync()
     {
-        List<Bill> list = await _dbContext.Set<Bill>()
-            .AsNoTracking()
+        return await _dbContext.Set<Bill>()
             .Where(b => b.DeletedAt == null)
             .OrderBy(b => b.DueDate)
             .ToListAsync();
-
-        return list;
     }
     
     public async Task<List<Bill>> GetAllByOrganizationAsync(Guid organizationId)
