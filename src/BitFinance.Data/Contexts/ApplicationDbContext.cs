@@ -11,6 +11,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 {
     public DbSet<Bill> Bills => Set<Bill>();
     public DbSet<Organization> Organizations => Set<Organization>();
+    public DbSet<Expense> Expenses => Set<Expense>();
     
     protected override void OnModelCreating(ModelBuilder builder)
     {

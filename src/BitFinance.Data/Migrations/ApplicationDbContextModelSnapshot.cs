@@ -90,6 +90,55 @@ namespace BitFinance.Data.Migrations
                     b.ToTable("bills", (string)null);
                 });
 
+            modelBuilder.Entity("BitFinance.Business.Entities.Expense", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("category");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasPrecision(3)
+                        .HasColumnType("timestampz")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasPrecision(3)
+                        .HasColumnType("timestampz")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasPrecision(3)
+                        .HasColumnType("timestampz")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_expenses");
+
+                    b.HasIndex("OrganizationId")
+                        .HasDatabaseName("ix_expenses_organization_id");
+
+                    b.ToTable("expenses", (string)null);
+                });
+
             modelBuilder.Entity("BitFinance.Business.Entities.Organization", b =>
                 {
                     b.Property<Guid>("Id")
@@ -404,6 +453,18 @@ namespace BitFinance.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_bills_organizations_organization_id");
+
+                    b.Navigation("Organization");
+                });
+
+            modelBuilder.Entity("BitFinance.Business.Entities.Expense", b =>
+                {
+                    b.HasOne("BitFinance.Business.Entities.Organization", "Organization")
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_expenses_organizations_organization_id");
 
                     b.Navigation("Organization");
                 });
