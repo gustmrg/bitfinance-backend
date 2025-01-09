@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Security.Claims;
 using Asp.Versioning;
+using BitFinance.API.Models;
 using BitFinance.API.Models.Request;
 using BitFinance.API.Models.Response;
 using BitFinance.Business.Entities;
@@ -245,10 +246,10 @@ public class BillsController : ControllerBase
         }
     }
     
-    [HttpGet("organizations/{organizationId:guid}")]
+    [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<List<GetBillResponse>>> GetBillsAsync(Guid organizationId)
+    public async Task<ActionResult<PagedResponse<Bill>>> GetBillsAsync([FromBody] GetBillsRequest request)
     {
         try
         {
@@ -260,11 +261,12 @@ public class BillsController : ControllerBase
             
             if (user == null) return BadRequest("Invalid user");
             
-            if (user.Organizations.All(o => o.Id != organizationId)) return BadRequest("Invalid organization");
-            
-            List<Bill> bills = await _billsRepository.GetAllByOrganizationAsync(organizationId);
+            if (user.Organizations.All(o => o.Id != request.OrganizationId)) return BadRequest("Invalid organization");
 
-            List<GetBillResponse> response = bills.Select(bill => new GetBillResponse
+            var totalRecords = await _billsRepository.GetEntriesCountAsync();
+            var bills = await _billsRepository.GetAllByOrganizationAsync(request.OrganizationId, request.Page, request.PageSize);
+
+            var billsDto = bills.Select(bill => new GetBillResponse
                 {
                     Id = bill.Id,
                     Description = bill.Description,
@@ -278,6 +280,8 @@ public class BillsController : ControllerBase
                     OrganizationId = bill.OrganizationId,
                 })
                 .ToList();
+            
+            var response = new PagedResponse<GetBillResponse>(billsDto, totalRecords, request.Page, request.PageSize);
 
             return Ok(response);
         }

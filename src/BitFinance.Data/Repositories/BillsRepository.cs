@@ -32,14 +32,21 @@ public class BillsRepository : IBillsRepository
         return list;
     }
     
-    public async Task<List<Bill>> GetAllByOrganizationAsync(Guid organizationId)
+    public async Task<List<Bill>> GetAllByOrganizationAsync(Guid organizationId, int page, int pageSize)
     {
         return await _dbContext.Set<Bill>()
             .AsNoTracking()
             .Where(b => b.DeletedAt == null)
             .Where(b => b.OrganizationId == organizationId)
             .OrderBy(b => b.DueDate)
+            .Skip(pageSize * (page - 1))
+            .Take(pageSize)
             .ToListAsync();
+    }
+
+    public async Task<int> GetEntriesCountAsync()
+    {
+        return await _dbContext.Bills.CountAsync();
     }
 
     public async Task<Bill?> GetByIdAsync(Guid id)
