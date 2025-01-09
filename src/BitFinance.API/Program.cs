@@ -38,6 +38,7 @@ builder.Services.AddIdentityCore<User>()
 builder.Services.AddScoped<IBillsRepository, BillsRepository>();
 builder.Services.AddScoped<IOrganizationsRepository, OrganizationsRepository>();
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
+builder.Services.AddScoped<IExpensesRepository, ExpensesRepository>();
 builder.Services.AddSingleton<ICacheService, RedisCacheService>();
 builder.Services.AddSingleton<DistributedCacheEntryOptions>();
 builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();

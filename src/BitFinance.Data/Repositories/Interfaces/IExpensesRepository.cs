@@ -2,7 +2,9 @@ using BitFinance.Business.Entities;
 
 namespace BitFinance.Data.Repositories.Interfaces;
 
-public interface IExpensesRepository: IRepository<Expense, Guid>
+public interface IExpensesRepository
 {
-    Task<List<Expense>> GetAllByOrganizationAsync(Guid organizationId);
+    Task<List<Expense>> GetAllAsync(Guid organizationId);
+    Task<Expense?> GetByIdAsync(Guid organizationId, Guid expenseId);
+    Task<Expense> CreateAsync(Expense expense);
 }

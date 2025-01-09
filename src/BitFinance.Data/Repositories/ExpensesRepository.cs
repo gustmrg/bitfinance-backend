@@ -15,62 +15,26 @@ public class ExpensesRepository : IExpensesRepository
         _dbContext = dbContext;
     }
 
-    public async Task<List<Expense>> GetAllAsync()
+    public async Task<List<Expense>> GetAllAsync(Guid organizationId)
     {
         return await _dbContext.Set<Expense>()
             .AsNoTracking()
-            .Where(b => b.DeletedAt == null)
-            .ToListAsync();
-    }
-    
-    public async Task<List<Expense>> GetAllByOrganizationAsync(Guid organizationId)
-    {
-        return await _dbContext.Set<Expense>()
-            .AsNoTracking()
-            .Where(b => b.DeletedAt == null)
             .Where(b => b.OrganizationId == organizationId)
+            .Where(b => b.DeletedAt == null)
             .ToListAsync();
     }
 
-    public async Task<Expense?> GetByIdAsync(Guid id)
+    public async Task<Expense?> GetByIdAsync(Guid organizationId, Guid expenseId)
     {
-        return await _dbContext.Set<Expense>().FirstOrDefaultAsync(x => x.Id == id && x.DeletedAt == null);
+        return await _dbContext.Set<Expense>()
+            .Where(b => b.OrganizationId == organizationId && b.Id == expenseId)
+            .FirstOrDefaultAsync();
     }
 
-    public async Task<Expense> CreateAsync(Expense entity)
+    public async Task<Expense> CreateAsync(Expense expense)
     {
-        _dbContext.Set<Expense>().Add(entity);
+        _dbContext.Set<Expense>().Add(expense);
         await _dbContext.SaveChangesAsync();
-        return entity;
-    }
-
-    public async Task UpdateAsync(Expense entity)
-    {
-        _dbContext.Set<Expense>().Update(entity);
-        await _dbContext.SaveChangesAsync();
-    }
-
-    public async Task UpdateAsync(Expense entity, params Expression<Func<Expense, object>>[] properties)
-    {
-        _dbContext.Attach(entity);
-        
-        var entry = _dbContext.Entry(entity);
-
-        foreach (var property in properties)
-        {
-            entry.Property(property).IsModified = true;
-        }
-        
-        entity.UpdatedAt = DateTime.UtcNow;
-        entry.Property(x => x.UpdatedAt).IsModified = true;
-        
-        await _dbContext.SaveChangesAsync();
-    }
-
-    public async Task DeleteAsync(Expense entity)
-    {
-        entity.DeletedAt = DateTime.UtcNow;
-        _dbContext.Set<Expense>().Update(entity);
-        await _dbContext.SaveChangesAsync();
+        return expense;
     }
 }
