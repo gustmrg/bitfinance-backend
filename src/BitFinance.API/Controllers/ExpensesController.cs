@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Security.Claims;
 using Asp.Versioning;
+using BitFinance.API.Models;
 using BitFinance.API.Models.Request;
 using BitFinance.API.Models.Response;
 using BitFinance.Business.Entities;
@@ -16,7 +17,7 @@ namespace BitFinance.API.Controllers;
 [ApiController]
 [Authorize]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/organizations/{organizationId}/expenses")]
+[Route("api/v{version:apiVersion}/expenses")]
 public class ExpensesController : ControllerBase
 {
     private readonly ILogger<ExpensesController> _logger;
@@ -36,6 +37,21 @@ public class ExpensesController : ControllerBase
         _usersRepository = usersRepository;
         _organizationsRepository = organizationsRepository;
     }
+
+    [HttpGet]
+    [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<PagedResponse<Expense>>> GetExpenses(
+        [FromHeader] Guid organizationId, 
+        [FromQuery] int page, int pageSize)
+    {
+        var totalRecords = await _expensesRepository.GetEntriesCountAsync();
+        var expenses = await _expensesRepository.GetAllByOrganizationAsync(organizationId, page, pageSize);
+
+        return new PagedResponse<Expense>(expenses, totalRecords, page, pageSize);
+    }
     
     [HttpGet]
     [Route("{expenseId:guid}")]
@@ -43,7 +59,7 @@ public class ExpensesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<GetExpenseResponse>> GetExpenseById([FromRoute] Guid organizationId, Guid expenseId)
+    public async Task<ActionResult<GetExpenseResponse>> GetExpenseById([FromHeader] Guid organizationId, [FromRoute] Guid expenseId)
     {
         try
         {
@@ -72,7 +88,9 @@ public class ExpensesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<CreateExpenseResponse>> CreateExpenseAsync([FromBody] CreateExpenseRequest request)
+    public async Task<ActionResult<CreateExpenseResponse>> CreateExpenseAsync(
+        [FromHeader] Guid organizationId,
+        [FromBody] CreateExpenseRequest request)
     {
         try
         {
@@ -93,7 +111,7 @@ public class ExpensesController : ControllerBase
             
             if (!isValidCategory) return UnprocessableEntity();
             
-            var organization = await _organizationsRepository.GetByIdAsync(request.organizationId);
+            var organization = await _organizationsRepository.GetByIdAsync(organizationId);
             
             if (organization is null) return BadRequest("Invalid organization");
             

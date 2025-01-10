@@ -23,6 +23,18 @@ public class ExpensesRepository : IExpensesRepository
             .Where(b => b.DeletedAt == null)
             .ToListAsync();
     }
+    
+    public async Task<List<Expense>> GetAllByOrganizationAsync(Guid organizationId, int page, int pageSize)
+    {
+        return await _dbContext.Set<Expense>()
+            .AsNoTracking()
+            .Where(b => b.DeletedAt == null)
+            .Where(b => b.OrganizationId == organizationId)
+            .OrderBy(b => b.CreatedAt)
+            .Skip(pageSize * (page - 1))
+            .Take(pageSize)
+            .ToListAsync();
+    }
 
     public async Task<Expense?> GetByIdAsync(Guid organizationId, Guid expenseId)
     {
@@ -36,5 +48,10 @@ public class ExpensesRepository : IExpensesRepository
         _dbContext.Set<Expense>().Add(expense);
         await _dbContext.SaveChangesAsync();
         return expense;
+    }
+
+    public async Task<int> GetEntriesCountAsync()
+    {
+        return await _dbContext.Expenses.CountAsync();
     }
 }

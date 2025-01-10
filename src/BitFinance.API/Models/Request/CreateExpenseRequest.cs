@@ -6,5 +6,4 @@ public record CreateExpenseRequest(
     string Description, 
     string Category, 
     string Status, 
-    decimal Amount,
-    Guid organizationId);
+    decimal Amount);
