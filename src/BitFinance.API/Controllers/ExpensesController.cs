@@ -135,7 +135,7 @@ public class ExpensesController : ControllerBase
                 CreatedDate = expense.CreatedAt,
             };
             
-            return CreatedAtAction(nameof(GetExpenseById), new { id = expense.Id }, response);
+            return CreatedAtAction(nameof(GetExpenseById), new { expenseId = expense.Id }, response);
         }
         catch (Exception ex)
         {
