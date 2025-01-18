@@ -70,9 +70,7 @@ Desenvolvi este projeto com o objetivo de solucionar o problema da dificuldade d
 
 ### Tecnologias
 
-- [![React][React.js]][React-url]
-- [![TailwindCSS][TailwindCSS]][Tailwindcss-url]
-- [![.NET][dotnet]][dotnet-url]
+[![.NET][dotnet]][dotnet-url] [![React][React.js]][React-url] [![TailwindCSS][TailwindCSS]][Tailwindcss-url]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -126,12 +124,10 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 ## Roadmap
 
 - [x] Gerenciamento de contas a pagar (adicionar/atualizar/excluir)
+- [ ] Gerenciamento de despesas (adicionar/atualizar/excluir)
 - [ ] Gerenciamento de residências/famílias (adicionar/atualizar/excluir)
 - [x] Autenticação/Autorização
 - [ ] Salvar documentos (boleto/comprovante)
-- [ ] Página de Dashboard
-- [x] Página de Login
-- [x] Página de Contas a Pagar
 - [ ] Salvar arquivos localmente
 - [ ] Salvar arquivos no S3 (AWS)
 - [ ] Enviar link de convite para adicionar usuários em residências/famílias
