@@ -7,16 +7,12 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace BitFinance.Data.Contexts;
 
-public class ApplicationDbContext : IdentityDbContext<User>
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<User>(options)
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
-    {
-        
-    }
-
     public DbSet<Bill> Bills => Set<Bill>();
     public DbSet<Organization> Organizations => Set<Organization>();
     public DbSet<Expense> Expenses => Set<Expense>();
+    public DbSet<OrganizationInvite> OrganizationInvites => Set<OrganizationInvite>();
     
     protected override void OnModelCreating(ModelBuilder builder)
     {

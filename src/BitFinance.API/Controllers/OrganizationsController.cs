@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Asp.Versioning;
+using BitFinance.API.Attributes;
 using BitFinance.API.Models;
 using BitFinance.API.Models.Request;
 using BitFinance.API.Models.Response;
@@ -7,6 +8,7 @@ using BitFinance.Business.Entities;
 using BitFinance.Data.Repositories;
 using BitFinance.Data.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -21,11 +23,16 @@ public class OrganizationsController : ControllerBase
 {
     private readonly IOrganizationsRepository _organizationsRepository;
     private readonly IUsersRepository _usersRepository;
+    private readonly IOrganizationInvitesRepository _invitesRepository;
 
-    public OrganizationsController(IOrganizationsRepository organizationsRepository, IUsersRepository usersRepository)
+    public OrganizationsController(
+        IOrganizationsRepository organizationsRepository,
+        IUsersRepository usersRepository, 
+        IOrganizationInvitesRepository invitesRepository)
     {
         _organizationsRepository = organizationsRepository;
         _usersRepository = usersRepository;
+        _invitesRepository = invitesRepository;
     }
     
     [HttpGet]
@@ -129,5 +136,20 @@ public class OrganizationsController : ControllerBase
         await _organizationsRepository.UpdateAsync(organization);
         
         return Ok();
+    }
+
+    [HttpPost("{organizationId:guid}/invite")]
+    [OrganizationAuthorization]
+    public async Task<IActionResult> CreateInvite([FromRoute] Guid organizationId)
+    {
+        var invite = new OrganizationInvite
+        {
+            OrganizationId = organizationId,
+            ExpiresAt = DateTime.UtcNow.AddDays(1),
+        };
+        
+        await _invitesRepository.CreateAsync(invite);
+
+        return Ok(new CreateOrganizationInviteResponse(invite.Id, invite.ExpiresAt));
     }
 }
