@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Security.Claims;
 using Asp.Versioning;
+using BitFinance.API.Attributes;
 using BitFinance.API.Models;
 using BitFinance.API.Models.Request;
 using BitFinance.API.Models.Response;
@@ -16,8 +17,9 @@ namespace BitFinance.API.Controllers;
 
 [ApiController]
 [Authorize]
+[OrganizationAuthorization]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/expenses")]
+[Route("api/v{version:apiVersion}/organizations/{organizationId:guid}/expenses")]
 public class ExpensesController : ControllerBase
 {
     private readonly ILogger<ExpensesController> _logger;
@@ -39,18 +41,23 @@ public class ExpensesController : ControllerBase
     }
 
     [HttpGet]
-    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<PagedResponse<Expense>>> GetExpenses(
-        [FromHeader] Guid organizationId, 
-        [FromQuery] int page, int pageSize)
+    public async Task<ActionResult<PagedResponse<Expense>>> GetExpenses([FromRoute] Guid organizationId, int page = 1, int pageSize = 20)
     {
         var totalRecords = await _expensesRepository.GetEntriesCountAsync();
+        var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
         var expenses = await _expensesRepository.GetAllByOrganizationAsync(organizationId, page, pageSize);
+        var expensesDto = expenses.Select(expense => new GetExpenseResponse
+        {
+            Id = expense.Id,
+            Amount = expense.Amount,
+            Category = expense.Category,
+            Description = expense.Description,
+        }).ToList();
 
-        return new PagedResponse<Expense>(expenses, totalRecords, page, pageSize);
+        return Ok(new PagedResponse<GetExpenseResponse>(expensesDto, page, pageSize, totalRecords, totalPages));
     }
     
     [HttpGet]
@@ -59,7 +66,7 @@ public class ExpensesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<GetExpenseResponse>> GetExpenseById([FromHeader] Guid organizationId, [FromRoute] Guid expenseId)
+    public async Task<ActionResult<GetExpenseResponse>> GetExpenseById([FromRoute] Guid organizationId, [FromRoute] Guid expenseId)
     {
         try
         {
@@ -70,7 +77,13 @@ public class ExpensesController : ControllerBase
                 return NotFound();
             }
 
-            var response = new GetExpenseResponse();
+            var response = new GetExpenseResponse
+            {
+                Id = expense.Id,
+                Amount = expense.Amount,
+                Category = expense.Category,
+                Description = expense.Description,
+            };
 
             return Ok(response);
         }
@@ -89,19 +102,11 @@ public class ExpensesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     public async Task<ActionResult<CreateExpenseResponse>> CreateExpenseAsync(
-        [FromHeader] Guid organizationId,
+        [FromRoute] Guid organizationId,
         [FromBody] CreateExpenseRequest request)
     {
         try
         {
-            var userId = User.Claims.FirstOrDefault(a => a.Type == ClaimTypes.NameIdentifier)?.Value;
-
-            if (string.IsNullOrEmpty(userId)) return BadRequest("Invalid user");
-            
-            var user = await _usersRepository.GetByIdAsync(userId);
-            
-            if (user == null) return BadRequest("Invalid user");
-            
             if (!ModelState.IsValid)
             {
                 return UnprocessableEntity();
@@ -111,17 +116,13 @@ public class ExpensesController : ControllerBase
             
             if (!isValidCategory) return UnprocessableEntity();
             
-            var organization = await _organizationsRepository.GetByIdAsync(organizationId);
-            
-            if (organization is null) return BadRequest("Invalid organization");
-            
             Expense expense = new()
             {
                 Description = request.Description,
                 Category = category,
                 Amount = request.Amount,
                 CreatedAt = DateTime.UtcNow,
-                OrganizationId = organization.Id,
+                OrganizationId = organizationId,
             };
 
             await _expensesRepository.CreateAsync(expense);
@@ -132,10 +133,9 @@ public class ExpensesController : ControllerBase
                 Description = expense.Description,
                 Category = expense.Category,
                 Amount = expense.Amount,
-                CreatedDate = expense.CreatedAt,
             };
             
-            return CreatedAtAction(nameof(GetExpenseById), new { expenseId = expense.Id }, response);
+            return CreatedAtAction(nameof(GetExpenseById), new { expenseId = expense.Id, organizationId = expense.OrganizationId }, response);
         }
         catch (Exception ex)
         {

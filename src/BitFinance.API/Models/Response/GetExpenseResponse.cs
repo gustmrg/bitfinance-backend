@@ -13,6 +13,4 @@ public class GetExpenseResponse
     public ExpenseCategory Category { get; set; }
     
     public decimal Amount { get; set; }
-    
-    public Guid OrganizationId { get; set; }
 }

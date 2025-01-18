@@ -20,7 +20,7 @@ namespace BitFinance.API.Controllers;
 [Authorize]
 [OrganizationAuthorization]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/organizations/{organizationId}/bills")]
+[Route("api/v{version:apiVersion}/organizations/{organizationId:guid}/bills")]
 public class BillsController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
