@@ -1,6 +1,8 @@
 using Asp.Versioning;
 using BitFinance.API.Extensions;
 using BitFinance.API.Middlewares;
+using BitFinance.API.Services;
+using BitFinance.API.Services.Interfaces;
 using BitFinance.Business.Entities;
 using BitFinance.Data.Caching;
 using BitFinance.Data.Contexts;
@@ -39,6 +41,7 @@ builder.Services.AddScoped<IBillsRepository, BillsRepository>();
 builder.Services.AddScoped<IOrganizationsRepository, OrganizationsRepository>();
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 builder.Services.AddScoped<IExpensesRepository, ExpensesRepository>();
+builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddSingleton<ICacheService, RedisCacheService>();
 builder.Services.AddSingleton<DistributedCacheEntryOptions>();
 builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();

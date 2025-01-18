@@ -24,6 +24,4 @@ public class GetBillResponse
     public DateTime DueDate { get; set; }
     
     public DateTime? PaymentDate { get; set; }
-    
-    public Guid OrganizationId { get; set; }
 }

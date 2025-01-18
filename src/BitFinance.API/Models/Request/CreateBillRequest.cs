@@ -9,5 +9,4 @@ public record CreateBillRequest(
     DateTime DueDate, 
     DateTime? PaymentDate, 
     decimal AmountDue, 
-    decimal? AmountPaid,
-    Guid organizationId);
+    decimal? AmountPaid);
