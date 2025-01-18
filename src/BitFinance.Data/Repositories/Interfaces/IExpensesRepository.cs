@@ -4,9 +4,11 @@ namespace BitFinance.Data.Repositories.Interfaces;
 
 public interface IExpensesRepository
 {
+    Task<int> GetEntriesCountAsync();
     Task<List<Expense>> GetAllAsync(Guid organizationId);
     Task<List<Expense>> GetAllByOrganizationAsync(Guid organizationId, int page, int pageSize);
-    Task<Expense?> GetByIdAsync(Guid organizationId, Guid expenseId);
+    Task<Expense?> GetByIdAsync(Guid expenseId);
     Task<Expense> CreateAsync(Expense expense);
-    Task<int> GetEntriesCountAsync();
+    Task<Expense> UpdateAsync(Expense expense);
+    Task DeleteAsync(Expense expense);
 }

@@ -24,20 +24,14 @@ public class ExpensesController : ControllerBase
 {
     private readonly ILogger<ExpensesController> _logger;
     private readonly IExpensesRepository _expensesRepository;
-    private readonly IUsersRepository _usersRepository;
-    private readonly IOrganizationsRepository _organizationsRepository;
 
     public ExpensesController(
         ApplicationDbContext context, 
         ILogger<ExpensesController> logger, 
-        IExpensesRepository expensesRepository, 
-        IUsersRepository usersRepository, 
-        IOrganizationsRepository organizationsRepository)
+        IExpensesRepository expensesRepository)
     {
         _logger = logger;
         _expensesRepository = expensesRepository;
-        _usersRepository = usersRepository;
-        _organizationsRepository = organizationsRepository;
     }
 
     [HttpGet]
@@ -70,7 +64,7 @@ public class ExpensesController : ControllerBase
     {
         try
         {
-            var expense = await _expensesRepository.GetByIdAsync(organizationId, expenseId);
+            var expense = await _expensesRepository.GetByIdAsync(expenseId);
 
             if (expense is null)
             {
@@ -142,6 +136,74 @@ public class ExpensesController : ControllerBase
             Log.Error("{Timestamp} - Error on {MethodName} method request: {Message}",
                 DateTime.Now.ToString("s", CultureInfo.InvariantCulture), 
                 nameof(CreateExpenseAsync), 
+                ex.Message);
+            return BadRequest();
+        }
+    }
+
+    [HttpPatch]
+    [Route("{expenseId:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    public async Task<ActionResult<UpdateExpenseResponse>> UpdateExpense([FromRoute] Guid expenseId, [FromBody] UpdateExpenseRequest request)
+    {
+        try
+        {
+            var isValidCategory = Enum.TryParse(request.Category, true, out ExpenseCategory category);
+            
+            if (!isValidCategory) return UnprocessableEntity();
+            
+            var expense = await _expensesRepository.GetByIdAsync(expenseId);
+
+            if (expense is null) return NotFound();
+            
+            expense.Description = request.Description;
+            expense.Category = category;
+            expense.Amount = request.Amount;
+            expense.UpdatedAt = DateTime.UtcNow;
+            
+            await _expensesRepository.UpdateAsync(expense);
+
+            return Ok(new UpdateExpenseResponse(expense.Id, expense.Description, expense.Category, expense.Amount));
+        }
+        catch (Exception ex)
+        {
+            Log.Error("{Timestamp} - Error on {MethodName} method request: {Message}",
+                DateTime.Now.ToString("s", CultureInfo.InvariantCulture), 
+                nameof(UpdateExpense), 
+                ex.Message);
+            return BadRequest();
+        }
+    }
+
+    [HttpDelete]
+    [Route("{expenseId:guid}")]
+    public async Task<ActionResult> DeleteExpenseById(Guid expenseId)
+    {
+        try
+        {
+            Expense? expense = await _expensesRepository.GetByIdAsync(expenseId);
+
+            if (expense is null)
+            {
+                return NotFound();
+            }
+
+            if (expense.DeletedAt is not null)
+            {
+                return BadRequest();
+            }
+
+            await _expensesRepository.DeleteAsync(expense);
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            Log.Error("{Timestamp} - Error on {MethodName} method request: {Message}",
+                DateTime.Now.ToString("s", CultureInfo.InvariantCulture), 
+                nameof(DeleteExpenseById), 
                 ex.Message);
             return BadRequest();
         }

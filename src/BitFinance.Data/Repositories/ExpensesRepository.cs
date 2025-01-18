@@ -36,10 +36,10 @@ public class ExpensesRepository : IExpensesRepository
             .ToListAsync();
     }
 
-    public async Task<Expense?> GetByIdAsync(Guid organizationId, Guid expenseId)
+    public async Task<Expense?> GetByIdAsync(Guid expenseId)
     {
         return await _dbContext.Set<Expense>()
-            .Where(b => b.OrganizationId == organizationId && b.Id == expenseId)
+            .Where(e => e.Id == expenseId)
             .FirstOrDefaultAsync();
     }
 
@@ -48,6 +48,20 @@ public class ExpensesRepository : IExpensesRepository
         _dbContext.Set<Expense>().Add(expense);
         await _dbContext.SaveChangesAsync();
         return expense;
+    }
+
+    public async Task<Expense> UpdateAsync(Expense expense)
+    {
+        _dbContext.Set<Expense>().Update(expense);
+        await _dbContext.SaveChangesAsync();
+        return expense;
+    }
+
+    public async Task DeleteAsync(Expense expense)
+    {
+        expense.DeletedAt = DateTime.UtcNow;
+        _dbContext.Set<Expense>().Update(expense);
+        await _dbContext.SaveChangesAsync();
     }
 
     public async Task<int> GetEntriesCountAsync()
