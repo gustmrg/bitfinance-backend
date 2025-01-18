@@ -137,15 +137,15 @@ public class BillsController : ControllerBase
     }
     
     [HttpGet]
-    [Route("{id:guid}")]
+    [Route("{billId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<GetBillResponse>> GetBillById([FromRoute] Guid id)
+    public async Task<ActionResult<GetBillResponse>> GetBillById([FromRoute] Guid billId)
     {
         try
         {
-            Bill? bill = await _billsRepository.GetByIdAsync(id);
+            Bill? bill = await _billsRepository.GetByIdAsync(billId);
 
             if (bill is null)
             {
@@ -178,11 +178,11 @@ public class BillsController : ControllerBase
     }
     
     [HttpPatch]
-    [Route("{id:guid}")]
+    [Route("{billId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<UpdateBillResponse>> UpdateBill(Guid id, [FromBody] UpdateBillRequest request)
+    public async Task<ActionResult<UpdateBillResponse>> UpdateBill(Guid billId, [FromBody] UpdateBillRequest request)
     {
         try
         {
@@ -191,7 +191,7 @@ public class BillsController : ControllerBase
             
             if (!isValidCategory || !isValidStatus) return UnprocessableEntity();
 
-            var bill = await _context.Bills.FirstOrDefaultAsync(b => b.Id == id && b.DeletedAt == null);
+            var bill = await _context.Bills.FirstOrDefaultAsync(b => b.Id == billId && b.DeletedAt == null);
 
             if (bill is null)
             {
@@ -240,12 +240,12 @@ public class BillsController : ControllerBase
     }
     
     [HttpDelete]
-    [Route("{id:guid}")]
-    public async Task<ActionResult> DeleteBillById(Guid id)
+    [Route("{billId:guid}")]
+    public async Task<ActionResult> DeleteBillById(Guid billId)
     {
         try
         {
-            Bill? bill = await _billsRepository.GetByIdAsync(id);
+            Bill? bill = await _billsRepository.GetByIdAsync(billId);
 
             if (bill is null)
             {
