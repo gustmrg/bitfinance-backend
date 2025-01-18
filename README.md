@@ -123,14 +123,14 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 
 ## Roadmap
 
-- [x] Gerenciamento de contas a pagar (adicionar/atualizar/excluir)
-- [ ] Gerenciamento de despesas (adicionar/atualizar/excluir)
-- [ ] Gerenciamento de residências/famílias (adicionar/atualizar/excluir)
 - [x] Autenticação/Autorização
+- [x] Gerenciamento de contas a pagar (adicionar/atualizar/excluir)
+- [x] Gerenciamento de despesas (adicionar/atualizar/excluir)
+- [ ] Gerenciamento de residências/famílias (adicionar/atualizar/excluir)
+- [x] Enviar link de convite para adicionar usuários em residências/famílias
 - [ ] Salvar documentos (boleto/comprovante)
 - [ ] Salvar arquivos localmente
 - [ ] Salvar arquivos no S3 (AWS)
-- [ ] Enviar link de convite para adicionar usuários em residências/famílias
 - [ ] Notificações de datas de vencimento
 - [ ] Containers Docker
 
