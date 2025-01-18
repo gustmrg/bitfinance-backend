@@ -2,6 +2,7 @@ using System.Linq.Expressions;
 using BitFinance.Business.Entities;
 using BitFinance.Data.Contexts;
 using BitFinance.Data.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace BitFinance.Data.Repositories;
 
@@ -21,7 +22,9 @@ public class OrganizationInvitesRepository : IOrganizationInvitesRepository
 
     public async Task<OrganizationInvite?> GetByIdAsync(Guid id)
     {
-        throw new NotImplementedException();
+        return await _dbContext.Set<OrganizationInvite>()
+            .Where(x=> x.Id == id)
+            .FirstOrDefaultAsync();
     }
 
     public async Task<OrganizationInvite> CreateAsync(OrganizationInvite entity)

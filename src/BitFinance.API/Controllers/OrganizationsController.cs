@@ -5,13 +5,9 @@ using BitFinance.API.Models;
 using BitFinance.API.Models.Request;
 using BitFinance.API.Models.Response;
 using BitFinance.Business.Entities;
-using BitFinance.Data.Repositories;
 using BitFinance.Data.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace BitFinance.API.Controllers;
 
@@ -116,28 +112,7 @@ public class OrganizationsController : ControllerBase
         
         return Ok(organization);
     }
-
-    [HttpPost("{organizationId:guid}/join")]
-    public async Task<IActionResult> JoinOrganization(Guid organizationId)
-    {
-        var userId = User.Claims.FirstOrDefault(a => a.Type == ClaimTypes.NameIdentifier)?.Value;
-
-        if (string.IsNullOrEmpty(userId)) return BadRequest("Invalid user");
-            
-        var user = await _usersRepository.GetByIdAsync(userId);
-            
-        if (user == null) return BadRequest("Invalid user");
-        
-        var organization = await _organizationsRepository.GetByIdAsync(organizationId);
-        
-        if (organization is null) return NotFound();
-        
-        organization.Members.Add(user);
-        await _organizationsRepository.UpdateAsync(organization);
-        
-        return Ok();
-    }
-
+    
     [HttpPost("{organizationId:guid}/invite")]
     [OrganizationAuthorization]
     public async Task<IActionResult> CreateInvite([FromRoute] Guid organizationId)
@@ -151,5 +126,30 @@ public class OrganizationsController : ControllerBase
         await _invitesRepository.CreateAsync(invite);
 
         return Ok(new CreateOrganizationInviteResponse(invite.Id, invite.ExpiresAt));
+    }
+
+    [HttpPost("join")]
+    public async Task<IActionResult> JoinOrganization([FromBody] JoinOrganizationRequest request)
+    {
+        var userId = HttpContext.User.Claims.FirstOrDefault(a => a.Type == ClaimTypes.NameIdentifier)?.Value;
+        var user = await _usersRepository.GetByIdAsync(userId!);
+        
+        if (user == null) return NotFound("Invalid user");
+        
+        var invite = await _invitesRepository.GetByIdAsync(request.InviteId);
+        
+        if (invite is null) return NotFound("Invalid invite");
+        
+        var organization = await _organizationsRepository.GetByIdAsync(invite.OrganizationId);
+        
+        if (organization is null) return NotFound("Organization not found");
+        
+        if (organization.Members.Contains(user)) return BadRequest("You cannot join this organization");
+        
+        if (invite.ExpiresAt < DateTime.UtcNow) return BadRequest("This invite has expired");
+        
+        organization.Members.Add(user);
+        await _organizationsRepository.UpdateAsync(organization);
+        return Ok();
     }
 }
