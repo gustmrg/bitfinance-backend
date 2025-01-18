@@ -7,10 +7,16 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace BitFinance.Data.Contexts;
 
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<User>(options)
+public class ApplicationDbContext : IdentityDbContext<User>
 {
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+    {
+        
+    }
+
     public DbSet<Bill> Bills => Set<Bill>();
     public DbSet<Organization> Organizations => Set<Organization>();
+    public DbSet<Expense> Expenses => Set<Expense>();
     
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -45,5 +51,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         }
         
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+        // builder.Entity<Bill>().HasQueryFilter(x => x.OrganizationId == _contextOrganizationId);
+        // builder.Entity<Expense>().HasQueryFilter(x => x.OrganizationId == _contextOrganizationId);
     }
 }

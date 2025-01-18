@@ -2,11 +2,8 @@ using BitFinance.Business.Enums;
 
 namespace BitFinance.API.Models.Request;
 
-public record CreateBillRequest(
+public record CreateExpenseRequest(
     string Description, 
     string Category, 
     string Status, 
-    DateTime DueDate, 
-    DateTime? PaymentDate, 
-    decimal AmountDue, 
-    decimal? AmountPaid);
+    decimal Amount);
