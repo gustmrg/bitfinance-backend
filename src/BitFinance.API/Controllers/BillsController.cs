@@ -84,7 +84,7 @@ public class BillsController : ControllerBase
             
             return CreatedAtAction(nameof(GetBillById), new
             {
-                id = bill.Id, organizationId = bill.OrganizationId
+                billId = bill.Id, organizationId = bill.OrganizationId
             }, response);
         }
         catch (Exception ex)
@@ -100,13 +100,15 @@ public class BillsController : ControllerBase
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<PagedResponse<Bill>>> GetBillsAsync([FromRoute] Guid organizationId, [FromBody] GetBillsRequest request)
+    public async Task<ActionResult<PagedResponse<Bill>>> GetBillsAsync(
+        [FromRoute] Guid organizationId, 
+        [FromQuery] int page = 1, int pageSize = 10, DateTime? startDate = null, DateTime? endDate = null)
     {
         try
         {
             var totalRecords = await _billsRepository.GetEntriesCountAsync();
-            var totalPages = (int)Math.Ceiling((double)totalRecords / request.PageSize);
-            var bills = await _billsRepository.GetAllByOrganizationAsync(organizationId, request.Page, request.PageSize);
+            var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
+            var bills = await _billsRepository.GetAllByOrganizationAsync(organizationId, page, pageSize, startDate, endDate);
 
             var billsDto = bills.Select(bill => new GetBillResponse
                 {
@@ -122,7 +124,7 @@ public class BillsController : ControllerBase
                 })
                 .ToList();
             
-            var response = new PagedResponse<GetBillResponse>(billsDto, request.Page, request.PageSize, totalRecords, totalPages);
+            var response = new PagedResponse<GetBillResponse>(billsDto, page, pageSize, totalRecords, totalPages);
 
             return Ok(response);
         }

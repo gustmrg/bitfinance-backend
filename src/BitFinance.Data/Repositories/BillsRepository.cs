@@ -32,12 +32,24 @@ public class BillsRepository : IBillsRepository
         return list;
     }
     
-    public async Task<List<Bill>> GetAllByOrganizationAsync(Guid organizationId, int page, int pageSize)
+    public async Task<List<Bill>> GetAllByOrganizationAsync(Guid organizationId, int page, int pageSize, DateTime? startDate = null, DateTime? endDate = null)
     {
-        return await _dbContext.Set<Bill>()
+        var query = _dbContext.Set<Bill>()
             .AsNoTracking()
             .Where(b => b.DeletedAt == null)
-            .Where(b => b.OrganizationId == organizationId)
+            .Where(b => b.OrganizationId == organizationId);
+
+        if (startDate.HasValue)
+        {
+            query = query.Where(b => b.DueDate >= startDate);
+        }
+
+        if (endDate.HasValue)
+        {
+            query = query.Where(b => b.DueDate <= endDate);
+        }
+        
+        return await query
             .OrderBy(b => b.DueDate)
             .Skip(pageSize * (page - 1))
             .Take(pageSize)
