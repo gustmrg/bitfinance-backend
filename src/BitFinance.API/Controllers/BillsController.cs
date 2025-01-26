@@ -102,13 +102,13 @@ public class BillsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<PagedResponse<Bill>>> GetBillsAsync(
         [FromRoute] Guid organizationId, 
-        [FromQuery] int page = 1, int pageSize = 10, DateTime? startDate = null, DateTime? endDate = null)
+        [FromQuery] int page = 1, int pageSize = 100, DateTime? from = null, DateTime? to = null)
     {
         try
         {
             var totalRecords = await _billsRepository.GetEntriesCountAsync();
             var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
-            var bills = await _billsRepository.GetAllByOrganizationAsync(organizationId, page, pageSize, startDate, endDate);
+            var bills = await _billsRepository.GetAllByOrganizationAsync(organizationId, page, pageSize, from, to);
 
             var billsDto = bills.Select(bill => new GetBillResponse
                 {
