@@ -8,41 +8,53 @@ public class ExpenseConfiguration : IEntityTypeConfiguration<Expense>
 {
     public void Configure(EntityTypeBuilder<Expense> builder)
     {
-        builder.HasKey(b => b.Id);
+        builder.HasKey(x => x.Id);
 
-        builder.Property(b => b.Id)
+        builder.Property(x => x.Id)
             .HasColumnName("id");
             
-        builder.Property(b => b.Description)
+        builder.Property(x => x.Description)
             .HasColumnName("description")
             .HasColumnType("text")
             .IsRequired();
             
-        builder.Property(b => b.Category)
+        builder.Property(x => x.Category)
             .HasColumnName("category")
             .HasColumnType("text")
             .IsRequired();
         
-        builder.Property(b => b.Amount)
+        builder.Property(x => x.Amount)
             .HasColumnName("amount")
             .HasColumnType("numeric(10,2)")
             .IsRequired();
         
-        builder.Property(b => b.CreatedAt)
+        builder.Property(x => x.CreatedAt)
             .HasColumnName("created_at")
             .HasColumnType("timestampz")
             .HasPrecision(3)
             .IsRequired();
         
-        builder.Property(b => b.UpdatedAt)
+        builder.Property(x => x.UpdatedAt)
             .HasColumnName("updated_at")
             .HasColumnType("timestampz")
             .HasPrecision(3);
         
-        builder.Property(b => b.DeletedAt)
+        builder.Property(x => x.DeletedAt)
             .HasColumnName("deleted_at")
             .HasColumnType("timestampz")
             .HasPrecision(3);
+        
+        builder.HasOne(x => x.Organization)
+            .WithMany(o => o.Expenses)
+            .HasForeignKey(e => e.OrganizationId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.HasOne(x => x.CreatedByUser)
+            .WithMany()
+            .HasForeignKey(x => x.CreatedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        builder.HasQueryFilter(e => e.DeletedAt == null);
         
         builder.ToTable("expenses");
     }

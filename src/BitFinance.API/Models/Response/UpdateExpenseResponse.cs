@@ -3,4 +3,11 @@ using BitFinance.Business.Enums;
 
 namespace BitFinance.API.Models.Response;
 
-public record UpdateExpenseResponse(Guid Id, string Description, [property: JsonConverter(typeof(JsonStringEnumConverter))] ExpenseCategory Category, decimal Amount);
+public record UpdateExpenseResponse(
+    Guid Id, 
+    string Description, 
+    [property: JsonConverter(typeof(JsonStringEnumConverter))] ExpenseCategory Category, 
+    decimal Amount,
+    [property: JsonConverter(typeof(JsonStringEnumConverter))] ExpenseStatus Status,
+    DateTime OccurredAt,
+    string CreatedBy);

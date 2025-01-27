@@ -24,13 +24,26 @@ public class ExpensesRepository : IExpensesRepository
             .ToListAsync();
     }
     
-    public async Task<List<Expense>> GetAllByOrganizationAsync(Guid organizationId, int page, int pageSize)
+    public async Task<List<Expense>> GetAllByOrganizationAsync(Guid organizationId, int page, int pageSize, DateTime? startDate = null, DateTime? endDate = null)
     {
-        return await _dbContext.Set<Expense>()
+        var query = _dbContext.Set<Expense>()
             .AsNoTracking()
             .Where(b => b.DeletedAt == null)
-            .Where(b => b.OrganizationId == organizationId)
-            .OrderBy(b => b.CreatedAt)
+            .Where(b => b.OrganizationId == organizationId);
+
+        if (startDate.HasValue)
+        {
+            query = query.Where(e => e.CreatedAt >= startDate);
+        }
+
+        if (endDate.HasValue)
+        {
+            query = query.Where(e => e.CreatedAt <= endDate);
+        }
+        
+        return await query
+            .Include(e => e.CreatedByUser)
+            .OrderBy(e => e.CreatedAt)
             .Skip(pageSize * (page - 1))
             .Take(pageSize)
             .ToListAsync();

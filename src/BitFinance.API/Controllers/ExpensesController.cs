@@ -26,7 +26,6 @@ public class ExpensesController : ControllerBase
     private readonly IExpensesRepository _expensesRepository;
 
     public ExpensesController(
-        ApplicationDbContext context, 
         ILogger<ExpensesController> logger, 
         IExpensesRepository expensesRepository)
     {
@@ -38,17 +37,22 @@ public class ExpensesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<PagedResponse<Expense>>> GetExpenses([FromRoute] Guid organizationId, int page = 1, int pageSize = 20)
+    public async Task<ActionResult<PagedResponse<Expense>>> GetExpenses(
+        [FromRoute] Guid organizationId, 
+        [FromQuery] int page = 1, int pageSize = 100, DateTime? from = null, DateTime? to = null)
     {
         var totalRecords = await _expensesRepository.GetEntriesCountAsync();
         var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
-        var expenses = await _expensesRepository.GetAllByOrganizationAsync(organizationId, page, pageSize);
+        var expenses = await _expensesRepository.GetAllByOrganizationAsync(organizationId, page, pageSize, from, to);
         var expensesDto = expenses.Select(expense => new GetExpenseResponse
         {
             Id = expense.Id,
             Amount = expense.Amount,
             Category = expense.Category,
             Description = expense.Description,
+            Status = expense.Status,
+            OccurredAt = expense.OccurredAt,
+            CreatedBy = expense.CreatedByUser.FullName,
         }).ToList();
 
         return Ok(new PagedResponse<GetExpenseResponse>(expensesDto, page, pageSize, totalRecords, totalPages));
@@ -77,6 +81,9 @@ public class ExpensesController : ControllerBase
                 Amount = expense.Amount,
                 Category = expense.Category,
                 Description = expense.Description,
+                Status = expense.Status,
+                OccurredAt = expense.OccurredAt,
+                CreatedBy = expense.CreatedByUser.FullName,
             };
 
             return Ok(response);
@@ -107,15 +114,20 @@ public class ExpensesController : ControllerBase
             }
             
             var isValidCategory = Enum.TryParse(request.Category, true, out ExpenseCategory category);
-            
             if (!isValidCategory) return UnprocessableEntity();
+            
+            var isValidStatus = Enum.TryParse(request.Status, true, out ExpenseStatus status);
+            if (!isValidStatus) return UnprocessableEntity();
             
             Expense expense = new()
             {
                 Description = request.Description,
                 Category = category,
                 Amount = request.Amount,
+                Status = status,
+                OccurredAt = request.OccurredAt ?? DateTime.UtcNow,
                 CreatedAt = DateTime.UtcNow,
+                CreatedByUserId = request.CreatedBy,
                 OrganizationId = organizationId,
             };
 
@@ -127,6 +139,9 @@ public class ExpensesController : ControllerBase
                 Description = expense.Description,
                 Category = expense.Category,
                 Amount = expense.Amount,
+                Status = expense.Status,
+                OccurredAt = expense.OccurredAt,
+                CreatedBy = expense.CreatedByUser.FullName,
             };
             
             return CreatedAtAction(nameof(GetExpenseById), new { expenseId = expense.Id, organizationId = expense.OrganizationId }, response);
@@ -151,8 +166,10 @@ public class ExpensesController : ControllerBase
         try
         {
             var isValidCategory = Enum.TryParse(request.Category, true, out ExpenseCategory category);
-            
             if (!isValidCategory) return UnprocessableEntity();
+            
+            var isValidStatus = Enum.TryParse(request.Status, true, out ExpenseStatus status);
+            if (!isValidStatus) return UnprocessableEntity();
             
             var expense = await _expensesRepository.GetByIdAsync(expenseId);
 
@@ -161,11 +178,13 @@ public class ExpensesController : ControllerBase
             expense.Description = request.Description;
             expense.Category = category;
             expense.Amount = request.Amount;
+            expense.Status = status;
+            expense.OccurredAt = request.OccurredAt ?? DateTime.UtcNow;
             expense.UpdatedAt = DateTime.UtcNow;
             
             await _expensesRepository.UpdateAsync(expense);
 
-            return Ok(new UpdateExpenseResponse(expense.Id, expense.Description, expense.Category, expense.Amount));
+            return Ok(new UpdateExpenseResponse(expense.Id, expense.Description, expense.Category, expense.Amount, expense.Status, expense.OccurredAt, expense.CreatedByUser.FullName));
         }
         catch (Exception ex)
         {

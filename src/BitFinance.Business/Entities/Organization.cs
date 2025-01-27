@@ -9,4 +9,5 @@ public class Organization
     public DateTime? DeletedAt { get; set; }
     public ICollection<User> Members { get; set; } = new List<User>();
     public ICollection<Bill> Bills { get; set; } = new List<Bill>();
+    public ICollection<Expense> Expenses { get; set; } = new List<Expense>();
 }
