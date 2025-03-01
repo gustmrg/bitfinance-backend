@@ -5,6 +5,7 @@ using BitFinance.API.Attributes;
 using BitFinance.API.Models;
 using BitFinance.API.Models.Request;
 using BitFinance.API.Models.Response;
+using BitFinance.API.Services.Interfaces;
 using BitFinance.Business.Entities;
 using BitFinance.Business.Enums;
 using BitFinance.Data.Contexts;
@@ -26,14 +27,16 @@ public class BillsController : ControllerBase
     private readonly ApplicationDbContext _context;
     private readonly ILogger<BillsController> _logger;
     private readonly IBillsRepository _billsRepository;
+    private readonly IFilesService _filesService;
     
     public BillsController(ApplicationDbContext context, 
         ILogger<BillsController> logger, 
-        IBillsRepository billsRepository)
+        IBillsRepository billsRepository, IFilesService filesService)
     {
         _context = context;
         _logger = logger;
         _billsRepository = billsRepository;
+        _filesService = filesService;
     }
     
     [HttpPost]
@@ -271,5 +274,14 @@ public class BillsController : ControllerBase
                 ex.Message);
             return BadRequest();
         }
+    }
+
+    [HttpPost]
+    [Route("upload")]
+    public async Task<IActionResult> UploadFile(IFormFile file, DocumentType documentType)
+    {
+        if (!_filesService.Validate(file)) return BadRequest();
+
+        return Ok();
     }
 }
