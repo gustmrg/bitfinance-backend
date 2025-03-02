@@ -23,6 +23,11 @@ public class ExpensesService : IExpensesService
         throw new NotImplementedException();
     }
 
+    public async Task<List<Expense>> GetRecentExpenses(Guid organizationId)
+    {
+        return await _expensesRepository.GetRecentExpenses(organizationId);
+    }
+
     public Guid CreateExpense(Expense expense)
     {
         throw new NotImplementedException();

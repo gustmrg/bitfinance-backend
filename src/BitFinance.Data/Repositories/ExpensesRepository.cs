@@ -49,6 +49,15 @@ public class ExpensesRepository : IExpensesRepository
             .ToListAsync();
     }
 
+    public async Task<List<Expense>> GetRecentExpenses(Guid organizationId)
+    {
+        return await _dbContext.Set<Expense>()
+            .AsNoTracking()
+            .Where(b => b.OrganizationId == organizationId)
+            .OrderByDescending(e => e.OccurredAt)
+            .ToListAsync();
+    }
+
     public async Task<Expense?> GetByIdAsync(Guid expenseId)
     {
         return await _dbContext.Set<Expense>()

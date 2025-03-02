@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using BitFinance.Business.Entities;
+using BitFinance.Business.Enums;
 using BitFinance.Data.Caching;
 using BitFinance.Data.Contexts;
 using BitFinance.Data.Repositories.Interfaces;
@@ -86,6 +87,15 @@ public class BillsRepository : IBillsRepository
         }
         
         return bill;
+    }
+
+    public async Task<List<Bill>> GetUpcomingBills(Guid organizationId)
+    {
+        return await _dbContext.Set<Bill>()
+            .AsNoTracking()
+            .Where(x => x.OrganizationId == organizationId && (x.Status == BillStatus.Upcoming || x.Status == BillStatus.Due))
+            .OrderByDescending(x => x.DueDate)
+            .ToListAsync();
     }
 
     public async Task<Bill> CreateAsync(Bill bill)
