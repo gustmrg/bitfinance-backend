@@ -53,7 +53,7 @@ public class ExpensesRepository : IExpensesRepository
     {
         return await _dbContext.Set<Expense>()
             .AsNoTracking()
-            .Where(b => b.OrganizationId == organizationId)
+            .Where(b => b.OrganizationId == organizationId && b.DeletedAt == null)
             .OrderByDescending(e => e.OccurredAt)
             .ToListAsync();
     }

@@ -93,7 +93,9 @@ public class BillsRepository : IBillsRepository
     {
         return await _dbContext.Set<Bill>()
             .AsNoTracking()
-            .Where(x => x.OrganizationId == organizationId && (x.Status == BillStatus.Upcoming || x.Status == BillStatus.Due))
+            .Where(x => x.OrganizationId == organizationId && 
+                        (x.Status == BillStatus.Upcoming || x.Status == BillStatus.Due) &&
+                        x.DeletedAt == null)
             .OrderByDescending(x => x.DueDate)
             .ToListAsync();
     }
