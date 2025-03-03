@@ -56,6 +56,17 @@ public class BillsRepository : IBillsRepository
             .Take(pageSize)
             .ToListAsync();
     }
+    
+    public async Task<List<Bill>> GetAllByStatusAsync(BillStatus billStatus)
+    {
+        List<Bill> list = await _dbContext.Set<Bill>()
+            .AsNoTracking()
+            .Where(b => b.DeletedAt == null && b.Status == billStatus)
+            .OrderBy(b => b.DueDate)
+            .ToListAsync();
+
+        return list;
+    }
 
     public async Task<int> GetEntriesCountAsync()
     {
@@ -154,6 +165,11 @@ public class BillsRepository : IBillsRepository
             string key = _cache.GenerateKey<Bill>(bill.Id.ToString());
             await _cache.SetAsync(key, bill);
         }
+    }
+
+    public async Task SaveChangesAsync()
+    {
+        await _dbContext.SaveChangesAsync();
     }
 
     private bool IsCacheEnabled()

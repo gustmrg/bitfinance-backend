@@ -64,4 +64,9 @@ public class OrganizationsRepository : IOrganizationsRepository
         _dbContext.Set<Organization>().Update(organization);
         await _dbContext.SaveChangesAsync();
     }
+    
+    public async Task SaveChangesAsync()
+    {
+        await _dbContext.SaveChangesAsync();
+    }
 }

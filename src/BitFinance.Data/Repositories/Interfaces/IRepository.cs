@@ -12,4 +12,5 @@ public interface IRepository<T, TId>
     Task UpdateAsync(T entity);
     Task UpdateAsync(T entity, params Expression<Func<T, object>>[] properties);
     Task DeleteAsync(T entity);
+    Task SaveChangesAsync();
 }
