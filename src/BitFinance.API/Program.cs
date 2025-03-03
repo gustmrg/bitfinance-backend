@@ -43,6 +43,7 @@ builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 builder.Services.AddScoped<IExpensesRepository, ExpensesRepository>();
 builder.Services.AddScoped<IOrganizationInvitesRepository, OrganizationInvitesRepository>();
 builder.Services.AddScoped<IUsersService, UsersService>();
+builder.Services.AddScoped<IStorageService, LocalStorageService>();
 builder.Services.AddSingleton<ICacheService, RedisCacheService>();
 builder.Services.AddSingleton<DistributedCacheEntryOptions>();
 builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();

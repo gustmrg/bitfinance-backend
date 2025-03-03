@@ -18,8 +18,8 @@ using Serilog;
 namespace BitFinance.API.Controllers;
 
 [ApiController]
-[Authorize]
-[OrganizationAuthorization]
+//[Authorize]
+//[OrganizationAuthorization]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/organizations/{organizationId:guid}/bills")]
 public class BillsController : ControllerBase
@@ -27,16 +27,16 @@ public class BillsController : ControllerBase
     private readonly ApplicationDbContext _context;
     private readonly ILogger<BillsController> _logger;
     private readonly IBillsRepository _billsRepository;
-    private readonly IFilesService _filesService;
+    private readonly IStorageService _storageService;
     
     public BillsController(ApplicationDbContext context, 
         ILogger<BillsController> logger, 
-        IBillsRepository billsRepository, IFilesService filesService)
+        IBillsRepository billsRepository, IStorageService storageService)
     {
         _context = context;
         _logger = logger;
         _billsRepository = billsRepository;
-        _filesService = filesService;
+        _storageService = storageService;
     }
     
     [HttpPost]
@@ -277,11 +277,25 @@ public class BillsController : ControllerBase
     }
 
     [HttpPost]
-    [Route("upload")]
-    public async Task<IActionResult> UploadFile(IFormFile file, DocumentType documentType)
+    [Route("{billId:guid}/upload")]
+    public async Task<IActionResult> UploadFile([FromRoute] Guid billId, Guid organizationId, [FromForm] IFormFile file)
     {
-        if (!_filesService.Validate(file)) return BadRequest();
+        var bill = await _billsRepository.GetByIdAsync(billId);
+        
+        if (bill is null)
+        {
+            return BadRequest();
+        }
+        
+        if (!_storageService.ValidateFile(file))
+            return BadRequest("Invalid file");
+        
+        var stream = file.OpenReadStream();
+        
+        var filePath = await _storageService.SaveFileAsync(new FileUploadDTO(organizationId, billId, file.FileName, stream));
 
-        return Ok();
+        var fileRecord = new FileRecord(Path.GetFileName(filePath), filePath, StorageProvider.Local);
+
+        return Ok(new UploadFileResponse(fileRecord.Id, fileRecord.FileName));
     }
 }
