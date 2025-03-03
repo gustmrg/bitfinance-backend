@@ -24,19 +24,21 @@ namespace BitFinance.API.Controllers;
 [Route("api/v{version:apiVersion}/organizations/{organizationId:guid}/bills")]
 public class BillsController : ControllerBase
 {
-    private readonly ApplicationDbContext _context;
     private readonly ILogger<BillsController> _logger;
     private readonly IBillsRepository _billsRepository;
     private readonly IStorageService _storageService;
+    private readonly IFileRecordsRepository _fileRecordsRepository;
     
-    public BillsController(ApplicationDbContext context, 
+    public BillsController( 
         ILogger<BillsController> logger, 
-        IBillsRepository billsRepository, IStorageService storageService)
+        IBillsRepository billsRepository, 
+        IStorageService storageService, 
+        IFileRecordsRepository fileRecordsRepository)
     {
-        _context = context;
         _logger = logger;
         _billsRepository = billsRepository;
         _storageService = storageService;
+        _fileRecordsRepository = fileRecordsRepository;
     }
     
     [HttpPost]
@@ -196,7 +198,7 @@ public class BillsController : ControllerBase
             
             if (!isValidCategory || !isValidStatus) return UnprocessableEntity();
 
-            var bill = await _context.Bills.FirstOrDefaultAsync(b => b.Id == billId && b.DeletedAt == null);
+            var bill = await _billsRepository.GetByIdAsync(billId);
 
             if (bill is null)
             {
@@ -295,6 +297,9 @@ public class BillsController : ControllerBase
         var filePath = await _storageService.SaveFileAsync(new FileUploadDTO(organizationId, billId, file.FileName, stream));
 
         var fileRecord = new FileRecord(Path.GetFileName(filePath), filePath, StorageProvider.Local);
+        fileRecord.BillId = bill.Id;
+        
+        await _fileRecordsRepository.CreateAsync(fileRecord);
 
         return Ok(new UploadFileResponse(fileRecord.Id, fileRecord.FileName));
     }

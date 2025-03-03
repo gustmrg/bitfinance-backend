@@ -42,6 +42,7 @@ builder.Services.AddScoped<IOrganizationsRepository, OrganizationsRepository>();
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 builder.Services.AddScoped<IExpensesRepository, ExpensesRepository>();
 builder.Services.AddScoped<IOrganizationInvitesRepository, OrganizationInvitesRepository>();
+builder.Services.AddScoped<IFileRecordsRepository, FileRecordsRepository>();
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IStorageService, LocalStorageService>();
 builder.Services.AddSingleton<ICacheService, RedisCacheService>();

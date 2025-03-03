@@ -64,6 +64,10 @@ public class BillConfiguration : IEntityTypeConfiguration<Bill>
             .HasColumnType("timestampz")
             .HasPrecision(3);
 
+        builder.HasMany(b => b.Files)
+            .WithOne(b => b.Bill)
+            .HasForeignKey(b => b.BillId);
+
         builder.ToTable("bills");
     }
 }

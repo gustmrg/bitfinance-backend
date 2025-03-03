@@ -13,6 +13,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Organization> Organizations => Set<Organization>();
     public DbSet<Expense> Expenses => Set<Expense>();
     public DbSet<OrganizationInvite> OrganizationInvites => Set<OrganizationInvite>();
+    public DbSet<FileRecord> FileRecords => Set<FileRecord>();
     
     protected override void OnModelCreating(ModelBuilder builder)
     {

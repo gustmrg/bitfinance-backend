@@ -1,5 +1,6 @@
 using BitFinance.API.Models;
 using BitFinance.API.Services.Interfaces;
+using BitFinance.Data.Repositories.Interfaces;
 using static BitFinance.API.Extensions.FileExtensions;
 
 namespace BitFinance.API.Services;
@@ -64,7 +65,7 @@ public class LocalStorageService : IStorageService
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException("Erro ao salvar o arquivo", ex);
+            throw new InvalidOperationException("Error when trying to save file", ex);
         }
 
         return filePath;

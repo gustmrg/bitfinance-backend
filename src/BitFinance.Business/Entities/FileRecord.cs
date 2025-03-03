@@ -13,8 +13,6 @@ public class FileRecord
         StorageProvider = storageProvider;
     }
     
-    
-    
     public Guid Id { get; set; }
     public string FileName { get; set; }
     public string StoragePath { get; set; }
@@ -23,4 +21,6 @@ public class FileRecord
     public DateTime CreatedAt { get; set; }
     public StorageProvider StorageProvider { get; set; }
     public string? Metadata { get; set; }
+    public Guid BillId { get; set; }
+    public Bill Bill { get; set; }
 }
