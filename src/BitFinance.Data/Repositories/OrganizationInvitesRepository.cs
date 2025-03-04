@@ -48,4 +48,9 @@ public class OrganizationInvitesRepository : IOrganizationInvitesRepository
     {
         throw new NotImplementedException();
     }
+    
+    public async Task SaveChangesAsync()
+    {
+        await _dbContext.SaveChangesAsync();
+    }
 }
