@@ -17,5 +17,8 @@ public enum ExpenseCategory
     Travel = 12,
     PetCare = 13,
     Gifts = 14,
-    Miscellaneous = 15
+    Miscellaneous = 15,
+    Subscriptions = 16,
+    Taxes = 17,
+    Pets = 18
 }

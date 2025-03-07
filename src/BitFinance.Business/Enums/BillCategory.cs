@@ -14,5 +14,8 @@ public enum BillCategory
     Savings = 9,
     Education = 10,
     Entertainment = 11,
-    Miscellaneous = 12
+    Miscellaneous = 12,
+    Subscriptions = 13,
+    Taxes = 14,
+    Pets = 15
 }
