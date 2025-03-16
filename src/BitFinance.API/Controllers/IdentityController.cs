@@ -36,7 +36,7 @@ public class IdentityController : ControllerBase
         List<OrganizationViewModel> organizations = [];
         organizations.AddRange(user.Organizations.Select(organization => new OrganizationViewModel(organization.Id, organization.Name)));
         
-        return Ok(new UserViewModel(user.Id, user.FirstName, user.LastName, user?.Email ?? string.Empty, ReplaceUserName(user?.UserName), organizations));
+        return Ok(new UserViewModel(user.Id, user.FullName, user?.Email ?? string.Empty, ReplaceUserName(user?.UserName), organizations));
     }
 
     [HttpPost("manage/profile")]
@@ -58,7 +58,7 @@ public class IdentityController : ControllerBase
         List<OrganizationViewModel> organizations = [];
         organizations.AddRange(user.Organizations.Select(organization => new OrganizationViewModel(organization.Id, organization.Name)));
 
-        return Ok(new UserViewModel(user.Id, user.FirstName, user.LastName, user.Email ?? string.Empty, ReplaceUserName(user?.UserName), organizations));
+        return Ok(new UserViewModel(user.Id, user.FullName, user.Email ?? string.Empty, ReplaceUserName(user?.UserName), organizations));
     }
 
     private static string ReplaceUserName(string? email)
