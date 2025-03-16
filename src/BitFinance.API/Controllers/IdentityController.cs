@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Asp.Versioning;
 using BitFinance.API.InputModels;
+using BitFinance.API.Services.Interfaces;
 using BitFinance.API.ViewModels;
 using BitFinance.Data.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -14,11 +15,11 @@ namespace BitFinance.API.Controllers;
 [Route("api/v{version:apiVersion}/identity")]
 public class IdentityController : ControllerBase
 {
-    private readonly IUsersRepository _usersRepository;
+    private readonly IUsersService _usersService;
 
-    public IdentityController(IUsersRepository usersRepository)
+    public IdentityController(IUsersService usersService)
     {
-        _usersRepository = usersRepository;
+        _usersService = usersService;
     }
 
     [HttpGet("me")]
@@ -28,7 +29,7 @@ public class IdentityController : ControllerBase
 
         if (string.IsNullOrEmpty(userId)) return BadRequest("Invalid user");
             
-        var user = await _usersRepository.GetByIdAsync(userId);
+        var user = await _usersService.GetUserByIdAsync(userId);
             
         if (user == null) return BadRequest("Invalid user");
 
@@ -45,14 +46,14 @@ public class IdentityController : ControllerBase
 
         if (string.IsNullOrEmpty(userId)) return BadRequest("Invalid user");
             
-        var user = await _usersRepository.GetByIdAsync(userId);
+        var user = await _usersService.GetUserByIdAsync(userId);
             
         if (user == null) return BadRequest("Invalid user");
         
         user.FirstName = model.FirstName;
         user.LastName = model.LastName;
         
-        await _usersRepository.UpdateAsync(user);
+        await  _usersService.UpdateUserAsync(user);
         
         List<OrganizationViewModel> organizations = [];
         organizations.AddRange(user.Organizations.Select(organization => new OrganizationViewModel(organization.Id, organization.Name)));
