@@ -1,54 +1,68 @@
 using System.Security.Claims;
 using Asp.Versioning;
-using BitFinance.API.Models;
-using BitFinance.API.Models.Response;
-using BitFinance.Business.Entities;
+using BitFinance.API.InputModels;
+using BitFinance.API.Services.Interfaces;
+using BitFinance.API.ViewModels;
 using BitFinance.Data.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace BitFinance.API.Controllers;
 
 [ApiController]
 [Authorize]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/identity/me")]
+[Route("api/v{version:apiVersion}/identity")]
 public class IdentityController : ControllerBase
 {
-    private readonly IUsersRepository _usersRepository;
+    private readonly IUsersService _usersService;
 
-    public IdentityController(IUsersRepository usersRepository)
+    public IdentityController(IUsersService usersService)
     {
-        _usersRepository = usersRepository;
+        _usersService = usersService;
     }
 
-    [HttpGet]
+    [HttpGet("me")]
     public async Task<IActionResult> GetMe()
     {
         var userId = User.Claims.FirstOrDefault(a => a.Type == ClaimTypes.NameIdentifier)?.Value;
 
         if (string.IsNullOrEmpty(userId)) return BadRequest("Invalid user");
             
-        var user = await _usersRepository.GetByIdAsync(userId);
+        var user = await _usersService.GetUserByIdAsync(userId);
             
         if (user == null) return BadRequest("Invalid user");
 
-        List<OrganizationResponseModel> organizations = [];
-
-        foreach (var organization in user.Organizations)
-        {
-            organizations.Add(new OrganizationResponseModel(organization.Id, organization.Name));
-        }
+        List<OrganizationViewModel> organizations = [];
+        organizations.AddRange(user.Organizations.Select(organization => new OrganizationViewModel(organization.Id, organization.Name)));
         
-        var response = new GetMeResponse(user.Id, ReplaceUserName(user?.UserName) ?? string.Empty, user.Email ?? string.Empty, organizations);
-        
-        return Ok(response);
+        return Ok(new UserViewModel(user.Id, user.FullName, user?.Email ?? string.Empty, ReplaceUserName(user?.UserName), organizations));
     }
 
-    private string ReplaceUserName(string? email)
+    [HttpPost("manage/profile")]
+    public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileInputModel model)
     {
-        return email.Split('@')[0];
+        var userId = User.Claims.FirstOrDefault(a => a.Type == ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(userId)) return BadRequest("Invalid user");
+            
+        var user = await _usersService.GetUserByIdAsync(userId);
+            
+        if (user == null) return BadRequest("Invalid user");
+        
+        user.FirstName = model.FirstName;
+        user.LastName = model.LastName;
+        
+        await  _usersService.UpdateUserAsync(user);
+        
+        List<OrganizationViewModel> organizations = [];
+        organizations.AddRange(user.Organizations.Select(organization => new OrganizationViewModel(organization.Id, organization.Name)));
+
+        return Ok(new UserViewModel(user.Id, user.FullName, user.Email ?? string.Empty, ReplaceUserName(user?.UserName), organizations));
+    }
+
+    private static string ReplaceUserName(string? email)
+    {
+        return string.IsNullOrEmpty(email) ? string.Empty : email.Split('@')[0];
     }
 }

@@ -34,7 +34,8 @@ public class UsersRepository : IUsersRepository
 
     public async Task UpdateAsync(User entity)
     {
-        throw new NotImplementedException();
+        _dbContext.Set<User>().Update(entity);
+        await _dbContext.SaveChangesAsync();
     }
 
     public async Task UpdateAsync(User entity, params Expression<Func<User, object>>[] properties)

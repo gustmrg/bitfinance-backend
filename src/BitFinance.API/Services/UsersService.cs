@@ -1,4 +1,5 @@
 using BitFinance.API.Services.Interfaces;
+using BitFinance.Business.Entities;
 using BitFinance.Data.Repositories.Interfaces;
 
 namespace BitFinance.API.Services;
@@ -21,5 +22,15 @@ public class UsersService : IUsersService
         if (user.Organizations.All(o => o.Id != organizationId)) return false;
 
         return true;
+    }
+
+    public async Task<User?> GetUserByIdAsync(string userId)
+    {
+        return await _usersRepository.GetByIdAsync(userId);
+    }
+
+    public async Task UpdateUserAsync(User user)
+    {
+        await _usersRepository.UpdateAsync(user);
     }
 }
