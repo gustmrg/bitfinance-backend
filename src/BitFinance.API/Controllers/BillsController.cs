@@ -18,8 +18,8 @@ using Serilog;
 namespace BitFinance.API.Controllers;
 
 [ApiController]
-//[Authorize]
-//[OrganizationAuthorization]
+[Authorize]
+[OrganizationAuthorization]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/organizations/{organizationId:guid}/bills")]
 public class BillsController : ControllerBase
@@ -282,25 +282,39 @@ public class BillsController : ControllerBase
     [Route("{billId:guid}/upload")]
     public async Task<IActionResult> UploadFile([FromRoute] Guid billId, Guid organizationId, [FromForm] IFormFile file)
     {
-        var bill = await _billsRepository.GetByIdAsync(billId);
-        
-        if (bill is null)
+        try
         {
-            return BadRequest();
+            var bill = await _billsRepository.GetByIdAsync(billId);
+        
+            if (bill is null)
+            {
+                return BadRequest("Bill not found");
+            }
+
+            if (!_storageService.ValidateFile(file, out var errorMessage))
+            {
+                _logger.LogWarning("File validation failed: {ErrorMessage}", errorMessage);
+                
+                return BadRequest(errorMessage);
+            }
+
+            using (var stream = file.OpenReadStream())
+            {
+                var filePath = await _storageService.SaveFileAsync(new FileUploadDTO(organizationId, billId, file.FileName, stream));
+
+                var fileRecord = new FileRecord(Path.GetFileName(filePath), filePath, StorageProvider.Local);
+                fileRecord.BillId = bill.Id;
+        
+                await _fileRecordsRepository.CreateAsync(fileRecord);
+
+                return Ok(new UploadFileResponse(fileRecord.Id, fileRecord.FileName));    
+            }
         }
-        
-        if (!_storageService.ValidateFile(file))
-            return BadRequest("Invalid file");
-        
-        var stream = file.OpenReadStream();
-        
-        var filePath = await _storageService.SaveFileAsync(new FileUploadDTO(organizationId, billId, file.FileName, stream));
-
-        var fileRecord = new FileRecord(Path.GetFileName(filePath), filePath, StorageProvider.Local);
-        fileRecord.BillId = bill.Id;
-        
-        await _fileRecordsRepository.CreateAsync(fileRecord);
-
-        return Ok(new UploadFileResponse(fileRecord.Id, fileRecord.FileName));
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error uploading file");
+            
+            return StatusCode(500, "An error occurred while uploading the file.");
+        }
     }
 }

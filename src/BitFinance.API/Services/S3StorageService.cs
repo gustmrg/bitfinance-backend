@@ -5,7 +5,7 @@ namespace BitFinance.API.Services;
 
 public class S3StorageService : IStorageService
 {
-    public bool ValidateFile(IFormFile file)
+    public bool ValidateFile(IFormFile file, out string errorMessage)
     {
         throw new NotImplementedException();
     }
