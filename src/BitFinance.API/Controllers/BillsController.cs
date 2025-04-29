@@ -7,6 +7,7 @@ using BitFinance.API.Models.Request;
 using BitFinance.API.Models.Response;
 using BitFinance.Business.Entities;
 using BitFinance.Business.Enums;
+using BitFinance.Business.Interfaces;
 using BitFinance.Data.Contexts;
 using BitFinance.Data.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -26,14 +27,16 @@ public class BillsController : ControllerBase
     private readonly ApplicationDbContext _context;
     private readonly ILogger<BillsController> _logger;
     private readonly IBillsRepository _billsRepository;
+    private readonly IDocumentStorageProvider _storageProvider;
     
     public BillsController(ApplicationDbContext context, 
         ILogger<BillsController> logger, 
-        IBillsRepository billsRepository)
+        IBillsRepository billsRepository, IDocumentStorageProvider storageProvider)
     {
         _context = context;
         _logger = logger;
         _billsRepository = billsRepository;
+        _storageProvider = storageProvider;
     }
     
     [HttpPost]
@@ -271,5 +274,61 @@ public class BillsController : ControllerBase
                 ex.Message);
             return BadRequest();
         }
+    }
+    
+    [HttpPost("{billId:guid}")]
+    public async Task<ActionResult> UploadFile([FromRoute] Guid billId, IFormFile file)
+    {
+        try
+        {
+            Bill? bill = await _billsRepository.GetByIdAsync(billId);
+
+            if (bill is null)
+            {
+                return NotFound();
+            }
+
+            if (bill.DeletedAt is not null)
+            {
+                return BadRequest();
+            }
+
+            if (file == null || file.Length == 0)
+                throw new ArgumentException("File data cannot be empty.");
+
+            if (string.IsNullOrWhiteSpace(file.FileName))
+                throw new ArgumentException("File name is required.");
+            
+            string directory = $"uploads/{billId}";
+            
+            // verify and create directory if it does not exists
+            
+            
+            string uniqueFileName = GetUniqueFileName(file.FileName);
+            
+            string fullPath = Path.Combine(directory, uniqueFileName);
+            
+            // await _storageProvider.SaveAsync(fullPath, file);
+
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            Log.Error("{Timestamp} - Error on {MethodName} method request: {Message}",
+                DateTime.Now.ToString("s", CultureInfo.InvariantCulture), 
+                nameof(UploadFile), 
+                ex.Message);
+            
+            return BadRequest();
+        }
+    }
+    
+    private static string GetUniqueFileName(string originalFileName)
+    {
+        string fileExtension = Path.GetExtension(originalFileName);
+        string randomFileName = Path.GetRandomFileName();
+        randomFileName = randomFileName.Replace(".", "");
+        
+        return $"{randomFileName}{fileExtension}";
     }
 }

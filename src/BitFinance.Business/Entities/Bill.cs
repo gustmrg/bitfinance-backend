@@ -1,3 +1,4 @@
+using System.Transactions;
 using BitFinance.Business.Enums;
 
 namespace BitFinance.Business.Entities;
@@ -17,4 +18,5 @@ public class Bill
     public DateTime? DeletedAt { get; set; }
     public Guid OrganizationId { get; set; }
     public Organization Organization { get; set; } = null!;
+    public ICollection<DocumentFile> Files { get; set; } = new List<DocumentFile>();
 }
