@@ -1,18 +1,22 @@
+using System.Text;
 using Asp.Versioning;
 using BitFinance.API.Extensions;
 using BitFinance.API.Middlewares;
 using BitFinance.API.Services;
 using BitFinance.API.Services.Interfaces;
 using BitFinance.Business.Entities;
+using BitFinance.Business.Interfaces;
 using BitFinance.Data.Caching;
 using BitFinance.Data.Contexts;
 using BitFinance.Data.Repositories;
 using BitFinance.Data.Repositories.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using Serilog.Events;
@@ -23,7 +27,25 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("Database");
 
 builder.Services.AddCors();
-builder.Services.AddAuthentication();
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        };
+    });
 
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
@@ -33,7 +55,10 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 builder.Services.AddDbContext<ApplicationDbContext>(options => 
     options.UseNpgsql(connectionString));
 
-builder.Services.AddIdentityCore<User>()
+builder.Services.AddIdentityCore<User>(options =>
+    {
+        options.SignIn.RequireConfirmedAccount = false;
+    })
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
@@ -46,6 +71,7 @@ builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IBillsService, BillsService>();
 builder.Services.AddScoped<IExpensesService, ExpensesService>();
 builder.Services.AddSingleton<ICacheService, RedisCacheService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddSingleton<DistributedCacheEntryOptions>();
 builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();
 
@@ -122,9 +148,15 @@ if (app.Environment.IsDevelopment())
     app.ApplyMigrations();
 }
 
+if (app.Environment.IsProduction())
+{
+    app.UseHsts();
+}
+app.UseHttpsRedirection();
+
 app.MapControllers();
-app.MapGroup("api/v1/identity")
-    .MapIdentityApi<User>()
-    .WithTags("Identity");
+// app.MapGroup("api/v1/identity")
+//     .MapIdentityApi<User>()
+//     .WithTags("Identity");
 
 app.Run();
