@@ -1,11 +1,11 @@
 using System.Security.Claims;
 using Asp.Versioning;
 using BitFinance.API.Attributes;
-using BitFinance.API.Models;
-using BitFinance.API.Models.Request;
-using BitFinance.API.Models.Response;
-using BitFinance.Business.Entities;
-using BitFinance.Data.Repositories.Interfaces;
+using BitFinance.API.Models.Invites;
+using BitFinance.API.Models.Organizations;
+using BitFinance.API.Models.Users;
+using BitFinance.Domain.Entities;
+using BitFinance.Domain.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -44,11 +44,11 @@ public class OrganizationsController : ControllerBase
         
         var organizations = await _organizationsRepository.GetAllByUserIdAsync(userId);
 
-        List<OrganizationResponseModel> response = [];
+        List<OrganizationResponse> response = [];
 
         foreach (var organization in organizations)
         {
-            response.Add(new OrganizationResponseModel(organization.Id, organization.Name));
+            response.Add(new OrganizationResponse(organization.Id, organization.Name));
         }
         
         return Ok(response);
@@ -71,7 +71,7 @@ public class OrganizationsController : ControllerBase
 
         foreach (var member in organization.Members)
         {
-            response.Members.Add(new UserResponseModel(member.Id, member.UserName ?? string.Empty, member.Email ?? string.Empty));
+            response.Members.Add(new MemberUserResponse(member.Id, member.FullName, member.Email ?? string.Empty, member.UserName ?? string.Empty));
         }
         
         return Ok(response);
@@ -100,7 +100,7 @@ public class OrganizationsController : ControllerBase
         
         await _organizationsRepository.CreateAsync(organization);
         
-        return CreatedAtAction(nameof(GetOrganizationById), new { organizationId = organization.Id }, new OrganizationResponseModel(organization.Id, organization.Name));
+        return CreatedAtAction(nameof(GetOrganizationById), new { organizationId = organization.Id }, new OrganizationResponse(organization.Id, organization.Name));
     }
     
     [HttpPatch("{organizationId:guid}")]

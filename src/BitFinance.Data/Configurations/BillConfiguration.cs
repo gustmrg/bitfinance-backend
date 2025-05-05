@@ -1,4 +1,4 @@
-using BitFinance.Business.Entities;
+using BitFinance.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

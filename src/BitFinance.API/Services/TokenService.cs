@@ -1,8 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using BitFinance.Business.Entities;
-using BitFinance.Business.Interfaces;
+using BitFinance.Domain.Entities;
+using BitFinance.Domain.Services;
 using Microsoft.IdentityModel.Tokens;
 
 namespace BitFinance.API.Services;

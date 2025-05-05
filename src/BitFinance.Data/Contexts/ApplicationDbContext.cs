@@ -1,6 +1,6 @@
 using System.Reflection;
-using BitFinance.Business.Entities;
-using BitFinance.Business.Extensions;
+using BitFinance.Data.Extensions;
+using BitFinance.Domain.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;

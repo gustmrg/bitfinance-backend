@@ -14,7 +14,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\BitFinance.Business\BitFinance.Business.csproj" />
       <ProjectReference Include="..\BitFinance.Data\BitFinance.Data.csproj" />
     </ItemGroup>
 </Project>

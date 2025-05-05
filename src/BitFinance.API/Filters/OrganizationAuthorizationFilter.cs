@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using BitFinance.API.Services.Interfaces;
+using BitFinance.Domain.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 

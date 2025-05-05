@@ -33,8 +33,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\BitFinance.Business\BitFinance.Business.csproj" />
       <ProjectReference Include="..\BitFinance.Data\BitFinance.Data.csproj" />
+      <ProjectReference Include="..\BitFinance.Domain\BitFinance.Domain.csproj" />
+      <ProjectReference Include="..\BitFinance.Infrastructure\BitFinance.Infrastructure.csproj" />
     </ItemGroup>
 
     <ItemGroup>

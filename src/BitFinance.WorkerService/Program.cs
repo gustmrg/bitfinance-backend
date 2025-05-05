@@ -1,7 +1,7 @@
 using BitFinance.Data.Caching;
 using BitFinance.Data.Contexts;
 using BitFinance.Data.Repositories;
-using BitFinance.Data.Repositories.Interfaces;
+using BitFinance.Domain.Repositories;
 using BitFinance.WorkerService;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;

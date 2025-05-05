@@ -1,14 +1,12 @@
 using System.Globalization;
-using System.Security.Claims;
 using Asp.Versioning;
 using BitFinance.API.Attributes;
 using BitFinance.API.Models;
-using BitFinance.API.Models.Request;
-using BitFinance.API.Models.Response;
-using BitFinance.Business.Entities;
-using BitFinance.Business.Enums;
-using BitFinance.Data.Contexts;
-using BitFinance.Data.Repositories.Interfaces;
+using BitFinance.API.Models.Common;
+using BitFinance.API.Models.Expenses;
+using BitFinance.Domain.Entities;
+using BitFinance.Domain.Enums;
+using BitFinance.Domain.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
@@ -39,12 +37,13 @@ public class ExpensesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<PagedResponse<Expense>>> GetExpenses(
         [FromRoute] Guid organizationId, 
-        [FromQuery] int page = 1, int pageSize = 100, DateTime? from = null, DateTime? to = null)
+        [FromQuery] GetExpensesRequest request)
     {
         var totalRecords = await _expensesRepository.GetEntriesCountAsync();
-        var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
-        var expenses = await _expensesRepository.GetAllByOrganizationAsync(organizationId, page, pageSize, from, to);
-        var expensesDto = expenses.Select(expense => new GetExpenseResponse
+        var totalPages = (int)Math.Ceiling((double)totalRecords / request.PageSize);
+        var expenses = await _expensesRepository.GetAllByOrganizationAsync(organizationId, 
+            request.Page, request.PageSize, request.From, request.To);
+        var expensesDto = expenses.Select(expense => new Models.Expenses.ExpenseResponse
         {
             Id = expense.Id,
             Amount = expense.Amount,
@@ -55,7 +54,7 @@ public class ExpensesController : ControllerBase
             CreatedBy = expense.CreatedByUser.FullName,
         }).ToList();
 
-        return Ok(new PagedResponse<GetExpenseResponse>(expensesDto, page, pageSize, totalRecords, totalPages));
+        return Ok(new PagedResponse<ExpenseResponse>(expensesDto, request.Page, request.PageSize, totalRecords, totalPages));
     }
     
     [HttpGet]
@@ -64,7 +63,7 @@ public class ExpensesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<GetExpenseResponse>> GetExpenseById([FromRoute] Guid organizationId, [FromRoute] Guid expenseId)
+    public async Task<ActionResult<ExpenseResponse>> GetExpenseById([FromRoute] Guid organizationId, [FromRoute] Guid expenseId)
     {
         try
         {
@@ -75,7 +74,7 @@ public class ExpensesController : ControllerBase
                 return NotFound();
             }
 
-            var response = new GetExpenseResponse
+            var response = new ExpenseResponse
             {
                 Id = expense.Id,
                 Amount = expense.Amount,

@@ -1,14 +1,13 @@
 using System.Globalization;
-using System.Security.Claims;
 using Asp.Versioning;
 using BitFinance.API.Attributes;
 using BitFinance.API.Models;
-using BitFinance.API.Models.Request;
-using BitFinance.API.Models.Response;
-using BitFinance.Business.Entities;
-using BitFinance.Business.Enums;
+using BitFinance.API.Models.Bills;
+using BitFinance.API.Models.Common;
 using BitFinance.Data.Contexts;
-using BitFinance.Data.Repositories.Interfaces;
+using BitFinance.Domain.Entities;
+using BitFinance.Domain.Enums;
+using BitFinance.Domain.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -102,15 +101,16 @@ public class BillsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<PagedResponse<Bill>>> GetBillsAsync(
         [FromRoute] Guid organizationId, 
-        [FromQuery] int page = 1, int pageSize = 100, DateTime? from = null, DateTime? to = null)
+        [FromQuery] GetBillsRequest request)
     {
         try
         {
             var totalRecords = await _billsRepository.GetEntriesCountAsync();
-            var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
-            var bills = await _billsRepository.GetAllByOrganizationAsync(organizationId, page, pageSize, from, to);
+            var totalPages = (int)Math.Ceiling((double)totalRecords / request.PageSize);
+            var bills = await _billsRepository.GetAllByOrganizationAsync(organizationId, 
+                request.Page, request.PageSize, request.From, request.To);
 
-            var billsDto = bills.Select(bill => new GetBillResponse
+            var billsDto = bills.Select(bill => new BillResponse
                 {
                     Id = bill.Id,
                     Description = bill.Description,
@@ -124,7 +124,7 @@ public class BillsController : ControllerBase
                 })
                 .ToList();
             
-            var response = new PagedResponse<GetBillResponse>(billsDto, page, pageSize, totalRecords, totalPages);
+            var response = new PagedResponse<BillResponse>(billsDto, request.Page, request.PageSize, totalRecords, totalPages);
 
             return Ok(response);
         }
@@ -143,7 +143,7 @@ public class BillsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<GetBillResponse>> GetBillById([FromRoute] Guid billId)
+    public async Task<ActionResult<BillResponse>> GetBillById([FromRoute] Guid billId)
     {
         try
         {
@@ -154,7 +154,7 @@ public class BillsController : ControllerBase
                 return NotFound();
             }
 
-            var response = new GetBillResponse
+            var response = new BillResponse
             {
                 Id = bill.Id,
                 Description = bill.Description,

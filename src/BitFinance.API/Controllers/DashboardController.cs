@@ -1,6 +1,7 @@
-using System.Text.Json.Serialization;
-using BitFinance.API.Services.Interfaces;
-using BitFinance.Business.Enums;
+using BitFinance.API.Models.Bills;
+using BitFinance.API.Models.Dashboard;
+using BitFinance.API.Models.Expenses;
+using BitFinance.Domain.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BitFinance.API.Controllers;
@@ -23,7 +24,7 @@ public class DashboardController : ControllerBase
     {
         var bills = await _billsService.GetUpcomingBills(organizationId);
 
-        var models = bills.Select(x => new BillResponseModel
+        var models = bills.Select(x => new BillResponse
         {
             Id = x.Id,
             Description = x.Description,
@@ -43,53 +44,17 @@ public class DashboardController : ControllerBase
     {
         var expenses = await _expensesService.GetRecentExpenses(organizationId);
         
-        var models = expenses.Select(x => new ExpenseResponseModel
+        var models = expenses.Select(x => new ExpenseResponse
         {
             Id = x.Id,
             Description = x.Description,
             Category = x.Category,
             Amount = x.Amount,
-            Date = x.OccurredAt,
-            
+            OccurredAt = x.OccurredAt,
         }).ToList();
         
         var response = new RecentExpensesResponse(models);
         
         return Ok(response);
     }
-}
-
-internal record UpcomingBillsResponse(List<BillResponseModel> Data);
-
-internal record RecentExpensesResponse(List<ExpenseResponseModel> Data);
-
-internal class BillResponseModel
-{
-    public Guid Id { get; set; }
-    
-    public string Description { get; set; } = null!;
-    
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public BillCategory Category { get; set; }
-    
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public BillStatus Status { get; set; }
-    
-    public decimal AmountDue { get; set; }
-    
-    public DateTime DueDate { get; set; }
-}
-
-internal class ExpenseResponseModel
-{
-    public Guid Id { get; set; }
-    
-    public string Description { get; set; } = null!;
-    
-    public decimal Amount { get; set; }
-    
-    public DateTime Date { get; set; }
-    
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public ExpenseCategory Category { get; set; }
 }

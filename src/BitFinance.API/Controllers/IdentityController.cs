@@ -1,12 +1,10 @@
 using System.Security.Claims;
 using Asp.Versioning;
-using BitFinance.API.InputModels;
-using BitFinance.API.Models.Request;
-using BitFinance.API.Services.Interfaces;
-using BitFinance.API.ViewModels;
-using BitFinance.Business.Entities;
-using BitFinance.Business.Interfaces;
-using BitFinance.Data.Repositories.Interfaces;
+using BitFinance.API.InputModels.Users;
+using BitFinance.API.Models.Organizations;
+using BitFinance.API.Models.Users;
+using BitFinance.Domain.Entities;
+using BitFinance.Domain.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -36,7 +34,7 @@ public class IdentityController : ControllerBase
     }
     
     [HttpPost("register")]
-    public async Task<IActionResult> RegisterAsync([FromBody] RegisterInputModel model)
+    public async Task<IActionResult> RegisterAsync([FromBody] UserRegisterRequest model)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -77,7 +75,7 @@ public class IdentityController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> LogInAsync([FromBody] LoginInputModel model)
+    public async Task<IActionResult> LogInAsync([FromBody] UserLoginRequest model)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -129,15 +127,15 @@ public class IdentityController : ControllerBase
             
         if (user == null) return BadRequest("Invalid user");
 
-        List<OrganizationViewModel> organizations = [];
-        organizations.AddRange(user.Organizations.Select(organization => new OrganizationViewModel(organization.Id, organization.Name)));
+        List<OrganizationResponse> organizations = [];
+        organizations.AddRange(user.Organizations.Select(organization => new OrganizationResponse(organization.Id, organization.Name)));
         
-        return Ok(new UserViewModel(user.Id, user.FullName, user?.Email ?? string.Empty, ReplaceUserName(user?.UserName), organizations));
+        return Ok(new UserResponse(user.Id, user.FullName, user?.Email ?? string.Empty, ReplaceUserName(user?.UserName), organizations));
     }
 
     [Authorize]
     [HttpPost("manage/profile")]
-    public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileInputModel model)
+    public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequest request)
     {
         var userId = User.Claims.FirstOrDefault(a => a.Type == ClaimTypes.NameIdentifier)?.Value;
 
@@ -147,15 +145,15 @@ public class IdentityController : ControllerBase
             
         if (user == null) return BadRequest("Invalid user");
         
-        user.FirstName = model.FirstName;
-        user.LastName = model.LastName;
+        user.FirstName = request.FirstName;
+        user.LastName = request.LastName;
         
         await  _usersService.UpdateUserAsync(user);
         
-        List<OrganizationViewModel> organizations = [];
-        organizations.AddRange(user.Organizations.Select(organization => new OrganizationViewModel(organization.Id, organization.Name)));
+        List<OrganizationResponse> organizations = [];
+        organizations.AddRange(user.Organizations.Select(organization => new OrganizationResponse(organization.Id, organization.Name)));
 
-        return Ok(new UserViewModel(user.Id, user.FullName, user.Email ?? string.Empty, ReplaceUserName(user?.UserName), organizations));
+        return Ok(new UserResponse(user.Id, user.FullName, user.Email ?? string.Empty, ReplaceUserName(user?.UserName), organizations));
     }
     
     private static string ReplaceUserName(string? email)

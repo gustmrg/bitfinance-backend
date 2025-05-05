@@ -1,9 +1,9 @@
 using System.Linq.Expressions;
-using BitFinance.Business.Entities;
-using BitFinance.Business.Enums;
 using BitFinance.Data.Caching;
 using BitFinance.Data.Contexts;
-using BitFinance.Data.Repositories.Interfaces;
+using BitFinance.Domain.Entities;
+using BitFinance.Domain.Enums;
+using BitFinance.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 

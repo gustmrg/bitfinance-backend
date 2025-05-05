@@ -1,5 +1,5 @@
-using BitFinance.Business.Enums;
-using BitFinance.Data.Repositories.Interfaces;
+using BitFinance.Domain.Enums;
+using BitFinance.Domain.Repositories;
 
 namespace BitFinance.WorkerService;
 

@@ -1,5 +1,5 @@
 using BitFinance.API.Filters;
-using BitFinance.API.Services.Interfaces;
+using BitFinance.Domain.Services;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace BitFinance.API.Attributes;
