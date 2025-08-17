@@ -1,11 +1,6 @@
-﻿version: "3.8"
-
-services:
+﻿services:
   bitfinance-api:
-    image: gustmrg/bitfinance-backend:1.3.1
-    build:
-      context: .
-      dockerfile: BitFinance.API/Dockerfile
+    image: gustmrg/bitfinance-backend:1.5.0
     ports:
       - "8080:8080"
       - "8081:8081"
@@ -19,22 +14,6 @@ services:
       - bitfinance-db
     volumes:
       - api-logs:/app/logs
-
-  bitfinance-worker:
-    image: gustmrg/bitfinance-worker:1.0
-    build:
-      context: .
-      dockerfile: BitFinance.WorkerService/Dockerfile
-    environment:
-      - DOTNET_ENVIRONMENT=Production
-      - ConnectionStrings__DefaultConnection=${DB_CONNECTION_STRING}
-    restart: unless-stopped
-    networks:
-      - bitfinance-network
-    depends_on:
-      - bitfinance-db
-    volumes:
-      - worker-logs:/app/logs
 
   bitfinance-db:
     image: postgres:15
