@@ -17,4 +17,5 @@ public class Bill
     public DateTime? DeletedAt { get; set; }
     public Guid OrganizationId { get; set; }
     public Organization Organization { get; set; } = null!;
+    public ICollection<BillDocument> Documents { get; set; } = new List<BillDocument>();
 }
