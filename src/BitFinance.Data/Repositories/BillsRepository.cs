@@ -84,7 +84,9 @@ public class BillsRepository : IBillsRepository
 
             if (bill is null)
             {
-                bill = await _dbContext.Set<Bill>().FirstOrDefaultAsync(x => x.Id == id && x.DeletedAt == null);
+                bill = await _dbContext.Set<Bill>()
+                    .Include(b => b.Documents)
+                    .FirstOrDefaultAsync(x => x.Id == id && x.DeletedAt == null);
 
                 if (bill is not null)
                 {
@@ -94,7 +96,9 @@ public class BillsRepository : IBillsRepository
         }
         else
         {
-            bill = await _dbContext.Set<Bill>().FirstOrDefaultAsync(x => x.Id == id && x.DeletedAt == null);
+            bill = await _dbContext.Set<Bill>()
+                .Include(b => b.Documents)
+                .FirstOrDefaultAsync(x => x.Id == id && x.DeletedAt == null);
         }
         
         return bill;

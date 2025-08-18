@@ -1,0 +1,7 @@
+namespace BitFinance.Business.Enums;
+
+public enum StorageProvider
+{
+    Local = 1,
+    AzureBlobStorage = 2,
+}
