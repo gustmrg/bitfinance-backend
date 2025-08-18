@@ -126,13 +126,13 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 - [x] Autenticação/Autorização
 - [x] Gerenciamento de contas a pagar (adicionar/atualizar/excluir)
 - [x] Gerenciamento de despesas (adicionar/atualizar/excluir)
-- [ ] Gerenciamento de residências/famílias (adicionar/atualizar/excluir)
+- [x] Gerenciamento de residências/famílias (adicionar/atualizar/excluir)
 - [x] Enviar link de convite para adicionar usuários em residências/famílias
-- [ ] Salvar documentos (boleto/comprovante)
-- [ ] Salvar arquivos localmente
+- [x] Containers Docker
+- [x] Salvar documentos (boleto/comprovante)
+- [x] Salvar arquivos localmente
 - [ ] Salvar arquivos no S3 (AWS)
 - [ ] Notificações de datas de vencimento
-- [x] Containers Docker
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
