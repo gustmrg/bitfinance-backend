@@ -5,6 +5,7 @@ using BitFinance.API.Attributes;
 using BitFinance.API.Models;
 using BitFinance.API.Models.Request;
 using BitFinance.API.Models.Response;
+using BitFinance.API.Services.Interfaces;
 using BitFinance.Business.Entities;
 using BitFinance.Business.Enums;
 using BitFinance.Data.Contexts;
@@ -26,14 +27,17 @@ public class BillsController : ControllerBase
     private readonly ApplicationDbContext _context;
     private readonly ILogger<BillsController> _logger;
     private readonly IBillsRepository _billsRepository;
+    private readonly IBillDocumentService _documentService;
     
     public BillsController(ApplicationDbContext context, 
         ILogger<BillsController> logger, 
-        IBillsRepository billsRepository)
+        IBillsRepository billsRepository, 
+        IBillDocumentService documentService)
     {
         _context = context;
         _logger = logger;
         _billsRepository = billsRepository;
+        _documentService = documentService;
     }
     
     [HttpPost]
@@ -121,6 +125,13 @@ public class BillsController : ControllerBase
                     PaymentDate = bill.PaymentDate,
                     AmountDue = bill.AmountDue,
                     AmountPaid = bill.AmountPaid,
+                    Documents = bill.Documents.Select(doc => new DocumentResponseModel
+                    {
+                        Id = doc.Id,
+                        FileName = doc.FileName,
+                        ContentType = doc.ContentType,
+                        DocumentType = doc.DocumentType
+                    }).ToList()
                 })
                 .ToList();
             
@@ -164,7 +175,14 @@ public class BillsController : ControllerBase
                 DueDate = bill.DueDate,
                 PaymentDate = bill.PaymentDate,
                 AmountDue = bill.AmountDue,
-                AmountPaid = bill.AmountPaid
+                AmountPaid = bill.AmountPaid,
+                Documents = bill.Documents.Select(doc => new DocumentResponseModel
+                {
+                    Id = doc.Id,
+                    FileName = doc.FileName,
+                    ContentType = doc.ContentType,
+                    DocumentType = doc.DocumentType
+                }).ToList()
             };
 
             return Ok(response);
@@ -271,5 +289,64 @@ public class BillsController : ControllerBase
                 ex.Message);
             return BadRequest();
         }
+    }
+
+    [HttpPost]
+    [Route("{billId:guid}/documents")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    public async Task<ActionResult<BillDocument>> UploadDocumentAsync(
+        [FromRoute] Guid billId,
+        [FromForm] IFormFile file,
+        [FromForm] DocumentType documentType = DocumentType.Other)
+    {
+        if (file is null || file.Length == 0) return BadRequest("No file provided.");
+        
+        var userId = GetCurrentUserId();
+        
+        if (userId is null) 
+            return Unauthorized("User is not authenticated.");
+        
+        using var stream = file.OpenReadStream();
+        var document = await _documentService.UploadDocumentAsync(
+            billId,
+            stream,
+            file.FileName,
+            file.ContentType,
+            documentType,
+            userId
+        );
+        
+        var response = new UploadDocumentResponse
+        {
+            Id = document.Id,
+            BillId = document.BillId,
+            FileName = document.FileName,
+            ContentType = document.ContentType,
+            DocumentType = document.DocumentType
+        };
+
+        return Ok(response);
+    }
+    
+    [HttpGet("{billId:guid}/documents/{documentId}")]
+    public async Task<IActionResult> GetDocument(Guid billId, Guid documentId)
+    {
+        Bill? bill = await _billsRepository.GetByIdAsync(billId);
+
+        if (bill is null)
+        {
+            return NotFound();
+        }
+        
+        var (stream, fileName, contentType) = await _documentService.GetDocumentAsync(documentId);
+        return File(stream, contentType, fileName);
+    }
+    
+    private Guid? GetCurrentUserId()
+    {
+        var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+        return userIdClaim != null ? Guid.Parse(userIdClaim.Value) : null;
     }
 }

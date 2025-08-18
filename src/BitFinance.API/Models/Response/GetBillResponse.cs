@@ -24,4 +24,5 @@ public class GetBillResponse
     public DateTime DueDate { get; set; }
     
     public DateTime? PaymentDate { get; set; }
+    public ICollection<DocumentResponseModel> Documents { get; set; } = new List<DocumentResponseModel>();
 }
