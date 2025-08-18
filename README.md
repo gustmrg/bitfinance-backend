@@ -132,7 +132,7 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 - [ ] Salvar arquivos localmente
 - [ ] Salvar arquivos no S3 (AWS)
 - [ ] Notificações de datas de vencimento
-- [ ] Containers Docker
+- [x] Containers Docker
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
