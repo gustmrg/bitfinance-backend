@@ -3,12 +3,14 @@ using BitFinance.Business.Entities;
 using BitFinance.Business.Enums;
 using BitFinance.Data.Contexts;
 using BitFinance.Data.Repositories.Interfaces;
+using FluentValidation;
 
 namespace BitFinance.API.Services;
 
 public class BillDocumentService : IBillDocumentService
 {
     private readonly IFileStorageService _storageService;
+    private readonly IFileValidationService _fileValidationService;
     private readonly ApplicationDbContext _context;
     private readonly ILogger<BillDocumentService> _logger;
     private readonly IBillsRepository _billsRepository;
@@ -17,13 +19,17 @@ public class BillDocumentService : IBillDocumentService
 
     public BillDocumentService(
         IFileStorageService storageService, 
+        IFileValidationService fileValidationService,
         ApplicationDbContext context, 
-        ILogger<BillDocumentService> logger, IBillsRepository billsRepository)
+        ILogger<BillDocumentService> logger, 
+        IBillsRepository billsRepository 
+        )
     {
         _storageService = storageService;
         _context = context;
         _logger = logger;
         _billsRepository = billsRepository;
+        _fileValidationService = fileValidationService;
     }
     
     public async Task<BillDocument> UploadDocumentAsync(
@@ -34,6 +40,15 @@ public class BillDocumentService : IBillDocumentService
         DocumentType documentType,
         Guid? userId = null)
     {
+        var validationResult = _fileValidationService.ValidateFile(fileStream, fileName, fileStream.Length, contentType);
+
+        if (!validationResult.IsValid)
+        {
+            _logger.LogWarning("File validation failed for {FileName}: {Errors}", 
+                fileName, validationResult.ErrorMessage);
+            throw new ValidationException(validationResult.ErrorMessage);
+        }
+        
         var bill = await _billsRepository.GetByIdAsync(billId);
         if (bill == null)
         {

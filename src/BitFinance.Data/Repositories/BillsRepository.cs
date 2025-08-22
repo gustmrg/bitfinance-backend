@@ -27,6 +27,7 @@ public class BillsRepository : IBillsRepository
         List<Bill> list = await _dbContext.Set<Bill>()
             .AsNoTracking()
             .Where(b => b.DeletedAt == null)
+            .Include(b => b.Documents)
             .OrderBy(b => b.DueDate)
             .ToListAsync();
 
@@ -51,6 +52,7 @@ public class BillsRepository : IBillsRepository
         }
         
         return await query
+            .Include(b => b.Documents)
             .OrderBy(b => b.DueDate)
             .Skip(pageSize * (page - 1))
             .Take(pageSize)
@@ -62,6 +64,7 @@ public class BillsRepository : IBillsRepository
         List<Bill> list = await _dbContext.Set<Bill>()
             .AsNoTracking()
             .Where(b => b.DeletedAt == null && b.Status == billStatus)
+            .Include(b => b.Documents)
             .OrderBy(b => b.DueDate)
             .ToListAsync();
 

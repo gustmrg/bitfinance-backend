@@ -12,7 +12,10 @@ public class LocalFileStorageService : IFileStorageService
         IConfiguration configuration,
         ILogger<LocalFileStorageService> logger)
     {
-        _basePath = configuration["Storage:LocalPath"] ?? Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+        _basePath = string.IsNullOrWhiteSpace(configuration["Storage:LocalPath"]) 
+            ? Path.Combine(Directory.GetCurrentDirectory(), "uploads")
+            : configuration["Storage:LocalPath"]!;
+        
         _logger = logger;
         
         Directory.CreateDirectory(_basePath);
@@ -22,12 +25,14 @@ public class LocalFileStorageService : IFileStorageService
     {
         try
         {
+            var uniqueFileName = GenerateUniqueFileName(fileName);
+            
             var relativePath = Path.Combine(
                 subDirectory,
                 DateTime.UtcNow.Year.ToString(),
                 DateTime.UtcNow.Month.ToString("00"),
                 entityId.ToString(),
-                fileName
+                uniqueFileName
             );
             
             var fullPath = Path.Combine(_basePath, relativePath);
@@ -55,7 +60,7 @@ public class LocalFileStorageService : IFileStorageService
             {
                 Success = true,
                 StoragePath = relativePath.Replace('\\', '/'), // Normalize path separators
-                FileName = fileName,
+                FileName = uniqueFileName,
                 FileSizeInBytes = totalBytes,
                 FileHash = hash
             };

@@ -26,6 +26,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IExpensesService, ExpensesService>();
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IFileStorageService, LocalFileStorageService>();
+        services.AddScoped<IFileValidationService, FileValidationService>();
         services.AddScoped<IBillDocumentService, BillDocumentService>();
         
         services.AddSingleton<ICacheService, RedisCacheService>();

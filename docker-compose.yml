@@ -1,6 +1,6 @@
 ﻿services:
   bitfinance-api:
-    image: gustmrg/bitfinance-backend:1.6.0
+    image: gustmrg/bitfinance-backend:1.6.1
     ports:
       - "8080:8080"
       - "8081:8081"

@@ -298,36 +298,43 @@ public class BillsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     public async Task<ActionResult<BillDocument>> UploadDocumentAsync(
         [FromRoute] Guid billId,
-        [FromForm] IFormFile file,
-        [FromForm] DocumentType documentType = DocumentType.Other)
+        [FromForm] UploadBillDocumentRequest request)
     {
-        if (file is null || file.Length == 0) return BadRequest("No file provided.");
-        
-        var userId = GetCurrentUserId();
-        
-        if (userId is null) 
-            return Unauthorized("User is not authenticated.");
-        
-        using var stream = file.OpenReadStream();
-        var document = await _documentService.UploadDocumentAsync(
-            billId,
-            stream,
-            file.FileName,
-            file.ContentType,
-            documentType,
-            userId
-        );
-        
-        var response = new UploadDocumentResponse
+        try
         {
-            Id = document.Id,
-            BillId = document.BillId,
-            FileName = document.FileName,
-            ContentType = document.ContentType,
-            DocumentType = document.DocumentType
-        };
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+        
+            var userId = GetCurrentUserId();
+        
+            if (userId is null) 
+                return Unauthorized("User is not authenticated.");
+        
+            using var stream = request.File.OpenReadStream();
+            var document = await _documentService.UploadDocumentAsync(
+                billId,
+                stream,
+                request.File.FileName,
+                request.File.ContentType,
+                request.DocumentType,
+                userId
+            );
+        
+            var response = new UploadDocumentResponse
+            {
+                Id = document.Id,
+                BillId = document.BillId,
+                FileName = document.FileName,
+                ContentType = document.ContentType,
+                DocumentType = document.DocumentType
+            };
 
-        return Ok(response);
+            return Ok(response);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(new { error = e.Message });
+        }
     }
     
     [HttpGet("{billId:guid}/documents/{documentId}")]
