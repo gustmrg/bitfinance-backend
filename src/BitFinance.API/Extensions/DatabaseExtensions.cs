@@ -11,6 +11,9 @@ public static class DatabaseExtensions
     {
         var connectionString = configuration.GetConnectionString("Database");
         
+        if (string.IsNullOrWhiteSpace(connectionString))
+            throw new InvalidOperationException("Database connection string not found in configuration or Key Vault.");
+        
         services.AddDbContext<ApplicationDbContext>(options => 
             options.UseNpgsql(connectionString));
 

@@ -2,6 +2,8 @@ using BitFinance.API.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.AddAzureKeyVault();
+
 builder.Services.AddHttpOptions();
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddDatabaseContext(builder.Configuration);
