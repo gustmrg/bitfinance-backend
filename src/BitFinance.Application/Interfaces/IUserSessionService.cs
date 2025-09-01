@@ -1,6 +1,6 @@
-using BitFinance.Infrastructure.Models;
+using BitFinance.Application.Models;
 
-namespace BitFinance.Application.Services.Interfaces;
+namespace BitFinance.Application.Interfaces;
 
 public interface IUserSessionService
 {
