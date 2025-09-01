@@ -11,6 +11,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		docker-compose.yml = docker-compose.yml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitFinance.Application", "src\BitFinance.Application\BitFinance.Application.csproj", "{DE0C944D-509C-436F-ACBC-091BC291B46D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitFinance.Infrastructure", "src\BitFinance.Infrastructure\BitFinance.Infrastructure.csproj", "{6794BD09-4E82-4359-9278-5CDE8ABD1A94}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,5 +33,13 @@ Global
 		{BFD7E9AA-30E6-41E6-B473-6B9E1159798F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BFD7E9AA-30E6-41E6-B473-6B9E1159798F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BFD7E9AA-30E6-41E6-B473-6B9E1159798F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE0C944D-509C-436F-ACBC-091BC291B46D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE0C944D-509C-436F-ACBC-091BC291B46D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE0C944D-509C-436F-ACBC-091BC291B46D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE0C944D-509C-436F-ACBC-091BC291B46D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6794BD09-4E82-4359-9278-5CDE8ABD1A94}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6794BD09-4E82-4359-9278-5CDE8ABD1A94}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6794BD09-4E82-4359-9278-5CDE8ABD1A94}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6794BD09-4E82-4359-9278-5CDE8ABD1A94}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

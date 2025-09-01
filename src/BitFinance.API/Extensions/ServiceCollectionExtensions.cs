@@ -1,6 +1,8 @@
 using BitFinance.API.Middlewares;
 using BitFinance.API.Services;
 using BitFinance.API.Services.Interfaces;
+using BitFinance.Application.Services;
+using BitFinance.Application.Services.Interfaces;
 using BitFinance.Business.Interfaces;
 using BitFinance.Data.Caching;
 using BitFinance.Data.Repositories;
@@ -28,6 +30,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFileStorageService, LocalFileStorageService>();
         services.AddScoped<IFileValidationService, FileValidationService>();
         services.AddScoped<IBillDocumentService, BillDocumentService>();
+        services.AddScoped<IUserSessionService, UserSessionService>();
         
         services.AddSingleton<ICacheService, RedisCacheService>();
         services.AddSingleton<DistributedCacheEntryOptions>();
