@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\BitFinance.Infrastructure\BitFinance.Infrastructure.csproj" />
+      <ProjectReference Include="..\BitFinance.Business\BitFinance.Business.csproj" />
     </ItemGroup>
 
     <ItemGroup>

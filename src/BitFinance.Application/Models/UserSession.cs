@@ -1,4 +1,4 @@
-namespace BitFinance.Infrastructure.Models;
+namespace BitFinance.Application.Models;
 
 public class UserSession
 {

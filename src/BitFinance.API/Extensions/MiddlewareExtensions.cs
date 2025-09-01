@@ -35,7 +35,9 @@ public static class MiddlewareExtensions
         app.UseForwardedHeaders();
         app.UseAuthentication();
         app.UseAuthorization();
+        
         app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
+        app.UseMiddleware<OrganizationContextMiddleware>();
 
         if (app.Environment.IsDevelopment())
         {

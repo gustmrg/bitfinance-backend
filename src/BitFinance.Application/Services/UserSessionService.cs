@@ -1,6 +1,6 @@
 using System.Text.Json;
-using BitFinance.Application.Services.Interfaces;
-using BitFinance.Infrastructure.Models;
+using BitFinance.Application.Interfaces;
+using BitFinance.Application.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
@@ -62,7 +62,7 @@ public class UserSessionService : IUserSessionService
             
             await _redis.StringSetAsync(key, sessionJson, _sessionExpiration);
             
-            _logger.LogInformation("Session updated: {Key}", key);
+            _logger.LogInformation("Session updated for user {UserId} to organization {OrgId}", userId, organizationId);
         }
         catch (Exception ex)
         {
