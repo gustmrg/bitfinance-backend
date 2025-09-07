@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitFinance.Application", "s
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitFinance.Infrastructure", "src\BitFinance.Infrastructure\BitFinance.Infrastructure.csproj", "{6794BD09-4E82-4359-9278-5CDE8ABD1A94}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitFinance.Domain", "src\BitFinance.Domain\BitFinance.Domain.csproj", "{6DA7389A-00F9-4A98-912E-52E1F2A605C9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,5 +43,9 @@ Global
 		{6794BD09-4E82-4359-9278-5CDE8ABD1A94}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6794BD09-4E82-4359-9278-5CDE8ABD1A94}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6794BD09-4E82-4359-9278-5CDE8ABD1A94}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6DA7389A-00F9-4A98-912E-52E1F2A605C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DA7389A-00F9-4A98-912E-52E1F2A605C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DA7389A-00F9-4A98-912E-52E1F2A605C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DA7389A-00F9-4A98-912E-52E1F2A605C9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

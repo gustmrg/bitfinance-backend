@@ -1,14 +1,11 @@
 using System.Globalization;
-using System.Security.Claims;
-using Asp.Versioning;
 using BitFinance.API.Attributes;
 using BitFinance.API.Models;
 using BitFinance.API.Models.Request;
 using BitFinance.API.Models.Response;
-using BitFinance.Business.Entities;
-using BitFinance.Business.Enums;
-using BitFinance.Data.Contexts;
-using BitFinance.Data.Repositories.Interfaces;
+using BitFinance.Application.Interfaces;
+using BitFinance.Domain.Entities;
+using BitFinance.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
@@ -18,19 +15,19 @@ namespace BitFinance.API.Controllers;
 [ApiController]
 [Authorize]
 [OrganizationAuthorization]
-[ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/organizations/{organizationId:guid}/expenses")]
+[Route("api/[controller]")]
 public class ExpensesController : ControllerBase
 {
+    /*
+    private readonly IExpenseService _expenseService;
     private readonly ILogger<ExpensesController> _logger;
-    private readonly IExpensesRepository _expensesRepository;
 
     public ExpensesController(
-        ILogger<ExpensesController> logger, 
-        IExpensesRepository expensesRepository)
+        IExpenseService expenseService,
+        ILogger<ExpensesController> logger)
     {
+        _expenseService = expenseService;
         _logger = logger;
-        _expensesRepository = expensesRepository;
     }
 
     [HttpGet]
@@ -41,9 +38,9 @@ public class ExpensesController : ControllerBase
         [FromRoute] Guid organizationId, 
         [FromQuery] int page = 1, int pageSize = 100, DateTime? from = null, DateTime? to = null)
     {
-        var totalRecords = await _expensesRepository.GetEntriesCountAsync();
+        var totalRecords = 100; // create method for this
         var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
-        var expenses = await _expensesRepository.GetAllByOrganizationAsync(organizationId, page, pageSize, from, to);
+        var expenses = await _expenseService.GetAllByOrganizationAsync(organizationId, page, pageSize, from, to);
         var expensesDto = expenses.Select(expense => new GetExpenseResponse
         {
             Id = expense.Id,
@@ -68,7 +65,7 @@ public class ExpensesController : ControllerBase
     {
         try
         {
-            var expense = await _expensesRepository.GetByIdAsync(expenseId);
+            var expense = await _expenseService.GetByIdAsync(expenseId);
 
             if (expense is null)
             {
@@ -131,7 +128,7 @@ public class ExpensesController : ControllerBase
                 OrganizationId = organizationId,
             };
 
-            await _expensesRepository.CreateAsync(expense);
+            await _expenseService.CreateAsync(expense);
             
             var response = new CreateExpenseResponse
             {
@@ -171,7 +168,7 @@ public class ExpensesController : ControllerBase
             var isValidStatus = Enum.TryParse(request.Status, true, out ExpenseStatus status);
             if (!isValidStatus) return UnprocessableEntity();
             
-            var expense = await _expensesRepository.GetByIdAsync(expenseId);
+            var expense = await _expenseService.GetByIdAsync(expenseId);
 
             if (expense is null) return NotFound();
             
@@ -182,7 +179,7 @@ public class ExpensesController : ControllerBase
             expense.OccurredAt = request.OccurredAt ?? DateTime.UtcNow;
             expense.UpdatedAt = DateTime.UtcNow;
             
-            await _expensesRepository.UpdateAsync(expense);
+            await _expenseService.UpdateAsync(expense);
 
             return Ok(new UpdateExpenseResponse(expense.Id, expense.Description, expense.Category, expense.Amount, expense.Status, expense.OccurredAt, expense.CreatedByUser.FullName));
         }
@@ -202,7 +199,7 @@ public class ExpensesController : ControllerBase
     {
         try
         {
-            Expense? expense = await _expensesRepository.GetByIdAsync(expenseId);
+            Expense? expense = await _expenseService.GetByIdAsync(expenseId);
 
             if (expense is null)
             {
@@ -214,7 +211,7 @@ public class ExpensesController : ControllerBase
                 return BadRequest();
             }
 
-            await _expensesRepository.DeleteAsync(expense);
+            await _expenseService.DeleteAsync(expense);
 
             return NoContent();
         }
@@ -227,4 +224,5 @@ public class ExpensesController : ControllerBase
             return BadRequest();
         }
     }
+    */
 }

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using BitFinance.API.Attributes;
-using BitFinance.Business.Enums;
+using BitFinance.Domain.Enums;
 
 namespace BitFinance.API.Models.Request;
 

@@ -1,5 +1,5 @@
-using BitFinance.Business.Entities;
-using BitFinance.Data.Contexts;
+using BitFinance.Domain.Entities;
+using BitFinance.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 

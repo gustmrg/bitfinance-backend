@@ -1,5 +1,5 @@
 using BitFinance.API.Filters;
-using BitFinance.API.Services.Interfaces;
+using BitFinance.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace BitFinance.API.Attributes;
@@ -10,7 +10,7 @@ public class OrganizationAuthorizationAttribute : Attribute, IAsyncAuthorization
     public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
     {
         // Resolve the filter's dependencies from DI
-        var userService = context.HttpContext.RequestServices.GetRequiredService<IUsersService>();
+        var userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
 
         // Create and execute the filter
         var filter = new OrganizationAuthorizationFilter(userService);

@@ -1,5 +1,5 @@
-using BitFinance.Business.Enums;
-using BitFinance.Data.Repositories.Interfaces;
+using BitFinance.Application.Interfaces;
+using BitFinance.Domain.Enums;
 
 namespace BitFinance.API.Services;
 
@@ -8,7 +8,8 @@ public class BillStatusWorkerService : BackgroundService
     private readonly ILogger<BillStatusWorkerService> _logger;
     private IServiceScopeFactory _serviceScopeFactory;
 
-    public BillStatusWorkerService(ILogger<BillStatusWorkerService> logger, IServiceScopeFactory serviceScopeFactory)
+    public BillStatusWorkerService(ILogger<BillStatusWorkerService> logger, 
+        IServiceScopeFactory serviceScopeFactory)
     {
         _logger = logger;
         _serviceScopeFactory = serviceScopeFactory;
@@ -37,11 +38,11 @@ public class BillStatusWorkerService : BackgroundService
     private async Task UpdateUpcomingBills()
     {
         using IServiceScope scope = _serviceScopeFactory.CreateScope();
-        IBillsRepository billsRepository = scope.ServiceProvider.GetRequiredService<IBillsRepository>();
+        var service = scope.ServiceProvider.GetRequiredService<IBillService>();
 
         try
         {
-            var upcomingBills = await billsRepository.GetAllByStatusAsync(BillStatus.Upcoming);
+            var upcomingBills = await service.GetAllBillsByStatusAsync(BillStatus.Upcoming);
             var today = DateTime.UtcNow.Date;
             var billsUpdated = 0;
 
@@ -60,7 +61,7 @@ public class BillStatusWorkerService : BackgroundService
                     billsUpdated++;
                 }
                     
-                await billsRepository.UpdateAsync(bill);
+                await service.UpdateAsync(bill);
             }
                 
             if (billsUpdated > 0)
@@ -85,11 +86,11 @@ public class BillStatusWorkerService : BackgroundService
     private async Task UpdateDueBills()
     {
         using IServiceScope scope = _serviceScopeFactory.CreateScope();
-        IBillsRepository billsRepository = scope.ServiceProvider.GetRequiredService<IBillsRepository>();
+        var service = scope.ServiceProvider.GetRequiredService<IBillService>();
 
         try
         {
-            var upcomingBills = await billsRepository.GetAllByStatusAsync(BillStatus.Due);
+            var upcomingBills = await service.GetAllBillsByStatusAsync(BillStatus.Due);
             var today = DateTime.UtcNow.Date;
             var billsUpdated = 0;
 
@@ -101,13 +102,12 @@ public class BillStatusWorkerService : BackgroundService
                     bill.UpdatedAt = today;
                     billsUpdated++;
                         
-                    await billsRepository.UpdateAsync(bill);
+                    await service.UpdateAsync(bill);
                 }
             }
 
             if (billsUpdated > 0)
             {
-                await billsRepository.SaveChangesAsync();
                 _logger.LogInformation("Updated {Count} bills: {OverdueCount} overdue",
                     billsUpdated,
                     upcomingBills.Count(b => b.Status == BillStatus.Overdue));

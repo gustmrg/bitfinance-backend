@@ -1,21 +1,22 @@
 using System.Text.Json.Serialization;
-using BitFinance.API.Services.Interfaces;
+using BitFinance.Application.Interfaces;
 using BitFinance.Business.Enums;
+using BitFinance.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BitFinance.API.Controllers;
-
+/*
 [ApiController]
 [Route("api/v{version:apiVersion}/organizations/{organizationId:guid}/dashboard")]
 public class DashboardController : ControllerBase
 {
     private readonly IBillsService _billsService;
-    private readonly IExpensesService _expensesService;
+    private readonly IExpenseService _expenseService;
 
-    public DashboardController(IBillsService billsService, IExpensesService expensesService)
+    public DashboardController(IBillsService billsService, IExpenseService expenseService)
     {
         _billsService = billsService;
-        _expensesService = expensesService;
+        _expenseService = expenseService;
     }
 
     [HttpGet("upcoming-bills")]
@@ -41,7 +42,7 @@ public class DashboardController : ControllerBase
     [HttpGet("recent-expenses")]
     public async Task<ActionResult> GetRecentExpenses([FromRoute] Guid organizationId)
     {
-        var expenses = await _expensesService.GetRecentExpenses(organizationId);
+        var expenses = await _expenseService.GetRecentExpenses(organizationId);
         
         var models = expenses.Select(x => new ExpenseResponseModel
         {
@@ -93,3 +94,4 @@ internal class ExpenseResponseModel
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public ExpenseCategory Category { get; set; }
 }
+*/

@@ -6,36 +6,42 @@ namespace BitFinance.API.Middlewares;
 public class OrganizationContextMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly IUserSessionService _sessionService;
 
-    public OrganizationContextMiddleware(RequestDelegate next, IUserSessionService sessionService)
+    public OrganizationContextMiddleware(RequestDelegate next)
     {
         _next = next;
-        _sessionService = sessionService;
     }
     
-    public async Task InvokeAsync(HttpContext context)
+    public async Task InvokeAsync(HttpContext context, IUserSessionService sessionService)
     {
-        if (context.User.Identity.IsAuthenticated)
+        try
         {
-            var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (!string.IsNullOrEmpty(userId))
+            if (context.User.Identity?.IsAuthenticated == true)
             {
-                var session = await _sessionService.GetSessionAsync(userId);
-                if (session != null)
+                var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (!string.IsNullOrEmpty(userId))
                 {
-                    context.Items["CurrentOrganizationId"] = session.CurrentOrganizationId;
-                }
-                else
-                {
-                    // Fallback to first organization from JWT
-                    var orgsFromJwt = context.User.FindAll("organizations").FirstOrDefault()?.Value;
-                    if (!string.IsNullOrEmpty(orgsFromJwt))
+                    var session = await sessionService.GetSessionAsync(userId);
+                    if (session != null)
                     {
-                        context.Items["CurrentOrganizationId"] = orgsFromJwt;
+                        context.Items["CurrentOrganizationId"] = session.CurrentOrganizationId;
+                    }
+                    else
+                    {
+                        // Fallback to first organization from JWT
+                        var orgsFromJwt = context.User.FindAll("organizations").FirstOrDefault()?.Value;
+                        if (!string.IsNullOrEmpty(orgsFromJwt))
+                        {
+                            context.Items["CurrentOrganizationId"] = orgsFromJwt;
+                        }
                     }
                 }
             }
+        }
+        catch (Exception)
+        {
+            // Log error if needed, but don't let middleware fail the request
+            // context.Items["CurrentOrganizationId"] will remain unset
         }
 
         await _next(context);

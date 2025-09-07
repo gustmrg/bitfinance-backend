@@ -1,7 +1,7 @@
 using System.Text.Json;
 using BitFinance.Application.Interfaces;
 using BitFinance.Application.Models;
-using Microsoft.Extensions.Configuration;
+using BitFinance.Application.Utils;
 using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 
@@ -11,25 +11,23 @@ public class UserSessionService : IUserSessionService
 {
     private readonly IDatabase _redis;
     private readonly ILogger<UserSessionService> _logger;
-    private readonly string _keyPrefix;
+    private readonly CacheKeyBuilder _keyBuilder;
     private readonly TimeSpan _sessionExpiration = TimeSpan.FromDays(30);
 
     public UserSessionService(IConnectionMultiplexer redis,
-        IConfiguration configuration,
+        CacheKeyBuilder keyBuilder,
         ILogger<UserSessionService> logger)
     {
         _redis = redis.GetDatabase();
+        _keyBuilder = keyBuilder;
         _logger = logger;
-        
-        var appName = configuration["ApplicationName"] ?? "bitfinance";
-        _keyPrefix = $"{appName}";
     }
 
     public async Task<UserSession?> GetSessionAsync(string userId)
     {
         try
         {
-            var key = $"{_keyPrefix}:session:{userId}";
+            var key = _keyBuilder.ForUserSession(userId);
             
             var sessionJson =  await _redis.StringGetAsync(key);
 
@@ -45,19 +43,19 @@ public class UserSessionService : IUserSessionService
         }
     }
 
-    public async Task SetCurrentOrganizationAsync(string userId, string organizationId)
+    public async Task SetCurrentOrganizationAsync(string userId, Guid organizationId)
     {
         try
         {
             var session = new UserSession
             {
                 UserId = userId,
-                CurrentOrganizationId = organizationId,
+                CurrentOrganizationId = organizationId.ToString(),
                 LastUpdated = DateTime.UtcNow,
                 ExpiresAt = DateTime.UtcNow.Add(_sessionExpiration)
             };
             
-            var key = $"{_keyPrefix}:session:{userId}";
+            var key = _keyBuilder.ForUserSession(userId);
             var sessionJson = JsonSerializer.Serialize(session);
             
             await _redis.StringSetAsync(key, sessionJson, _sessionExpiration);
@@ -75,7 +73,7 @@ public class UserSessionService : IUserSessionService
     {
         try
         {
-            var key = $"{_keyPrefix}:session:{userId}";
+            var key = _keyBuilder.ForUserSession(userId);
             await _redis.KeyDeleteAsync(key);
         }
         catch (Exception ex)

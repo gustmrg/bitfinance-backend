@@ -1,11 +1,11 @@
 using System.Security.Claims;
-using BitFinance.API.Services.Interfaces;
+using BitFinance.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace BitFinance.API.Filters;
 
-public class OrganizationAuthorizationFilter(IUsersService usersService) : IAsyncAuthorizationFilter
+public class OrganizationAuthorizationFilter(IUserService userService) : IAsyncAuthorizationFilter
 {
     public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
     {
@@ -26,7 +26,7 @@ public class OrganizationAuthorizationFilter(IUsersService usersService) : IAsyn
         }
         
         // Check if the user belongs to the organization
-        if (!await usersService.IsUserInOrganizationAsync(userId, organizationId))
+        if (!await userService.IsUserInOrganizationAsync(userId, organizationId))
         {
             context.Result = new ForbidResult("You do not have access to this organization.");
         }

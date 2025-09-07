@@ -1,11 +1,10 @@
 using System.Security.Claims;
-using Asp.Versioning;
-using BitFinance.API.Attributes;
 using BitFinance.API.Models;
 using BitFinance.API.Models.Request;
 using BitFinance.API.Models.Response;
-using BitFinance.Business.Entities;
-using BitFinance.Data.Repositories.Interfaces;
+using BitFinance.Application.Interfaces;
+using BitFinance.Domain.Entities;
+using BitFinance.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,22 +12,19 @@ namespace BitFinance.API.Controllers;
 
 [ApiController]
 [Authorize]
-[ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/organizations")]
+[Route("api/[controller]")]
 public class OrganizationsController : ControllerBase
 {
-    private readonly IOrganizationsRepository _organizationsRepository;
-    private readonly IUsersRepository _usersRepository;
-    private readonly IOrganizationInvitesRepository _invitesRepository;
+    /*
+    private readonly IUserRepository _userRepository;
+    private readonly IOrganizationService _organizationService;
 
     public OrganizationsController(
-        IOrganizationsRepository organizationsRepository,
-        IUsersRepository usersRepository, 
-        IOrganizationInvitesRepository invitesRepository)
+        IUserRepository userRepository, 
+        IOrganizationService organizationService)
     {
-        _organizationsRepository = organizationsRepository;
         _usersRepository = usersRepository;
-        _invitesRepository = invitesRepository;
+        _organizationService = organizationService;
     }
     
     [HttpGet]
@@ -41,8 +37,8 @@ public class OrganizationsController : ControllerBase
         var user = await _usersRepository.GetByIdAsync(userId);
             
         if (user == null) return BadRequest("Invalid user");
-        
-        var organizations = await _organizationsRepository.GetAllByUserIdAsync(userId);
+
+        var organizations = await _organizationService.GetByUserIdAsync(userId);
 
         List<OrganizationResponseModel> response = [];
 
@@ -57,7 +53,7 @@ public class OrganizationsController : ControllerBase
     [HttpGet("{organizationId:guid}")]
     public async Task<IActionResult> GetOrganizationById(Guid organizationId)
     {
-        var organization = await _organizationsRepository.GetByIdAsync(organizationId);
+        var organization = await _organizationService.GetByIdAsync(organizationId);
         
         if (organization is null) return NotFound();
 
@@ -87,18 +83,12 @@ public class OrganizationsController : ControllerBase
         var user = await _usersRepository.GetByIdAsync(userId);
             
         if (user == null) return BadRequest("Invalid user");
-        
-        var organization = new Organization
-        {
-            Name = request.Name,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = null,
-            DeletedAt = null,
-        };
+
+        var organization = new Organization(request.Name);
         
         organization.Members.Add(user);
         
-        await _organizationsRepository.CreateAsync(organization);
+        await _organizationService.CreateAsync(organization);
         
         return CreatedAtAction(nameof(GetOrganizationById), new { organizationId = organization.Id }, new OrganizationResponseModel(organization.Id, organization.Name));
     }
@@ -106,13 +96,15 @@ public class OrganizationsController : ControllerBase
     [HttpPatch("{organizationId:guid}")]
     public async Task<IActionResult> UpdateOrganization(Guid organizationId, [FromBody] UpdateOrganizationRequest request)
     {
-        var organization = await _organizationsRepository.GetByIdAsync(organizationId);
+        var organization = await _organizationService.GetByIdAsync(organizationId);
         
         if (organization is null) return NotFound();
         
         return Ok(organization);
     }
     
+    // Disabled for invites refactoring
+    /*
     [HttpPost("{organizationId:guid}/invite")]
     [OrganizationAuthorization]
     public async Task<IActionResult> CreateInvite([FromRoute] Guid organizationId)
@@ -124,7 +116,7 @@ public class OrganizationsController : ControllerBase
         };
         
         await _invitesRepository.CreateAsync(invite);
-
+    
         return Ok(new CreateOrganizationInviteResponse(invite.Id, invite.ExpiresAt));
     }
 
@@ -140,7 +132,7 @@ public class OrganizationsController : ControllerBase
         
         if (invite is null) return NotFound("Invalid invite");
         
-        var organization = await _organizationsRepository.GetByIdAsync(invite.OrganizationId);
+        var organization = await _organizationService.GetByIdAsync(invite.OrganizationId);
         
         if (organization is null) return NotFound("Organization not found");
         
@@ -149,7 +141,8 @@ public class OrganizationsController : ControllerBase
         if (invite.ExpiresAt < DateTime.UtcNow) return BadRequest("This invite has expired");
         
         organization.Members.Add(user);
-        await _organizationsRepository.UpdateAsync(organization);
+        await _organizationService.UpdateAsync(organization);
         return Ok();
     }
+    */
 }

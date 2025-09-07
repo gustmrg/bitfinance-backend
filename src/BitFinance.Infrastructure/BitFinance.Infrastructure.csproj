@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\BitFinance.Application\BitFinance.Application.csproj" />
+      <ProjectReference Include="..\BitFinance.Domain\BitFinance.Domain.csproj" />
     </ItemGroup>
 
     <ItemGroup>

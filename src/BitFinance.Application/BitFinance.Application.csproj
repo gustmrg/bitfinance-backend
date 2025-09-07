@@ -8,11 +8,17 @@
 
     <ItemGroup>
       <ProjectReference Include="..\BitFinance.Business\BitFinance.Business.csproj" />
+      <ProjectReference Include="..\BitFinance.Domain\BitFinance.Domain.csproj" />
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.3.1" />
+      <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.19" />
+      <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
       <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.2" />
       <PackageReference Include="StackExchange.Redis" Version="2.9.11" />
+      <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
     </ItemGroup>
 
 </Project>

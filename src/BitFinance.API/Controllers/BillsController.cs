@@ -1,15 +1,13 @@
 using System.Globalization;
 using System.Security.Claims;
-using Asp.Versioning;
 using BitFinance.API.Attributes;
 using BitFinance.API.Models;
 using BitFinance.API.Models.Request;
 using BitFinance.API.Models.Response;
-using BitFinance.API.Services.Interfaces;
-using BitFinance.Business.Entities;
-using BitFinance.Business.Enums;
-using BitFinance.Data.Contexts;
-using BitFinance.Data.Repositories.Interfaces;
+using BitFinance.Application.Interfaces;
+using BitFinance.Domain.Entities;
+using BitFinance.Domain.Enums;
+using BitFinance.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -20,24 +18,24 @@ namespace BitFinance.API.Controllers;
 [ApiController]
 [Authorize]
 [OrganizationAuthorization]
-[ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/organizations/{organizationId:guid}/bills")]
+[Route("api/[controller]")]
 public class BillsController : ControllerBase
 {
+    /*
     private readonly ApplicationDbContext _context;
     private readonly ILogger<BillsController> _logger;
-    private readonly IBillsRepository _billsRepository;
+    private readonly IBillService _billService;
     private readonly IBillDocumentService _documentService;
     
-    public BillsController(ApplicationDbContext context, 
-        ILogger<BillsController> logger, 
-        IBillsRepository billsRepository, 
-        IBillDocumentService documentService)
+    public BillsController(ApplicationDbContext context,
+        IBillService billService,
+        IBillDocumentService documentService,
+        ILogger<BillsController> logger)
     {
         _context = context;
-        _logger = logger;
-        _billsRepository = billsRepository;
         _documentService = documentService;
+        _billService = billService;
+        _logger = logger;
     }
     
     [HttpPost]
@@ -71,7 +69,7 @@ public class BillsController : ControllerBase
                 OrganizationId = organizationId,
             };
 
-            await _billsRepository.CreateAsync(bill);
+            await _billService.CreateAsync(bill);
             
             var response = new CreateBillResponse
             {
@@ -110,9 +108,9 @@ public class BillsController : ControllerBase
     {
         try
         {
-            var totalRecords = await _billsRepository.GetEntriesCountAsync();
+            var totalRecords = 100; // create method of retrieving records
             var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
-            var bills = await _billsRepository.GetAllByOrganizationAsync(organizationId, page, pageSize, from, to);
+            var bills = await _billService.GetAllByOrganizationAsync(organizationId, page, pageSize, from, to);
 
             var billsDto = bills.Select(bill => new GetBillResponse
                 {
@@ -158,7 +156,7 @@ public class BillsController : ControllerBase
     {
         try
         {
-            Bill? bill = await _billsRepository.GetByIdAsync(billId);
+            Bill? bill = await _billService.GetByIdAsync(billId);
 
             if (bill is null)
             {
@@ -226,14 +224,7 @@ public class BillsController : ControllerBase
             bill.AmountDue = request.AmountDue;
             bill.AmountPaid = request.AmountPaid;
 
-            await _billsRepository.UpdateAsync(bill, 
-                b => b.Description, 
-                b => b.Category, 
-                b => b.Status, 
-                b => b.DueDate, 
-                b => b.PaymentDate,
-                b => b.AmountDue,
-                b => b.AmountPaid);
+            await _billService.UpdateAsync(bill);
 
             var response = new UpdateBillResponse
             {
@@ -265,7 +256,7 @@ public class BillsController : ControllerBase
     {
         try
         {
-            Bill? bill = await _billsRepository.GetByIdAsync(billId);
+            Bill? bill = await _billService.GetByIdAsync(billId);
 
             if (bill is null)
             {
@@ -277,7 +268,7 @@ public class BillsController : ControllerBase
                 return BadRequest();
             }
 
-            await _billsRepository.DeleteAsync(bill);
+            await _billService.DeleteAsync(billId);
 
             return NoContent();
         }
@@ -340,7 +331,7 @@ public class BillsController : ControllerBase
     [HttpGet("{billId:guid}/documents/{documentId}")]
     public async Task<IActionResult> GetDocument(Guid billId, Guid documentId)
     {
-        Bill? bill = await _billsRepository.GetByIdAsync(billId);
+        Bill? bill = await _billService.GetByIdAsync(billId);
 
         if (bill is null)
         {
@@ -356,4 +347,5 @@ public class BillsController : ControllerBase
         var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
         return userIdClaim != null ? Guid.Parse(userIdClaim.Value) : null;
     }
+    */
 }

@@ -37,7 +37,48 @@ public static class AuthenticationExtensions
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = jwtIssuer,
                     ValidAudience = jwtAudience,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+                    ClockSkew = TimeSpan.Zero
+                };
+                
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+                        Console.WriteLine($"JWT OnMessageReceived - Authorization header: {authHeader ?? "NULL"}");
+                        
+                        if (string.IsNullOrEmpty(authHeader))
+                        {
+                            Console.WriteLine("No Authorization header found");
+                        }
+                        else if (!authHeader.StartsWith("Bearer "))
+                        {
+                            Console.WriteLine($"Authorization header doesn't start with 'Bearer ': {authHeader}");
+                        }
+                        else
+                        {
+                            var token = authHeader.Substring("Bearer ".Length);
+                            Console.WriteLine($"Token extracted: {token.Substring(0, Math.Min(50, token.Length))}...");
+                        }
+                        
+                        return Task.CompletedTask;
+                    },
+                    OnAuthenticationFailed = context =>
+                    {
+                        Console.WriteLine($"JWT Authentication failed: {context.Exception.Message}");
+                        return Task.CompletedTask;
+                    },
+                    OnTokenValidated = context =>
+                    {
+                        Console.WriteLine("JWT Token validated successfully");
+                        return Task.CompletedTask;
+                    },
+                    OnChallenge = context =>
+                    {
+                        Console.WriteLine($"JWT Challenge: {context.Error} - {context.ErrorDescription}");
+                        return Task.CompletedTask;
+                    }
                 };
             });
         

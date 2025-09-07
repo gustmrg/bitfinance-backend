@@ -1,6 +1,6 @@
-using BitFinance.Business.Entities;
-using BitFinance.Business.Enums;
-using BitFinance.Data.Contexts;
+using BitFinance.Domain.Entities;
+using BitFinance.Domain.Enums;
+using BitFinance.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
 namespace BitFinance.API.Data;
@@ -23,7 +23,7 @@ public static class SeedData
         try
         {
             var context = services.GetRequiredService<ApplicationDbContext>();
-            context.Database.Migrate();
+            // context.Database.Migrate();
             context.Database.EnsureCreated();
             Initialize(services);
         }

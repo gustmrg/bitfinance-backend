@@ -37,12 +37,12 @@ public static class MiddlewareExtensions
         app.UseAuthorization();
         
         app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
-        app.UseMiddleware<OrganizationContextMiddleware>();
+        // app.UseMiddleware<OrganizationContextMiddleware>();
 
-        if (app.Environment.IsDevelopment())
-        {
-            app.ApplyMigrations();
-        }
+        // if (app.Environment.IsDevelopment())
+        // {
+        //     app.ApplyMigrations();
+        // }
 
         if (app.Environment.IsProduction())
         {

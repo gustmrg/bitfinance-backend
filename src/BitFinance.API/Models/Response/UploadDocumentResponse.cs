@@ -1,4 +1,4 @@
-using BitFinance.Business.Enums;
+using BitFinance.Domain.Enums;
 
 namespace BitFinance.API.Models.Response;
 
