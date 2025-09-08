@@ -16,21 +16,39 @@ public class Result<T>
     public static Result<T> Success(T data) => new(true, data, null);
     public static Result<T> Failure(Error error) => new(false, default, error);
     
-    public static Result<T> NotFound(string message) 
-        => Failure(new Error(ErrorType.NotFound, message));
+    public static Result<T> NotFound(string code, string message) 
+        => Failure(Error.NotFound(code, message));
     
-    public static Result<T> ValidationFailed(params string[] errors) 
-        => Failure(new Error(ErrorType.Validation, errors));
+    public static Result<T> NotFound(string message) 
+        => Failure(Error.NotFound("Generic.NotFound", message));
+    
+    public static Result<T> ValidationFailed(string code, string message) 
+        => Failure(Error.Validation(code, message));
+    
+    public static Result<T> ValidationFailed(string message) 
+        => Failure(Error.Validation("Generic.Validation", message));
+    
+    public static Result<T> Unauthorized(string code, string message) 
+        => Failure(Error.Unauthorized(code, message));
     
     public static Result<T> Unauthorized(string message = "Unauthorized access") 
-        => Failure(new Error(ErrorType.Unauthorized, message));
+        => Failure(Error.Unauthorized("Generic.Unauthorized", message));
+    
+    public static Result<T> Forbidden(string code, string message) 
+        => Failure(Error.Forbidden(code, message));
     
     public static Result<T> Forbidden(string message = "Access forbidden") 
-        => Failure(new Error(ErrorType.Forbidden, message));
+        => Failure(Error.Forbidden("Generic.Forbidden", message));
+    
+    public static Result<T> Conflict(string code, string message) 
+        => Failure(Error.Conflict(code, message));
     
     public static Result<T> Conflict(string message) 
-        => Failure(new Error(ErrorType.Conflict, message));
+        => Failure(Error.Conflict("Generic.Conflict", message));
+    
+    public static Result<T> BusinessError(string code, string message) 
+        => Failure(Error.BusinessRule(code, message));
     
     public static Result<T> BusinessError(string message) 
-        => Failure(new Error(ErrorType.BusinessRule, message));
+        => Failure(Error.BusinessRule("Generic.BusinessRule", message));
 }

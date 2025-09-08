@@ -1,9 +1,12 @@
 using System.Globalization;
 using System.Security.Claims;
 using BitFinance.API.Attributes;
+using BitFinance.API.Extensions;
 using BitFinance.API.Models;
 using BitFinance.API.Models.Request;
 using BitFinance.API.Models.Response;
+using BitFinance.Application.Common;
+using BitFinance.Application.DTOs.Bills;
 using BitFinance.Application.Interfaces;
 using BitFinance.Domain.Entities;
 using BitFinance.Domain.Enums;
@@ -18,10 +21,9 @@ namespace BitFinance.API.Controllers;
 [ApiController]
 [Authorize]
 [OrganizationAuthorization]
-[Route("api/[controller]")]
+[Route("api/organizations/{organizationId:guid}/bills")]
 public class BillsController : ControllerBase
 {
-    /*
     private readonly ApplicationDbContext _context;
     private readonly ILogger<BillsController> _logger;
     private readonly IBillService _billService;
@@ -42,52 +44,22 @@ public class BillsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<CreateBillResponse>> CreateBillAsync([FromRoute] Guid organizationId, [FromBody] CreateBillRequest request)
+    public async Task<IActionResult> CreateBillAsync(
+        [FromRoute] Guid organizationId,
+        [FromBody] CreateBillRequestDto request,
+        CancellationToken cancellationToken = default)
     {
         try
         {
-            if (!ModelState.IsValid)
-            {
-                return UnprocessableEntity();
-            }
+            var billResult = await _billService.CreateAsync(organizationId, request, cancellationToken);
             
-            var isValidCategory = Enum.TryParse(request.Category, true, out BillCategory category);
-            var isValidStatus = Enum.TryParse(request.Status, true, out BillStatus status);
-            
-            if (!isValidCategory || !isValidStatus) return UnprocessableEntity();
-            
-            Bill bill = new()
-            {
-                Description = request.Description,
-                Category = category,
-                Status = status,
-                CreatedAt = DateTime.UtcNow,
-                DueDate = request.DueDate.ToUniversalTime(),
-                PaymentDate = request.PaymentDate?.ToUniversalTime(),
-                AmountDue = request.AmountDue,
-                AmountPaid = request.AmountPaid,
-                OrganizationId = organizationId,
-            };
+            if (!billResult.IsSuccess) return billResult.ToActionResult();
 
-            await _billService.CreateAsync(bill);
-            
-            var response = new CreateBillResponse
+            return billResult.ToCreatedResult(nameof(GetBillById), "Bills", new
             {
-                Id = bill.Id,
-                Description = bill.Description,
-                Category = bill.Category,
-                Status = bill.Status,
-                CreatedDate = bill.CreatedAt,
-                DueDate = bill.DueDate,
-                PaidDate = bill.PaymentDate,
-                AmountDue = bill.AmountDue,
-                AmountPaid = bill.AmountPaid
-            };
-            
-            return CreatedAtAction(nameof(GetBillById), new
-            {
-                billId = bill.Id, organizationId = bill.OrganizationId
-            }, response);
+                organizationId = organizationId,
+                billId = billResult.Data!.Id
+            });
         }
         catch (Exception ex)
         {
@@ -95,10 +67,12 @@ public class BillsController : ControllerBase
                 DateTime.Now.ToString("s", CultureInfo.InvariantCulture), 
                 nameof(CreateBillAsync), 
                 ex.Message);
+
             return BadRequest();
         }
     }
     
+    /*
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -146,44 +120,45 @@ public class BillsController : ControllerBase
             return BadRequest();
         }
     }
+    */
     
     [HttpGet]
     [Route("{billId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<GetBillResponse>> GetBillById([FromRoute] Guid billId)
+    public async Task<IActionResult> GetBillById([FromRoute] Guid organizationId, [FromRoute] Guid billId)
     {
         try
         {
-            Bill? bill = await _billService.GetByIdAsync(billId);
+            var billResult = await _billService.GetByIdAsync(billId);
 
-            if (bill is null)
-            {
-                return NotFound();
-            }
+            return billResult.ToActionResult();
 
-            var response = new GetBillResponse
-            {
-                Id = bill.Id,
-                Description = bill.Description,
-                Category = bill.Category,
-                Status = bill.Status,
-                CreatedAt = bill.CreatedAt,
-                DueDate = bill.DueDate,
-                PaymentDate = bill.PaymentDate,
-                AmountDue = bill.AmountDue,
-                AmountPaid = bill.AmountPaid,
-                Documents = bill.Documents.Select(doc => new DocumentResponseModel
-                {
-                    Id = doc.Id,
-                    FileName = doc.FileName,
-                    ContentType = doc.ContentType,
-                    DocumentType = doc.DocumentType
-                }).ToList()
-            };
-
-            return Ok(response);
+            // if (bill is null)
+            // {
+            //     return NotFound();
+            // }
+            //
+            // var response = new GetBillResponse
+            // {
+            //     Id = bill.Id,
+            //     Description = bill.Description,
+            //     Category = bill.Category,
+            //     Status = bill.Status,
+            //     CreatedAt = bill.CreatedAt,
+            //     DueDate = bill.DueDate,
+            //     PaymentDate = bill.PaymentDate,
+            //     AmountDue = bill.AmountDue,
+            //     AmountPaid = bill.AmountPaid,
+            //     Documents = bill.Documents.Select(doc => new DocumentResponseModel
+            //     {
+            //         Id = doc.Id,
+            //         FileName = doc.FileName,
+            //         ContentType = doc.ContentType,
+            //         DocumentType = doc.DocumentType
+            //     }).ToList()
+            // };
         }
         catch (Exception ex)
         {
@@ -191,10 +166,12 @@ public class BillsController : ControllerBase
                 DateTime.Now.ToString("s", CultureInfo.InvariantCulture), 
                 nameof(GetBillById), 
                 ex.Message);
+            
             return BadRequest();
         }
     }
     
+    /*
     [HttpPatch]
     [Route("{billId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -342,10 +319,10 @@ public class BillsController : ControllerBase
         return File(stream, contentType, fileName);
     }
     
+    */
     private Guid? GetCurrentUserId()
     {
         var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
         return userIdClaim != null ? Guid.Parse(userIdClaim.Value) : null;
     }
-    */
 }

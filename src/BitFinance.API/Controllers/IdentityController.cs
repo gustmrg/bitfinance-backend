@@ -101,9 +101,12 @@ public class IdentityController : ControllerBase
     [HttpGet("me")]
     public async Task<IActionResult> GetMe()
     {
-        var userId = User.Claims.FirstOrDefault(a => a.Type == ClaimTypes.NameIdentifier)?.Value;
-
-        if (string.IsNullOrEmpty(userId)) return BadRequest("Invalid user");
+        var userId = User.GetUserId();
+        
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Result<UserDto>.Failure(DomainErrors.Users.NotFound).ToActionResult();
+        }
             
         var userResult = await _userService.GetUserByIdAsync(userId);
             
@@ -116,7 +119,7 @@ public class IdentityController : ControllerBase
         // organizations.AddRange(user.Organizations.Select(organization => new OrganizationViewModel(organization.Id, organization.Name)));
         // return Ok(new UserViewModel(user.Id, user.FullName, user?.Email ?? string.Empty, ReplaceUserName(user?.UserName), organizations));
         
-        var result =  Result<UserDto>.Success(userResult.Data!);
+        var result = Result<UserDto>.Success(userResult.Data!);
         return result.ToActionResult();
     }
 
@@ -126,8 +129,8 @@ public class IdentityController : ControllerBase
     [HttpPost("manage/profile")]
     public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileInputModel model)
     {
-        var userId = User.Claims.FirstOrDefault(a => a.Type == ClaimTypes.NameIdentifier)?.Value;
-
+        var userId = User.GetUserId();
+        
         if (string.IsNullOrEmpty(userId)) return BadRequest("Invalid user");
             
         var user = await _userService.GetUserByIdAsync(userId);

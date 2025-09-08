@@ -24,15 +24,39 @@ public class AuthenticationService : IAuthenticationService
     {
         try
         {
+            // First check if user exists
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null)
+            {
+                return Result<LoginResponseDto>.Failure(DomainErrors.Authentication.UserNotFound);
+            }
+
             var result = await _signInManager.PasswordSignInAsync(request.Email, request.Password, false, false);
 
             if (!result.Succeeded)
             {
-                var error = new Error(ErrorType.BusinessRule, "Invalid login attempt");
-                return Result<LoginResponseDto>.Failure(error);
+                // Provide specific error messages based on SignInResult
+                if (result.IsLockedOut)
+                {
+                    return Result<LoginResponseDto>.Failure(DomainErrors.Authentication.AccountLocked);
+                }
+                
+                if (result.IsNotAllowed)
+                {
+                    return Result<LoginResponseDto>.Failure(DomainErrors.Authentication.AccountNotConfirmed);
+                }
+                
+                if (result.RequiresTwoFactor)
+                {
+                    return Result<LoginResponseDto>.Failure(Error.BusinessRule(
+                        "Authentication.RequiresTwoFactor", 
+                        "Two-factor authentication is required for this account."));
+                }
+
+                // For invalid password or other failures
+                return Result<LoginResponseDto>.Failure(DomainErrors.Authentication.InvalidCredentials);
             }
-        
-            var user = await _userManager.FindByEmailAsync(request.Email);
+
             var userDto = new UserDto
             {
                 Id = user.Id,
@@ -53,10 +77,11 @@ public class AuthenticationService : IAuthenticationService
         
             return Result<LoginResponseDto>.Success(response);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
-            throw;
+            return Result<LoginResponseDto>.Failure(Error.Infrastructure(
+                "Authentication.LoginError", 
+                "An error occurred during login. Please try again."));
         }
     }
 
