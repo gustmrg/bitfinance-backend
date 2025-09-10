@@ -27,6 +27,10 @@ public static class DomainErrors
         public static readonly Error NotFound = Error.NotFound(
             "Bills.NotFound",
             "No bill found.");
+        
+        public static readonly Error InvalidDateRange = Error.Validation(
+            "Bills.DateRange.Invalid",
+            "Both from and to dates must be provided, and from date must be before to date.");
     }
     
     public static class Users

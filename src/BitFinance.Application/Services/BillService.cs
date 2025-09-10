@@ -125,8 +125,67 @@ public class BillService : IBillService
         return await _repository.GetAllByStatusAsync(status);
     }
 
+    public async Task<Result<List<BillDto>>> GetAllByOrganizationAsync(
+        Guid organizationId, 
+        int page = 1, int pageSize = 100, 
+        DateTime? from = null, DateTime? to = null,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            // Validate pagination parameters
+            if (page < 1)
+            {
+                return Result<List<BillDto>>.Failure(Error.Validation("Bills.Page.Invalid", "Page must be greater than 0"));
+            }
+            
+            if (pageSize < 1 || pageSize > 500)
+            {
+                return Result<List<BillDto>>.Failure(Error.Validation("Bills.PageSize.Invalid", "Page size must be between 1 and 500"));
+            }
+
+            // Validate date range - both must be provided or both must be null
+            if ((from.HasValue && !to.HasValue) || (!from.HasValue && to.HasValue))
+            {
+                return Result<List<BillDto>>.Failure(DomainErrors.Bills.InvalidDateRange);
+            }
+            
+            // If both dates are provided, validate that from is before to
+            if (from.HasValue && to.HasValue && from.Value > to.Value)
+            {
+                return Result<List<BillDto>>.Failure(DomainErrors.Bills.InvalidDateRange);
+            }
+            
+            var bills = await _repository.GetAllByOrganizationAsync(
+                organizationId, 
+                page, pageSize, 
+                from, to);
+
+            var data = bills.Select(x => new BillDto
+            {
+                Id = x.Id,
+                Description = x.Description,
+                Category = x.Category,
+                Status = x.Status,
+                DueDate = x.DueDate,
+                PaymentDate = x.PaymentDate,
+                AmountDue = x.AmountDue,
+                AmountPaid = x.AmountPaid
+            }).ToList();
+            
+            return Result<List<BillDto>>.Success(data);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving bills for organization {OrganizationId}, page {Page}, pageSize {PageSize}", 
+                organizationId, page, pageSize);
+            return Result<List<BillDto>>.Failure(Error.Infrastructure("Bills.Retrieve.Failed", "An error occurred while retrieving bills"));
+        }
+    }
+
     public async Task UpdateAsync(Bill bill)
     {
         await _repository.UpdateAsync(bill);
     }
+
 }

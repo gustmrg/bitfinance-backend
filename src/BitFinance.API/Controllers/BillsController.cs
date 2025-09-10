@@ -24,26 +24,21 @@ namespace BitFinance.API.Controllers;
 [Route("api/organizations/{organizationId:guid}/bills")]
 public class BillsController : ControllerBase
 {
-    private readonly ApplicationDbContext _context;
-    private readonly ILogger<BillsController> _logger;
     private readonly IBillService _billService;
     private readonly IBillDocumentService _documentService;
+    private readonly ILogger<BillsController> _logger;
     
-    public BillsController(ApplicationDbContext context,
+    public BillsController(
         IBillService billService,
         IBillDocumentService documentService,
         ILogger<BillsController> logger)
     {
-        _context = context;
-        _documentService = documentService;
         _billService = billService;
+        _documentService = documentService;
         _logger = logger;
     }
     
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> CreateBillAsync(
         [FromRoute] Guid organizationId,
         [FromBody] CreateBillRequestDto request,
@@ -72,11 +67,9 @@ public class BillsController : ControllerBase
         }
     }
     
-    /*
+    
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<PagedResponse<Bill>>> GetBillsAsync(
+    public async Task<IActionResult> GetBillsAsync(
         [FromRoute] Guid organizationId, 
         [FromQuery] int page = 1, int pageSize = 100, DateTime? from = null, DateTime? to = null)
     {
@@ -120,7 +113,7 @@ public class BillsController : ControllerBase
             return BadRequest();
         }
     }
-    */
+    /*
     
     [HttpGet]
     [Route("{billId:guid}")]
