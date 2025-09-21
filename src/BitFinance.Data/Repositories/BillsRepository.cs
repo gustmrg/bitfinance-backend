@@ -34,7 +34,8 @@ public class BillsRepository : IBillsRepository
         return list;
     }
     
-    public async Task<List<Bill>> GetAllByOrganizationAsync(Guid organizationId, int page, int pageSize, DateTime? startDate = null, DateTime? endDate = null)
+    public async Task<List<Bill>> GetAllByOrganizationAsync(Guid organizationId, int page, int pageSize,
+        DateTime? startDate = null, DateTime? endDate = null)
     {
         var query = _dbContext.Set<Bill>()
             .AsNoTracking()
@@ -43,12 +44,12 @@ public class BillsRepository : IBillsRepository
 
         if (startDate.HasValue)
         {
-            query = query.Where(b => b.DueDate >= startDate);
+            query = query.Where(b => b.DueDate >= DateOnly.FromDateTime(startDate.Value));
         }
 
         if (endDate.HasValue)
         {
-            query = query.Where(b => b.DueDate <= endDate);
+            query = query.Where(b => b.DueDate <= DateOnly.FromDateTime(endDate.Value));
         }
         
         return await query

@@ -28,6 +28,10 @@ public class OrganizationConfiguration : IEntityTypeConfiguration<Organization>
             .HasColumnType("timestampz")
             .HasPrecision(3);
         
+        builder.Property(o => o.TimeZoneId)
+            .HasColumnName("timezone_id")
+            .HasMaxLength(150);
+        
         builder.HasMany(o => o.Bills)
             .WithOne(b => b.Organization)
             .HasForeignKey(b => b.OrganizationId);

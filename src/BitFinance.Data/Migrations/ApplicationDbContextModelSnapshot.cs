@@ -159,7 +159,7 @@ namespace BitFinance.Data.Migrations
                     b.HasIndex("BillId")
                         .HasDatabaseName("ix_bill_documents_bill_id");
 
-                    b.ToTable("bill_documents");
+                    b.ToTable("bill_documents", (string)null);
                 });
 
             modelBuilder.Entity("BitFinance.Business.Entities.Expense", b =>
@@ -286,7 +286,7 @@ namespace BitFinance.Data.Migrations
                     b.HasKey("Id")
                         .HasName("pk_organization_invites");
 
-                    b.ToTable("organization_invites");
+                    b.ToTable("organization_invites", (string)null);
                 });
 
             modelBuilder.Entity("BitFinance.Business.Entities.User", b =>
@@ -559,7 +559,7 @@ namespace BitFinance.Data.Migrations
                     b.HasIndex("OrganizationsId")
                         .HasDatabaseName("ix_organization_user_organizations_id");
 
-                    b.ToTable("organization_user");
+                    b.ToTable("organization_user", (string)null);
                 });
 
             modelBuilder.Entity("BitFinance.Business.Entities.Bill", b =>
