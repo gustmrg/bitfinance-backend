@@ -72,6 +72,13 @@ public class BillsRepository : IBillsRepository
         return list;
     }
 
+    public async Task<List<Bill>> GetAllByOrganizationAndStatusAsync(Guid organizationId, BillStatus billStatus)
+    {
+        return await _dbContext.Bills.AsNoTracking()
+            .Where(b => b.OrganizationId == organizationId && b.Status == billStatus)
+            .ToListAsync();
+    }
+
     public async Task<int> GetEntriesCountAsync()
     {
         return await _dbContext.Bills.CountAsync();
@@ -117,6 +124,15 @@ public class BillsRepository : IBillsRepository
                         x.DeletedAt == null)
             .OrderByDescending(x => x.DueDate)
             .ToListAsync();
+    }
+
+    public async Task UpdateRangeAsync(List<Bill> bills)
+    {
+        if (bills.Count == 0)
+            return;
+        
+        _dbContext.Bills.UpdateRange(bills);
+        await _dbContext.SaveChangesAsync();
     }
 
     public async Task<Bill> CreateAsync(Bill bill)
