@@ -57,16 +57,15 @@ namespace BitFinance.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("description");
 
-                    b.Property<DateTime>("DueDate")
-                        .HasPrecision(3)
-                        .HasColumnType("timestampz")
+                    b.Property<DateOnly>("DueDate")
+                        .HasColumnType("date")
                         .HasColumnName("due_date");
 
                     b.Property<Guid>("OrganizationId")
                         .HasColumnType("uuid")
                         .HasColumnName("organization_id");
 
-                    b.Property<DateTime?>("PaymentDate")
+                    b.Property<DateTimeOffset?>("PaymentDate")
                         .HasPrecision(3)
                         .HasColumnType("timestampz")
                         .HasColumnName("payment_date");
@@ -159,7 +158,7 @@ namespace BitFinance.Data.Migrations
                     b.HasIndex("BillId")
                         .HasDatabaseName("ix_bill_documents_bill_id");
 
-                    b.ToTable("bill_documents", (string)null);
+                    b.ToTable("bill_documents");
                 });
 
             modelBuilder.Entity("BitFinance.Business.Entities.Expense", b =>
@@ -249,6 +248,12 @@ namespace BitFinance.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("name");
 
+                    b.Property<string>("TimeZoneId")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("timezone_id");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasPrecision(3)
                         .HasColumnType("timestampz")
@@ -286,7 +291,7 @@ namespace BitFinance.Data.Migrations
                     b.HasKey("Id")
                         .HasName("pk_organization_invites");
 
-                    b.ToTable("organization_invites", (string)null);
+                    b.ToTable("organization_invites");
                 });
 
             modelBuilder.Entity("BitFinance.Business.Entities.User", b =>
@@ -377,6 +382,39 @@ namespace BitFinance.Data.Migrations
                         .HasDatabaseName("user_name_index");
 
                     b.ToTable("asp_net_users", (string)null);
+                });
+
+            modelBuilder.Entity("BitFinance.Business.Entities.UserSettings", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("text")
+                        .HasColumnName("user_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("PreferredLanguage")
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)")
+                        .HasColumnName("preferred_language");
+
+                    b.Property<string>("TimeZoneId")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("timezone_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("user_settings", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -559,7 +597,7 @@ namespace BitFinance.Data.Migrations
                     b.HasIndex("OrganizationsId")
                         .HasDatabaseName("ix_organization_user_organizations_id");
 
-                    b.ToTable("organization_user", (string)null);
+                    b.ToTable("organization_user");
                 });
 
             modelBuilder.Entity("BitFinance.Business.Entities.Bill", b =>
@@ -605,6 +643,18 @@ namespace BitFinance.Data.Migrations
                     b.Navigation("CreatedByUser");
 
                     b.Navigation("Organization");
+                });
+
+            modelBuilder.Entity("BitFinance.Business.Entities.UserSettings", b =>
+                {
+                    b.HasOne("BitFinance.Business.Entities.User", "User")
+                        .WithOne("Settings")
+                        .HasForeignKey("BitFinance.Business.Entities.UserSettings", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_settings_asp_net_users_user_id");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -691,6 +741,12 @@ namespace BitFinance.Data.Migrations
                     b.Navigation("Bills");
 
                     b.Navigation("Expenses");
+                });
+
+            modelBuilder.Entity("BitFinance.Business.Entities.User", b =>
+                {
+                    b.Navigation("Settings")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
