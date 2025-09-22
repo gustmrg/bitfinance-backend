@@ -19,22 +19,22 @@ public static class MiddlewareExtensions
     
     public static WebApplication ConfigureMiddleware(this WebApplication app, IConfiguration configuration)
     {
-        app.UseSwagger();
-        app.UseSwaggerUI();
-
         app.UseCors(options =>
         {
             var allowedOrigins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
-            
+
             options.WithOrigins(allowedOrigins ?? [])
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials();
         });
-        
+
         app.UseForwardedHeaders();
         app.UseAuthentication();
         app.UseAuthorization();
+
+        app.UseSwagger();
+        app.UseSwaggerUI();
         app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
         if (app.Environment.IsDevelopment())
