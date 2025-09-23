@@ -21,5 +21,5 @@ public class UpdateBillResponse
     
     public DateTime DueDate { get; set; }
     
-    public DateTime? PaidDate { get; set; }
+    public DateTimeOffset? PaidDate { get; set; }
 }

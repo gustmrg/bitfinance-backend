@@ -64,7 +64,7 @@ public static class SeedData
             Category = BillCategory.Utilities,
             Status = BillStatus.Overdue,
             CreatedAt = DateTime.UtcNow.AddHours(-3),
-            DueDate = DateTime.UtcNow.AddHours(-3),
+            DueDate = DateOnly.FromDateTime(DateTime.UtcNow),
             PaymentDate = null,
             AmountDue = 120M,
             AmountPaid = null
@@ -76,7 +76,7 @@ public static class SeedData
             Category = BillCategory.Utilities,
             Status = BillStatus.Paid,
             CreatedAt = DateTime.UtcNow.AddHours(-3),
-            DueDate = DateTime.UtcNow.AddHours(-3),
+            DueDate = DateOnly.FromDateTime(DateTime.UtcNow),
             PaymentDate = DateTime.Now.ToUniversalTime().AddHours(-3),
             AmountDue = 800M,
             AmountPaid = 800M
@@ -88,7 +88,7 @@ public static class SeedData
             Category = BillCategory.Healthcare,
             Status = BillStatus.Paid,
             CreatedAt = DateTime.UtcNow.AddHours(-3),
-            DueDate = DateTime.UtcNow.AddHours(-3),
+            DueDate = DateOnly.FromDateTime(DateTime.UtcNow),
             PaymentDate = DateTime.UtcNow.AddHours(-3).AddDays(-2),
             AmountDue = 500M,
             AmountPaid = 500M
@@ -100,7 +100,7 @@ public static class SeedData
             Category = BillCategory.Insurance,
             Status = BillStatus.Due,
             CreatedAt = DateTime.UtcNow.AddHours(-3),
-            DueDate = DateTime.UtcNow.AddHours(-3).AddDays(10),
+            DueDate = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(10),
             AmountDue = 1000M
         };
         
@@ -110,7 +110,7 @@ public static class SeedData
             Category = BillCategory.Entertainment,
             Status = BillStatus.Due,
             CreatedAt = DateTime.UtcNow.AddHours(-3),
-            DueDate = DateTime.UtcNow.AddHours(-3).AddDays(15),
+            DueDate = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(15),
             AmountDue = 49.90M
         };
 
@@ -120,7 +120,7 @@ public static class SeedData
             Category = BillCategory.Housing,
             Status = BillStatus.Paid,
             CreatedAt = DateTime.UtcNow.AddHours(-3),
-            DueDate = DateTime.UtcNow.AddHours(-3).AddDays(-2),
+            DueDate = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(-2),
             PaymentDate = DateTime.UtcNow.AddHours(-3),
             AmountDue = 2000M,
             AmountPaid = 2000M
@@ -132,7 +132,7 @@ public static class SeedData
             Category = BillCategory.Education,
             Status = BillStatus.Cancelled,
             CreatedAt = DateTime.UtcNow.AddHours(-3),
-            DueDate = DateTime.UtcNow.AddHours(-3).AddDays(20),
+            DueDate = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(20),
             AmountDue = 250M
         };
         

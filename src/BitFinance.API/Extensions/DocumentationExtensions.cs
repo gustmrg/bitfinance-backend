@@ -1,6 +1,6 @@
 using Asp.Versioning;
+using BitFinance.API.Filters;
 using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.Filters;
 
 namespace BitFinance.API.Extensions;
 
@@ -13,7 +13,7 @@ public static class DocumentationExtensions
         
         services.AddSwaggerGen(options =>
         {
-            options.AddSecurityDefinition("http", new OpenApiSecurityScheme
+            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
                 In = ParameterLocation.Header,
                 Name = "Authorization",
@@ -22,7 +22,7 @@ public static class DocumentationExtensions
                 BearerFormat = "JWT",
                 Description = "Enter 'Bearer' and then your token in the input below. Example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'."
             });
-            
+
             options.OperationFilter<SecurityRequirementsOperationFilter>();
         });
 

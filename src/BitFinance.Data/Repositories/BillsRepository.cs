@@ -34,7 +34,8 @@ public class BillsRepository : IBillsRepository
         return list;
     }
     
-    public async Task<List<Bill>> GetAllByOrganizationAsync(Guid organizationId, int page, int pageSize, DateTime? startDate = null, DateTime? endDate = null)
+    public async Task<List<Bill>> GetAllByOrganizationAsync(Guid organizationId, int page, int pageSize,
+        DateTime? startDate = null, DateTime? endDate = null)
     {
         var query = _dbContext.Set<Bill>()
             .AsNoTracking()
@@ -43,12 +44,12 @@ public class BillsRepository : IBillsRepository
 
         if (startDate.HasValue)
         {
-            query = query.Where(b => b.DueDate >= startDate);
+            query = query.Where(b => b.DueDate >= DateOnly.FromDateTime(startDate.Value));
         }
 
         if (endDate.HasValue)
         {
-            query = query.Where(b => b.DueDate <= endDate);
+            query = query.Where(b => b.DueDate <= DateOnly.FromDateTime(endDate.Value));
         }
         
         return await query
@@ -69,6 +70,13 @@ public class BillsRepository : IBillsRepository
             .ToListAsync();
 
         return list;
+    }
+
+    public async Task<List<Bill>> GetAllByOrganizationAndStatusAsync(Guid organizationId, BillStatus billStatus)
+    {
+        return await _dbContext.Bills.AsNoTracking()
+            .Where(b => b.OrganizationId == organizationId && b.Status == billStatus)
+            .ToListAsync();
     }
 
     public async Task<int> GetEntriesCountAsync()
@@ -116,6 +124,15 @@ public class BillsRepository : IBillsRepository
                         x.DeletedAt == null)
             .OrderByDescending(x => x.DueDate)
             .ToListAsync();
+    }
+
+    public async Task UpdateRangeAsync(List<Bill> bills)
+    {
+        if (bills.Count == 0)
+            return;
+        
+        _dbContext.Bills.UpdateRange(bills);
+        await _dbContext.SaveChangesAsync();
     }
 
     public async Task<Bill> CreateAsync(Bill bill)

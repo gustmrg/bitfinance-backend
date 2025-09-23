@@ -30,8 +30,7 @@ public class BillConfiguration : IEntityTypeConfiguration<Bill>
         
         builder.Property(b => b.DueDate)
             .HasColumnName("due_date")
-            .HasColumnType("timestampz")
-            .HasPrecision(3)
+            .HasColumnType("date")
             .IsRequired();
         
         builder.Property(b => b.PaymentDate)

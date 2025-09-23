@@ -12,6 +12,6 @@ public class CreateExpenseResponse
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public ExpenseStatus Status { get; set; }
     public decimal Amount { get; set; }
-    public DateTime OccurredAt { get; set; }
+    public DateTimeOffset OccurredAt { get; set; }
     public string CreatedBy { get; set; } = null!;
 }

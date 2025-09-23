@@ -29,7 +29,7 @@ public class DashboardController : ControllerBase
             Description = x.Description,
             Category = x.Category,
             Status = x.Status,
-            DueDate = x.DueDate,
+            DueDate = new DateTimeOffset(x.DueDate, TimeOnly.MinValue, TimeSpan.Zero),
             AmountDue = x.AmountDue,
         }).ToList();
 
@@ -77,7 +77,7 @@ internal class BillResponseModel
     
     public decimal AmountDue { get; set; }
     
-    public DateTime DueDate { get; set; }
+    public DateTimeOffset DueDate { get; set; }
 }
 
 internal class ExpenseResponseModel
@@ -88,7 +88,7 @@ internal class ExpenseResponseModel
     
     public decimal Amount { get; set; }
     
-    public DateTime Date { get; set; }
+    public DateTimeOffset Date { get; set; }
     
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public ExpenseCategory Category { get; set; }

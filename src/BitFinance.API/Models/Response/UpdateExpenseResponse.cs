@@ -9,5 +9,5 @@ public record UpdateExpenseResponse(
     [property: JsonConverter(typeof(JsonStringEnumConverter))] ExpenseCategory Category, 
     decimal Amount,
     [property: JsonConverter(typeof(JsonStringEnumConverter))] ExpenseStatus Status,
-    DateTime OccurredAt,
+    DateTimeOffset OccurredAt,
     string CreatedBy);

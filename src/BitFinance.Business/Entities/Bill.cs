@@ -10,8 +10,8 @@ public class Bill
     public BillStatus Status { get; set; }
     public decimal AmountDue { get; set; }
     public decimal? AmountPaid { get; set; }
-    public DateTime DueDate { get; set; }
-    public DateTime? PaymentDate { get; set; }
+    public DateOnly DueDate { get; set; }
+    public DateTimeOffset? PaymentDate { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public DateTime? DeletedAt { get; set; }

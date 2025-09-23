@@ -8,7 +8,7 @@ public class GetExpenseResponse
     public Guid Id { get; set; }
     public string Description { get; set; } = null!;
     public decimal Amount { get; set; }
-    public DateTime OccurredAt { get; set; }
+    public DateTimeOffset OccurredAt { get; set; }
     public string CreatedBy { get; set; } = null!;
     
     [JsonConverter(typeof(JsonStringEnumConverter))]

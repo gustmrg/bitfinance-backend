@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Globalization;
 using System.Security.Claims;
 using Asp.Versioning;
@@ -64,7 +65,7 @@ public class BillsController : ControllerBase
                 Category = category,
                 Status = status,
                 CreatedAt = DateTime.UtcNow,
-                DueDate = request.DueDate.ToUniversalTime(),
+                DueDate = DateOnly.FromDateTime(request.DueDate.ToUniversalTime()),
                 PaymentDate = request.PaymentDate?.ToUniversalTime(),
                 AmountDue = request.AmountDue,
                 AmountPaid = request.AmountPaid,
@@ -80,7 +81,7 @@ public class BillsController : ControllerBase
                 Category = bill.Category,
                 Status = bill.Status,
                 CreatedDate = bill.CreatedAt,
-                DueDate = bill.DueDate,
+                DueDate = DateTime.Parse(bill.DueDate.ToString()),
                 PaidDate = bill.PaymentDate,
                 AmountDue = bill.AmountDue,
                 AmountPaid = bill.AmountPaid
@@ -121,7 +122,7 @@ public class BillsController : ControllerBase
                     Category = bill.Category,
                     Status = bill.Status,
                     CreatedAt = bill.CreatedAt,
-                    DueDate = bill.DueDate,
+                    DueDate = DateTime.Parse(bill.DueDate.ToString()),
                     PaymentDate = bill.PaymentDate,
                     AmountDue = bill.AmountDue,
                     AmountPaid = bill.AmountPaid,
@@ -172,7 +173,7 @@ public class BillsController : ControllerBase
                 Category = bill.Category,
                 Status = bill.Status,
                 CreatedAt = bill.CreatedAt,
-                DueDate = bill.DueDate,
+                DueDate = new DateTime(bill.DueDate, TimeOnly.MinValue),
                 PaymentDate = bill.PaymentDate,
                 AmountDue = bill.AmountDue,
                 AmountPaid = bill.AmountPaid,
@@ -221,7 +222,7 @@ public class BillsController : ControllerBase
             bill.Description = request.Description;
             bill.Category = category;
             bill.Status = status;
-            bill.DueDate = request.DueDate.ToUniversalTime();
+            bill.DueDate = DateOnly.FromDateTime(request.DueDate.ToUniversalTime());
             bill.PaymentDate = request.PaymentDate?.ToUniversalTime();
             bill.AmountDue = request.AmountDue;
             bill.AmountPaid = request.AmountPaid;
@@ -241,7 +242,7 @@ public class BillsController : ControllerBase
                 Description = bill.Description,
                 Category = bill.Category,
                 Status = bill.Status,
-                DueDate = bill.DueDate,
+                DueDate = new DateTime(bill.DueDate, TimeOnly.MinValue),
                 PaidDate = bill.PaymentDate,
                 AmountDue = bill.AmountDue,
                 AmountPaid = bill.AmountPaid

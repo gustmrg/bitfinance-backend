@@ -19,10 +19,10 @@ public class GetBillResponse
     
     public decimal? AmountPaid { get; set; }
     
-    public DateTime CreatedAt { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
     
     public DateTime DueDate { get; set; }
     
-    public DateTime? PaymentDate { get; set; }
+    public DateTimeOffset? PaymentDate { get; set; }
     public ICollection<DocumentResponseModel> Documents { get; set; } = new List<DocumentResponseModel>();
 }
