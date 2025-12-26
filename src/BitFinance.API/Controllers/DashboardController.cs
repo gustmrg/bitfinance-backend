@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
-using BitFinance.API.Services.Interfaces;
-using BitFinance.Business.Enums;
+using BitFinance.Application.Interfaces;
+using BitFinance.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BitFinance.API.Controllers;
@@ -30,7 +30,7 @@ public class DashboardController : ControllerBase
             Category = x.Category,
             Status = x.Status,
             DueDate = new DateTimeOffset(x.DueDate, TimeOnly.MinValue, TimeSpan.Zero),
-            AmountDue = x.AmountDue,
+            AmountDue = x.AmountDue.Amount,
         }).ToList();
 
         var response = new UpcomingBillsResponse(models);
@@ -48,9 +48,8 @@ public class DashboardController : ControllerBase
             Id = x.Id,
             Description = x.Description,
             Category = x.Category,
-            Amount = x.Amount,
+            Amount = x.Amount.Amount,
             Date = x.OccurredAt,
-            
         }).ToList();
         
         var response = new RecentExpensesResponse(models);

@@ -1,4 +1,4 @@
-using BitFinance.Data.Contexts;
+using BitFinance.Infrastructure.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
 
 namespace BitFinance.API.Extensions;

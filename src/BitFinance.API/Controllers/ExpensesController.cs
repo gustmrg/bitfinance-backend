@@ -2,13 +2,11 @@ using System.Globalization;
 using System.Security.Claims;
 using Asp.Versioning;
 using BitFinance.API.Attributes;
-using BitFinance.API.Models;
-using BitFinance.API.Models.Request;
-using BitFinance.API.Models.Response;
-using BitFinance.Business.Entities;
-using BitFinance.Business.Enums;
-using BitFinance.Data.Contexts;
-using BitFinance.Data.Repositories.Interfaces;
+using BitFinance.Application.DTOs;
+using BitFinance.Domain.Entities;
+using BitFinance.Domain.Enums;
+using BitFinance.Domain.Interfaces.Repositories;
+using BitFinance.Domain.ValueObjects;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
@@ -47,7 +45,7 @@ public class ExpensesController : ControllerBase
         var expensesDto = expenses.Select(expense => new GetExpenseResponse
         {
             Id = expense.Id,
-            Amount = expense.Amount,
+            Amount = expense.Amount.Amount,
             Category = expense.Category,
             Description = expense.Description,
             Status = expense.Status,
@@ -78,7 +76,7 @@ public class ExpensesController : ControllerBase
             var response = new GetExpenseResponse
             {
                 Id = expense.Id,
-                Amount = expense.Amount,
+                Amount = expense.Amount.Amount,
                 Category = expense.Category,
                 Description = expense.Description,
                 Status = expense.Status,
@@ -123,7 +121,7 @@ public class ExpensesController : ControllerBase
             {
                 Description = request.Description,
                 Category = category,
-                Amount = request.Amount,
+                Amount = new Money(request.Amount),
                 Status = status,
                 OccurredAt = request.OccurredAt ?? DateTime.UtcNow,
                 CreatedAt = DateTime.UtcNow,
@@ -132,13 +130,13 @@ public class ExpensesController : ControllerBase
             };
 
             await _expensesRepository.CreateAsync(expense);
-            
+
             var response = new CreateExpenseResponse
             {
                 Id = expense.Id,
                 Description = expense.Description,
                 Category = expense.Category,
-                Amount = expense.Amount,
+                Amount = expense.Amount.Amount,
                 Status = expense.Status,
                 OccurredAt = expense.OccurredAt,
                 CreatedBy = expense.CreatedByUser.FullName,
@@ -177,14 +175,14 @@ public class ExpensesController : ControllerBase
             
             expense.Description = request.Description;
             expense.Category = category;
-            expense.Amount = request.Amount;
+            expense.Amount = new Money(request.Amount);
             expense.Status = status;
             expense.OccurredAt = request.OccurredAt ?? DateTime.UtcNow;
             expense.UpdatedAt = DateTime.UtcNow;
-            
+
             await _expensesRepository.UpdateAsync(expense);
 
-            return Ok(new UpdateExpenseResponse(expense.Id, expense.Description, expense.Category, expense.Amount, expense.Status, expense.OccurredAt, expense.CreatedByUser.FullName));
+            return Ok(new UpdateExpenseResponse(expense.Id, expense.Description, expense.Category, expense.Amount.Amount, expense.Status, expense.OccurredAt, expense.CreatedByUser.FullName));
         }
         catch (Exception ex)
         {

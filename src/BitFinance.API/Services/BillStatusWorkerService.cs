@@ -1,6 +1,6 @@
-using BitFinance.Business.Entities;
-using BitFinance.Business.Enums;
-using BitFinance.Data.Repositories.Interfaces;
+using BitFinance.Domain.Entities;
+using BitFinance.Domain.Enums;
+using BitFinance.Domain.Interfaces.Repositories;
 
 namespace BitFinance.API.Services;
 
@@ -122,8 +122,8 @@ public class BillStatusWorkerService : BackgroundService
         {
             await billsRepository.UpdateRangeAsync(billsToUpdate);
             
-            _logger.LogInformation("Updated {BillCount} bills for organization {OrgId} ({OrgName}) in timezone {TimeZone}", 
-                billsToUpdate.Count, organization.Id, organization.Name, organization.TimeZoneId);
+            _logger.LogInformation("Updated {BillCount} bills for organization {OrgId} ({OrgName}) in timezone {TimeZone}",
+                billsToUpdate.Count, organization.Id, organization.Name, organization.TimeZone.Value);
         }
         
         return billsToUpdate.Count;
@@ -147,8 +147,8 @@ public class BillStatusWorkerService : BackgroundService
         if (billsToUpdate.Count <= 0) return billsToUpdate.Count;
         await billsRepository.UpdateRangeAsync(billsToUpdate);
             
-        _logger.LogInformation("Updated {BillCount} bills for organization {OrgId} ({OrgName}) in timezone {TimeZone}", 
-            billsToUpdate.Count, organization.Id, organization.Name, organization.TimeZoneId);
+        _logger.LogInformation("Updated {BillCount} bills for organization {OrgId} ({OrgName}) in timezone {TimeZone}",
+            billsToUpdate.Count, organization.Id, organization.Name, organization.TimeZone.Value);
 
         return billsToUpdate.Count;
     }
