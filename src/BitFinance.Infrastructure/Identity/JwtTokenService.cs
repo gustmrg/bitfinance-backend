@@ -3,33 +3,34 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using BitFinance.Application.Interfaces;
+using BitFinance.Application.Options;
 using BitFinance.Domain.Entities;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace BitFinance.Infrastructure.Identity;
 
-public class JwtTokenService(IConfiguration configuration) : ITokenService
+public class JwtTokenService(IOptions<JwtOptions> jwtOptions) : ITokenService
 {
+    private readonly JwtOptions _jwtOptions = jwtOptions.Value;
+
     public string GenerateAccessToken(User user)
     {
-        var jwtKey = configuration["Jwt:Key"]!;
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Key));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id),
             new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(ClaimTypes.NameIdentifier, user.Id)
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
         var token = new JwtSecurityToken(
-            issuer: configuration["Jwt:Issuer"],
-            audience: configuration["Jwt:Audience"],
+            issuer: _jwtOptions.Issuer,
+            audience: _jwtOptions.Audience,
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(Convert.ToInt32(configuration["Jwt:ExpirationInMinutes"])),
+            expires: DateTime.UtcNow.AddMinutes(_jwtOptions.ExpirationInMinutes),
             signingCredentials: credentials
         );
 

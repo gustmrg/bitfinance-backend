@@ -1,11 +1,12 @@
 using BitFinance.Application.Interfaces;
+using BitFinance.Application.Options;
 using BitFinance.Domain.Common;
 using BitFinance.Domain.Common.Errors;
 using BitFinance.Domain.Entities;
 using BitFinance.Domain.Interfaces.Repositories;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace BitFinance.Infrastructure.Identity;
 
@@ -16,7 +17,7 @@ public class IdentityService : IIdentityService
     private readonly ITokenService _tokenService;
     private readonly IUsersRepository _usersRepository;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
-    private readonly IConfiguration _configuration;
+    private readonly JwtOptions _jwtOptions;
     private readonly ILogger<IdentityService> _logger;
 
     public IdentityService(
@@ -25,7 +26,7 @@ public class IdentityService : IIdentityService
         ITokenService tokenService,
         IUsersRepository usersRepository,
         IRefreshTokenRepository refreshTokenRepository,
-        IConfiguration configuration,
+        IOptions<JwtOptions> jwtOptions,
         ILogger<IdentityService> logger)
     {
         _userManager = userManager;
@@ -33,7 +34,7 @@ public class IdentityService : IIdentityService
         _tokenService = tokenService;
         _usersRepository = usersRepository;
         _refreshTokenRepository = refreshTokenRepository;
-        _configuration = configuration;
+        _jwtOptions = jwtOptions.Value;
         _logger = logger;
     }
 
@@ -183,13 +184,11 @@ public class IdentityService : IIdentityService
     private async Task<AuthenticationResult> CreateAuthenticationResultAsync(User user)
     {
         var accessToken = _tokenService.GenerateAccessToken(user);
-        var accessTokenExpiresAt = DateTime.UtcNow.AddMinutes(
-            Convert.ToInt32(_configuration["Jwt:ExpirationInMinutes"]));
+        var accessTokenExpiresAt = DateTime.UtcNow.AddMinutes(_jwtOptions.ExpirationInMinutes);
 
         var rawRefreshToken = _tokenService.GenerateRefreshToken();
         var hashedRefreshToken = _tokenService.HashToken(rawRefreshToken);
-        var refreshTokenExpiresAt = DateTime.UtcNow.AddDays(
-            Convert.ToInt32(_configuration["Jwt:RefreshTokenExpirationInDays"] ?? "7"));
+        var refreshTokenExpiresAt = DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenExpirationInDays);
 
         var refreshToken = new RefreshToken
         {
