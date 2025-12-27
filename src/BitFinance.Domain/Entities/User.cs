@@ -10,6 +10,5 @@ public class User : IdentityUser
     public List<Organization> Organizations { get; } = [];
     public UserSettings Settings { get; set; } = new();
     
-    [NotMapped]
     public string FullName => $"{FirstName} {LastName}";
 }

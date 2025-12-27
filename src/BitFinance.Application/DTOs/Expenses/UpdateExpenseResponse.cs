@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
 using BitFinance.Domain.Enums;
 
-namespace BitFinance.Application.DTOs;
+namespace BitFinance.Application.DTOs.Expenses;
 
 public record UpdateExpenseResponse(
     Guid Id,

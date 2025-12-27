@@ -1,4 +1,6 @@
-namespace BitFinance.Application.DTOs;
+using BitFinance.Application.DTOs.Common;
+
+namespace BitFinance.Application.DTOs.Organizations;
 
 public class GetOrganizationByIdResponse
 {

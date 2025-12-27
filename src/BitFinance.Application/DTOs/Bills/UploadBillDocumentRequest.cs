@@ -3,7 +3,7 @@ using BitFinance.Application.Attributes;
 using BitFinance.Domain.Enums;
 using Microsoft.AspNetCore.Http;
 
-namespace BitFinance.Application.DTOs;
+namespace BitFinance.Application.DTOs.Bills;
 
 public class UploadBillDocumentRequest
 {

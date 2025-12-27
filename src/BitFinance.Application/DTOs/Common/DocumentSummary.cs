@@ -1,6 +1,6 @@
 using BitFinance.Domain.Enums;
 
-namespace BitFinance.Application.DTOs;
+namespace BitFinance.Application.DTOs.Common;
 
 public record DocumentSummary
 {

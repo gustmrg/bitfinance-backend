@@ -1,6 +1,6 @@
 using BitFinance.Domain.Enums;
 
-namespace BitFinance.Application.DTOs;
+namespace BitFinance.Application.DTOs.Bills;
 
 public record UploadDocumentResponse
 {
@@ -8,5 +8,5 @@ public record UploadDocumentResponse
     public Guid BillId { get; set; }
     public string FileName { get; set; } = null!;
     public string ContentType { get; set; } = null!;
-    public DocumentType DocumentType { get; set; } 
+    public DocumentType DocumentType { get; set; }
 }

@@ -1,4 +1,4 @@
-namespace BitFinance.Application.DTOs;
+namespace BitFinance.Application.DTOs.Common;
 
 public class PagedResponse<T>(List<T> data, int page, int pageSize, int totalRecords, int totalPages)
 {
