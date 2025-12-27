@@ -31,4 +31,8 @@ public static class IdentityErrors
     public static Error UpdateFailed => Error.Failure(
         "Identity.UpdateFailed",
         "Failed to update user profile");
+
+    public static Error InvalidRefreshToken => Error.Unauthorized(
+        "Identity.InvalidRefreshToken",
+        "Invalid or expired refresh token");
 }

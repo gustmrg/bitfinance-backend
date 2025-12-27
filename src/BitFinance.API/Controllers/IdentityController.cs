@@ -40,6 +40,9 @@ public class IdentityController : ControllerBase
             request.FirstName,
             request.LastName);
 
+        if (result.IsSuccess)
+            SetRefreshTokenCookie(result.Value.RefreshToken, result.Value.RefreshTokenExpiresAt);
+
         return result.ToActionResult(auth => new
         {
             accessToken = auth.AccessToken,
@@ -61,6 +64,9 @@ public class IdentityController : ControllerBase
             return BadRequest(ModelState);
 
         var result = await _identityService.LoginAsync(request.Email, request.Password);
+
+        if (result.IsSuccess)
+            SetRefreshTokenCookie(result.Value.RefreshToken, result.Value.RefreshTokenExpiresAt);
 
         return result.ToActionResult(auth => new
         {
@@ -100,6 +106,33 @@ public class IdentityController : ControllerBase
         });
     }
     
+    [AllowAnonymous]
+    [HttpPost("refresh")]
+    public async Task<IActionResult> RefreshTokenAsync()
+    {
+        var refreshToken = Request.Cookies["refreshToken"];
+
+        if (string.IsNullOrEmpty(refreshToken))
+            return Unauthorized(new { message = "Refresh token not found" });
+
+        var result = await _identityService.RefreshTokenAsync(refreshToken);
+
+        if (result.IsSuccess)
+            SetRefreshTokenCookie(result.Value.RefreshToken, result.Value.RefreshTokenExpiresAt);
+
+        return result.ToActionResult(auth => new
+        {
+            accessToken = auth.AccessToken,
+            expiresIn = auth.ExpiresAt,
+            user = new
+            {
+                id = auth.UserId,
+                email = auth.Email,
+                userName = auth.UserName
+            }
+        });
+    }
+
     [HttpPost("manage/profile")]
     public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequest model)
     {
@@ -128,6 +161,51 @@ public class IdentityController : ControllerBase
         });
     }
 
+    [HttpPost("manage/password")]
+    public async Task<IActionResult> ChangePasswordAsync([FromBody] ChangePasswordRequest request)
+    {
+        var userId = User.Claims.FirstOrDefault(a => a.Type == ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(userId))
+            return BadRequest("Invalid user");
+
+        var result = await _identityService.ChangePasswordAsync(
+            userId,
+            request.CurrentPassword,
+            request.NewPassword);
+
+        return result.ToNoContentResult();
+    }
+
+    [HttpPost("logout")]
+    public async Task<IActionResult> LogoutAsync()
+    {
+        var refreshToken = Request.Cookies["refreshToken"];
+
+        if (!string.IsNullOrEmpty(refreshToken))
+            await _identityService.LogoutAsync(refreshToken);
+
+        Response.Cookies.Delete("refreshToken", new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict
+        });
+
+        return NoContent();
+    }
+
     private static string ReplaceUserName(string? email)
         => string.IsNullOrEmpty(email) ? string.Empty : email.Split('@')[0];
+
+    private void SetRefreshTokenCookie(string refreshToken, DateTime expiresAt)
+    {
+        Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = expiresAt
+        });
+    }
 }

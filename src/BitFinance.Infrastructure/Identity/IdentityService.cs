@@ -15,6 +15,7 @@ public class IdentityService : IIdentityService
     private readonly SignInManager<User> _signInManager;
     private readonly ITokenService _tokenService;
     private readonly IUsersRepository _usersRepository;
+    private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly IConfiguration _configuration;
     private readonly ILogger<IdentityService> _logger;
 
@@ -23,6 +24,7 @@ public class IdentityService : IIdentityService
         SignInManager<User> signInManager,
         ITokenService tokenService,
         IUsersRepository usersRepository,
+        IRefreshTokenRepository refreshTokenRepository,
         IConfiguration configuration,
         ILogger<IdentityService> logger)
     {
@@ -30,6 +32,7 @@ public class IdentityService : IIdentityService
         _signInManager = signInManager;
         _tokenService = tokenService;
         _usersRepository = usersRepository;
+        _refreshTokenRepository = refreshTokenRepository;
         _configuration = configuration;
         _logger = logger;
     }
@@ -64,7 +67,7 @@ public class IdentityService : IIdentityService
 
         await _signInManager.SignInAsync(user, isPersistent: false);
 
-        return CreateAuthenticationResult(user);
+        return await CreateAuthenticationResultAsync(user);
     }
 
     public async Task<Result<AuthenticationResult>> LoginAsync(string email, string password)
@@ -91,7 +94,7 @@ public class IdentityService : IIdentityService
 
         _logger.LogInformation("User logged in: {Email}", email);
 
-        return CreateAuthenticationResult(user);
+        return await CreateAuthenticationResultAsync(user);
     }
 
     public async Task<Result<User>> GetCurrentUserAsync(string userId)
@@ -140,18 +143,68 @@ public class IdentityService : IIdentityService
             return IdentityErrors.PasswordTooWeak(errors);
         }
 
+        await _refreshTokenRepository.RevokeAllForUserAsync(userId);
+        _logger.LogInformation("Password changed and all tokens revoked for user: {UserId}", userId);
+
         return Result.Success();
     }
 
-    private AuthenticationResult CreateAuthenticationResult(User user)
+    public async Task<Result<AuthenticationResult>> RefreshTokenAsync(string refreshToken)
     {
-        var token = _tokenService.GenerateToken(user);
-        var expiresAt = DateTime.UtcNow.AddMinutes(
+        var hashedToken = _tokenService.HashToken(refreshToken);
+        var storedToken = await _refreshTokenRepository.GetByTokenAsync(hashedToken);
+
+        if (storedToken is null || !storedToken.IsActive)
+            return IdentityErrors.InvalidRefreshToken;
+
+        var user = storedToken.User;
+
+        await _refreshTokenRepository.RevokeAsync(storedToken);
+
+        _logger.LogInformation("Token refreshed for user: {UserId}", user.Id);
+
+        return await CreateAuthenticationResultAsync(user);
+    }
+
+    public async Task<Result> LogoutAsync(string refreshToken)
+    {
+        var hashedToken = _tokenService.HashToken(refreshToken);
+        var storedToken = await _refreshTokenRepository.GetByTokenAsync(hashedToken);
+
+        if (storedToken is not null && storedToken.IsActive)
+        {
+            await _refreshTokenRepository.RevokeAsync(storedToken);
+            _logger.LogInformation("User logged out: {UserId}", storedToken.UserId);
+        }
+
+        return Result.Success();
+    }
+
+    private async Task<AuthenticationResult> CreateAuthenticationResultAsync(User user)
+    {
+        var accessToken = _tokenService.GenerateAccessToken(user);
+        var accessTokenExpiresAt = DateTime.UtcNow.AddMinutes(
             Convert.ToInt32(_configuration["Jwt:ExpirationInMinutes"]));
 
+        var rawRefreshToken = _tokenService.GenerateRefreshToken();
+        var hashedRefreshToken = _tokenService.HashToken(rawRefreshToken);
+        var refreshTokenExpiresAt = DateTime.UtcNow.AddDays(
+            Convert.ToInt32(_configuration["Jwt:RefreshTokenExpirationInDays"] ?? "7"));
+
+        var refreshToken = new RefreshToken
+        {
+            Token = hashedRefreshToken,
+            UserId = user.Id,
+            ExpiresAt = refreshTokenExpiresAt
+        };
+
+        await _refreshTokenRepository.CreateAsync(refreshToken);
+
         return new AuthenticationResult(
-            token,
-            expiresAt,
+            accessToken,
+            accessTokenExpiresAt,
+            rawRefreshToken,
+            refreshTokenExpiresAt,
             user.Id,
             user.Email ?? string.Empty,
             user.UserName ?? string.Empty);

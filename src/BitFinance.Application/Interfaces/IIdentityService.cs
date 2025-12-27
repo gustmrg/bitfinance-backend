@@ -26,11 +26,17 @@ public interface IIdentityService
         string userId,
         string currentPassword,
         string newPassword);
+
+    Task<Result<AuthenticationResult>> RefreshTokenAsync(string refreshToken);
+
+    Task<Result> LogoutAsync(string refreshToken);
 }
 
 public record AuthenticationResult(
     string AccessToken,
     DateTime ExpiresAt,
+    string RefreshToken,
+    DateTime RefreshTokenExpiresAt,
     string UserId,
     string Email,
     string UserName);

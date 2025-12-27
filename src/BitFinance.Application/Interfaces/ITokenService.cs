@@ -4,5 +4,7 @@ namespace BitFinance.Application.Interfaces;
 
 public interface ITokenService
 {
-    string GenerateToken(User user);
+    string GenerateAccessToken(User user);
+    string GenerateRefreshToken();
+    string HashToken(string rawToken);
 }
