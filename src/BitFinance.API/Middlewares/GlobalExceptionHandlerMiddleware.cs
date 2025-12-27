@@ -1,6 +1,6 @@
 using System.Net;
 using System.Text.Json;
-using BitFinance.Application.DTOs;
+using BitFinance.Application.DTOs.Common;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BitFinance.API.Middlewares;

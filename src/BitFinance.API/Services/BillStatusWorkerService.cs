@@ -123,7 +123,7 @@ public class BillStatusWorkerService : BackgroundService
             await billsRepository.UpdateRangeAsync(billsToUpdate);
             
             _logger.LogInformation("Updated {BillCount} bills for organization {OrgId} ({OrgName}) in timezone {TimeZone}",
-                billsToUpdate.Count, organization.Id, organization.Name, organization.TimeZone.Value);
+                billsToUpdate.Count, organization.Id, organization.Name, organization.TimeZoneId);
         }
         
         return billsToUpdate.Count;
@@ -148,7 +148,7 @@ public class BillStatusWorkerService : BackgroundService
         await billsRepository.UpdateRangeAsync(billsToUpdate);
             
         _logger.LogInformation("Updated {BillCount} bills for organization {OrgId} ({OrgName}) in timezone {TimeZone}",
-            billsToUpdate.Count, organization.Id, organization.Name, organization.TimeZone.Value);
+            billsToUpdate.Count, organization.Id, organization.Name, organization.TimeZoneId);
 
         return billsToUpdate.Count;
     }

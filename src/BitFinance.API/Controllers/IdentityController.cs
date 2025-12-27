@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using Asp.Versioning;
-using BitFinance.Application.DTOs;
+using BitFinance.Application.DTOs.Common;
+using BitFinance.Application.DTOs.Identity;
+using BitFinance.Application.DTOs.Organizations;
 using BitFinance.Application.Interfaces;
 using BitFinance.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
