@@ -37,18 +37,18 @@ public class ExpenseConfiguration : IEntityTypeConfiguration<Expense>
 
         builder.Property(x => x.CreatedAt)
             .HasColumnName("created_at")
-            .HasColumnType("timestampz")
+            .HasColumnType("timestamp with time zone")
             .HasPrecision(3)
             .IsRequired();
         
         builder.Property(x => x.UpdatedAt)
             .HasColumnName("updated_at")
-            .HasColumnType("timestampz")
+            .HasColumnType("timestamp with time zone")
             .HasPrecision(3);
         
         builder.Property(x => x.DeletedAt)
             .HasColumnName("deleted_at")
-            .HasColumnType("timestampz")
+            .HasColumnType("timestamp with time zone")
             .HasPrecision(3);
         
         builder.HasOne(x => x.Organization)
@@ -60,9 +60,12 @@ public class ExpenseConfiguration : IEntityTypeConfiguration<Expense>
             .WithMany()
             .HasForeignKey(x => x.CreatedByUserId)
             .OnDelete(DeleteBehavior.Restrict);
-        
+
+        builder.HasIndex(e => e.OrganizationId);
+        builder.HasIndex(e => e.CreatedByUserId);
+
         builder.HasQueryFilter(e => e.DeletedAt == null);
-        
+
         builder.ToTable("expenses");
     }
 }

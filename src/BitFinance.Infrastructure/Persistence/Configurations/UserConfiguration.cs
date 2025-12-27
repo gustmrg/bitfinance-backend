@@ -8,6 +8,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)
     {
+        builder.Ignore(u => u.FullName);
+            
         builder.HasOne(u => u.Settings)
             .WithOne(s => s.User)
             .HasForeignKey<UserSettings>(s => s.UserId);

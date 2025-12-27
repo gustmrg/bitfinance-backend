@@ -35,7 +35,7 @@ public class BillConfiguration : IEntityTypeConfiguration<Bill>
         
         builder.Property(b => b.PaymentDate)
             .HasColumnName("payment_date")
-            .HasColumnType("timestampz")
+            .HasColumnType("timestamp with time zone")
             .HasPrecision(3);
         
         builder.OwnsOne(b => b.AmountDue, money =>
@@ -60,19 +60,23 @@ public class BillConfiguration : IEntityTypeConfiguration<Bill>
         
         builder.Property(b => b.CreatedAt)
             .HasColumnName("created_at")
-            .HasColumnType("timestampz")
+            .HasColumnType("timestamp with time zone")
             .HasPrecision(3)
             .IsRequired();
         
         builder.Property(b => b.UpdatedAt)
             .HasColumnName("updated_at")
-            .HasColumnType("timestampz")
+            .HasColumnType("timestamp with time zone")
             .HasPrecision(3);
         
         builder.Property(b => b.DeletedAt)
             .HasColumnName("deleted_at")
-            .HasColumnType("timestampz")
+            .HasColumnType("timestamp with time zone")
             .HasPrecision(3);
+
+        builder.HasIndex(b => b.OrganizationId);
+
+        builder.HasQueryFilter(b => b.DeletedAt == null);
 
         builder.ToTable("bills");
     }
