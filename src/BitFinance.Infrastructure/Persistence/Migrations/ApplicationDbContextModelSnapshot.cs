@@ -17,25 +17,17 @@ namespace BitFinance.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.4")
+                .HasAnnotation("ProductVersion", "10.0.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("BitFinance.Business.Entities.Bill", b =>
+            modelBuilder.Entity("BitFinance.Domain.Entities.Bill", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
-
-                    b.Property<decimal>("AmountDue")
-                        .HasColumnType("numeric(10,2)")
-                        .HasColumnName("amount_due");
-
-                    b.Property<decimal?>("AmountPaid")
-                        .HasColumnType("numeric(10,2)")
-                        .HasColumnName("amount_paid");
 
                     b.Property<string>("Category")
                         .IsRequired()
@@ -44,12 +36,12 @@ namespace BitFinance.Infrastructure.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasPrecision(3)
-                        .HasColumnType("timestampz")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasPrecision(3)
-                        .HasColumnType("timestampz")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
                     b.Property<string>("Description")
@@ -67,7 +59,7 @@ namespace BitFinance.Infrastructure.Migrations
 
                     b.Property<DateTimeOffset?>("PaymentDate")
                         .HasPrecision(3)
-                        .HasColumnType("timestampz")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("payment_date");
 
                     b.Property<string>("Status")
@@ -77,7 +69,7 @@ namespace BitFinance.Infrastructure.Migrations
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasPrecision(3)
-                        .HasColumnType("timestampz")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
                     b.HasKey("Id")
@@ -89,7 +81,7 @@ namespace BitFinance.Infrastructure.Migrations
                     b.ToTable("bills", (string)null);
                 });
 
-            modelBuilder.Entity("BitFinance.Business.Entities.BillDocument", b =>
+            modelBuilder.Entity("BitFinance.Domain.Entities.BillDocument", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -102,23 +94,27 @@ namespace BitFinance.Infrastructure.Migrations
 
                     b.Property<string>("ContentType")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("content_type");
 
                     b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasPrecision(3)
+                        .HasColumnType("timestamptz")
                         .HasColumnName("deleted_at");
 
                     b.Property<string>("Description")
                         .HasColumnType("text")
                         .HasColumnName("description");
 
-                    b.Property<int>("DocumentType")
-                        .HasColumnType("integer")
+                    b.Property<string>("DocumentType")
+                        .IsRequired()
+                        .HasColumnType("text")
                         .HasColumnName("document_type");
 
                     b.Property<string>("FileHash")
-                        .HasColumnType("text")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
                         .HasColumnName("file_hash");
 
                     b.Property<string>("FileName")
@@ -140,12 +136,14 @@ namespace BitFinance.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("storage_path");
 
-                    b.Property<int>("StorageProvider")
-                        .HasColumnType("integer")
+                    b.Property<string>("StorageProvider")
+                        .IsRequired()
+                        .HasColumnType("text")
                         .HasColumnName("storage_provider");
 
                     b.Property<DateTime>("UploadedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasPrecision(3)
+                        .HasColumnType("timestamptz")
                         .HasColumnName("uploaded_at");
 
                     b.Property<Guid?>("UploadedByUserId")
@@ -161,16 +159,12 @@ namespace BitFinance.Infrastructure.Migrations
                     b.ToTable("bill_documents", (string)null);
                 });
 
-            modelBuilder.Entity("BitFinance.Business.Entities.Expense", b =>
+            modelBuilder.Entity("BitFinance.Domain.Entities.Expense", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("numeric(10,2)")
-                        .HasColumnName("amount");
 
                     b.Property<string>("Category")
                         .IsRequired()
@@ -179,7 +173,7 @@ namespace BitFinance.Infrastructure.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasPrecision(3)
-                        .HasColumnType("timestampz")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
                     b.Property<string>("CreatedByUserId")
@@ -189,7 +183,7 @@ namespace BitFinance.Infrastructure.Migrations
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasPrecision(3)
-                        .HasColumnType("timestampz")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
                     b.Property<string>("Description")
@@ -211,7 +205,7 @@ namespace BitFinance.Infrastructure.Migrations
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasPrecision(3)
-                        .HasColumnType("timestampz")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
                     b.HasKey("Id")
@@ -226,7 +220,7 @@ namespace BitFinance.Infrastructure.Migrations
                     b.ToTable("expenses", (string)null);
                 });
 
-            modelBuilder.Entity("BitFinance.Business.Entities.Organization", b =>
+            modelBuilder.Entity("BitFinance.Domain.Entities.Organization", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -235,12 +229,12 @@ namespace BitFinance.Infrastructure.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasPrecision(3)
-                        .HasColumnType("timestampz")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasPrecision(3)
-                        .HasColumnType("timestampz")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
                     b.Property<string>("Name")
@@ -250,13 +244,15 @@ namespace BitFinance.Infrastructure.Migrations
 
                     b.Property<string>("TimeZoneId")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasDefaultValue("America/Sao_Paulo")
                         .HasColumnName("timezone_id");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasPrecision(3)
-                        .HasColumnType("timestampz")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
                     b.HasKey("Id")
@@ -265,7 +261,7 @@ namespace BitFinance.Infrastructure.Migrations
                     b.ToTable("organizations", (string)null);
                 });
 
-            modelBuilder.Entity("BitFinance.Business.Entities.OrganizationInvite", b =>
+            modelBuilder.Entity("BitFinance.Domain.Entities.OrganizationInvite", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -273,15 +269,19 @@ namespace BitFinance.Infrastructure.Migrations
                         .HasColumnName("id");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasPrecision(3)
+                        .HasColumnType("timestamptz")
                         .HasColumnName("created_at");
 
                     b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasPrecision(3)
+                        .HasColumnType("timestamptz")
                         .HasColumnName("expires_at");
 
                     b.Property<bool>("IsUsed")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
+                        .HasDefaultValue(false)
                         .HasColumnName("is_used");
 
                     b.Property<Guid>("OrganizationId")
@@ -291,10 +291,12 @@ namespace BitFinance.Infrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("pk_organization_invites");
 
+                    b.HasIndex("OrganizationId");
+
                     b.ToTable("organization_invites", (string)null);
                 });
 
-            modelBuilder.Entity("BitFinance.Business.Entities.User", b =>
+            modelBuilder.Entity("BitFinance.Domain.Entities.User", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text")
@@ -384,7 +386,7 @@ namespace BitFinance.Infrastructure.Migrations
                     b.ToTable("asp_net_users", (string)null);
                 });
 
-            modelBuilder.Entity("BitFinance.Business.Entities.UserSettings", b =>
+            modelBuilder.Entity("BitFinance.Domain.Entities.UserSettings", b =>
                 {
                     b.Property<string>("UserId")
                         .HasColumnType("text")
@@ -597,24 +599,75 @@ namespace BitFinance.Infrastructure.Migrations
                     b.HasIndex("OrganizationsId")
                         .HasDatabaseName("ix_organization_user_organizations_id");
 
-                    b.ToTable("organization_user", (string)null);
+                    b.ToTable("organization_user");
                 });
 
-            modelBuilder.Entity("BitFinance.Business.Entities.Bill", b =>
+            modelBuilder.Entity("BitFinance.Domain.Entities.Bill", b =>
                 {
-                    b.HasOne("BitFinance.Business.Entities.Organization", "Organization")
+                    b.HasOne("BitFinance.Domain.Entities.Organization", "Organization")
                         .WithMany("Bills")
                         .HasForeignKey("OrganizationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_bills_organizations_organization_id");
 
+                    b.OwnsOne("BitFinance.Domain.ValueObjects.Money", "AmountDue", b1 =>
+                        {
+                            b1.Property<Guid>("BillId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("numeric(10,2)")
+                                .HasColumnName("amount_due");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .HasMaxLength(3)
+                                .HasColumnType("character varying(3)")
+                                .HasColumnName("amount_due_currency");
+
+                            b1.HasKey("BillId");
+
+                            b1.ToTable("money");
+
+                            b1.WithOwner()
+                                .HasForeignKey("BillId");
+                        });
+
+                    b.OwnsOne("BitFinance.Domain.ValueObjects.Money", "AmountPaid", b1 =>
+                        {
+                            b1.Property<Guid>("BillId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("numeric(10,2)")
+                                .HasColumnName("amount_paid");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .HasMaxLength(3)
+                                .HasColumnType("character varying(3)")
+                                .HasColumnName("amount_paid_currency");
+
+                            b1.HasKey("BillId");
+
+                            b1.ToTable("bills");
+
+                            b1.WithOwner()
+                                .HasForeignKey("BillId");
+                        });
+
+                    b.Navigation("AmountDue")
+                        .IsRequired();
+
+                    b.Navigation("AmountPaid");
+
                     b.Navigation("Organization");
                 });
 
-            modelBuilder.Entity("BitFinance.Business.Entities.BillDocument", b =>
+            modelBuilder.Entity("BitFinance.Domain.Entities.BillDocument", b =>
                 {
-                    b.HasOne("BitFinance.Business.Entities.Bill", "Bill")
+                    b.HasOne("BitFinance.Domain.Entities.Bill", "Bill")
                         .WithMany("Documents")
                         .HasForeignKey("BillId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -624,32 +677,69 @@ namespace BitFinance.Infrastructure.Migrations
                     b.Navigation("Bill");
                 });
 
-            modelBuilder.Entity("BitFinance.Business.Entities.Expense", b =>
+            modelBuilder.Entity("BitFinance.Domain.Entities.Expense", b =>
                 {
-                    b.HasOne("BitFinance.Business.Entities.User", "CreatedByUser")
+                    b.HasOne("BitFinance.Domain.Entities.User", "CreatedByUser")
                         .WithMany()
                         .HasForeignKey("CreatedByUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_expenses_asp_net_users_created_by_user_id");
 
-                    b.HasOne("BitFinance.Business.Entities.Organization", "Organization")
+                    b.HasOne("BitFinance.Domain.Entities.Organization", "Organization")
                         .WithMany("Expenses")
                         .HasForeignKey("OrganizationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_expenses_organizations_organization_id");
 
+                    b.OwnsOne("BitFinance.Domain.ValueObjects.Money", "Amount", b1 =>
+                        {
+                            b1.Property<Guid>("ExpenseId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("numeric(10,2)")
+                                .HasColumnName("amount");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .ValueGeneratedOnAdd()
+                                .HasMaxLength(3)
+                                .HasColumnType("character varying(3)")
+                                .HasDefaultValue("BRL")
+                                .HasColumnName("amount_currency");
+
+                            b1.HasKey("ExpenseId");
+
+                            b1.ToTable("expenses");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ExpenseId");
+                        });
+
+                    b.Navigation("Amount")
+                        .IsRequired();
+
                     b.Navigation("CreatedByUser");
 
                     b.Navigation("Organization");
                 });
 
-            modelBuilder.Entity("BitFinance.Business.Entities.UserSettings", b =>
+            modelBuilder.Entity("BitFinance.Domain.Entities.OrganizationInvite", b =>
                 {
-                    b.HasOne("BitFinance.Business.Entities.User", "User")
+                    b.HasOne("BitFinance.Domain.Entities.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BitFinance.Domain.Entities.UserSettings", b =>
+                {
+                    b.HasOne("BitFinance.Domain.Entities.User", "User")
                         .WithOne("Settings")
-                        .HasForeignKey("BitFinance.Business.Entities.UserSettings", "UserId")
+                        .HasForeignKey("BitFinance.Domain.Entities.UserSettings", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_user_settings_asp_net_users_user_id");
@@ -669,7 +759,7 @@ namespace BitFinance.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("BitFinance.Business.Entities.User", null)
+                    b.HasOne("BitFinance.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -679,7 +769,7 @@ namespace BitFinance.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("BitFinance.Business.Entities.User", null)
+                    b.HasOne("BitFinance.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -696,7 +786,7 @@ namespace BitFinance.Infrastructure.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_asp_net_user_roles_asp_net_roles_role_id");
 
-                    b.HasOne("BitFinance.Business.Entities.User", null)
+                    b.HasOne("BitFinance.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -706,7 +796,7 @@ namespace BitFinance.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("BitFinance.Business.Entities.User", null)
+                    b.HasOne("BitFinance.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -716,14 +806,14 @@ namespace BitFinance.Infrastructure.Migrations
 
             modelBuilder.Entity("OrganizationUser", b =>
                 {
-                    b.HasOne("BitFinance.Business.Entities.User", null)
+                    b.HasOne("BitFinance.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("MembersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_organization_user_asp_net_users_members_id");
 
-                    b.HasOne("BitFinance.Business.Entities.Organization", null)
+                    b.HasOne("BitFinance.Domain.Entities.Organization", null)
                         .WithMany()
                         .HasForeignKey("OrganizationsId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -731,19 +821,19 @@ namespace BitFinance.Infrastructure.Migrations
                         .HasConstraintName("fk_organization_user_organizations_organizations_id");
                 });
 
-            modelBuilder.Entity("BitFinance.Business.Entities.Bill", b =>
+            modelBuilder.Entity("BitFinance.Domain.Entities.Bill", b =>
                 {
                     b.Navigation("Documents");
                 });
 
-            modelBuilder.Entity("BitFinance.Business.Entities.Organization", b =>
+            modelBuilder.Entity("BitFinance.Domain.Entities.Organization", b =>
                 {
                     b.Navigation("Bills");
 
                     b.Navigation("Expenses");
                 });
 
-            modelBuilder.Entity("BitFinance.Business.Entities.User", b =>
+            modelBuilder.Entity("BitFinance.Domain.Entities.User", b =>
                 {
                     b.Navigation("Settings")
                         .IsRequired();

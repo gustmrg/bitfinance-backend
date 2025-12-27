@@ -1,5 +1,6 @@
 using BitFinance.API.Middlewares;
 using Microsoft.AspNetCore.HttpOverrides;
+using Scalar.AspNetCore;
 
 namespace BitFinance.API.Extensions;
 
@@ -33,8 +34,14 @@ public static class MiddlewareExtensions
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.UseSwagger();
-        app.UseSwaggerUI();
+        app.MapOpenApi();
+        app.MapScalarApiReference(options =>
+        {
+            options.WithTitle("BitFinance API")
+                   .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
+                   .AddPreferredSecuritySchemes(["Bearer"]);
+        });
+
         app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
         if (app.Environment.IsDevelopment())

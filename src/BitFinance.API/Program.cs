@@ -10,7 +10,7 @@ builder.Services.AddDatabaseContext(builder.Configuration);
 builder.Services.AddDependencyInjection();
 builder.Services.AddCaching(builder.Configuration);
 builder.Services.AddApiDocumentation();
-builder.Services.AddHttpLogging();
+builder.Services.AddCustomHttpLogging();
 
 builder.Host.AddLogging(builder.Configuration);
 
