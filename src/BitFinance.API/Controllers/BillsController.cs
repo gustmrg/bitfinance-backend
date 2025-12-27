@@ -1,16 +1,15 @@
-using System.ComponentModel;
 using System.Globalization;
 using System.Security.Claims;
 using Asp.Versioning;
 using BitFinance.API.Attributes;
-using BitFinance.API.Models;
-using BitFinance.API.Models.Request;
-using BitFinance.API.Models.Response;
-using BitFinance.API.Services.Interfaces;
-using BitFinance.Business.Entities;
-using BitFinance.Business.Enums;
-using BitFinance.Data.Contexts;
-using BitFinance.Data.Repositories.Interfaces;
+using BitFinance.Application.DTOs.Bills;
+using BitFinance.Application.DTOs.Common;
+using BitFinance.Application.Interfaces;
+using BitFinance.Domain.Entities;
+using BitFinance.Domain.Enums;
+using BitFinance.Domain.Interfaces.Repositories;
+using BitFinance.Domain.ValueObjects;
+using BitFinance.Infrastructure.Persistence.Contexts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -67,8 +66,8 @@ public class BillsController : ControllerBase
                 CreatedAt = DateTime.UtcNow,
                 DueDate = DateOnly.FromDateTime(request.DueDate.ToUniversalTime()),
                 PaymentDate = request.PaymentDate?.ToUniversalTime(),
-                AmountDue = request.AmountDue,
-                AmountPaid = request.AmountPaid,
+                AmountDue = new Money(request.AmountDue),
+                AmountPaid = request.AmountPaid.HasValue ? new Money(request.AmountPaid.Value) : null,
                 OrganizationId = organizationId,
             };
 
@@ -83,8 +82,8 @@ public class BillsController : ControllerBase
                 CreatedDate = bill.CreatedAt,
                 DueDate = DateTime.Parse(bill.DueDate.ToString()),
                 PaidDate = bill.PaymentDate,
-                AmountDue = bill.AmountDue,
-                AmountPaid = bill.AmountPaid
+                AmountDue = bill.AmountDue.Amount,
+                AmountPaid = bill.AmountPaid?.Amount
             };
             
             return CreatedAtAction(nameof(GetBillById), new
@@ -124,9 +123,9 @@ public class BillsController : ControllerBase
                     CreatedAt = bill.CreatedAt,
                     DueDate = DateTime.Parse(bill.DueDate.ToString()),
                     PaymentDate = bill.PaymentDate,
-                    AmountDue = bill.AmountDue,
-                    AmountPaid = bill.AmountPaid,
-                    Documents = bill.Documents.Select(doc => new DocumentResponseModel
+                    AmountDue = bill.AmountDue.Amount,
+                    AmountPaid = bill.AmountPaid?.Amount,
+                    Documents = bill.Documents.Select(doc => new DocumentSummary
                     {
                         Id = doc.Id,
                         FileName = doc.FileName,
@@ -175,9 +174,9 @@ public class BillsController : ControllerBase
                 CreatedAt = bill.CreatedAt,
                 DueDate = new DateTime(bill.DueDate, TimeOnly.MinValue),
                 PaymentDate = bill.PaymentDate,
-                AmountDue = bill.AmountDue,
-                AmountPaid = bill.AmountPaid,
-                Documents = bill.Documents.Select(doc => new DocumentResponseModel
+                AmountDue = bill.AmountDue.Amount,
+                AmountPaid = bill.AmountPaid?.Amount,
+                Documents = bill.Documents.Select(doc => new DocumentSummary
                 {
                     Id = doc.Id,
                     FileName = doc.FileName,
@@ -224,8 +223,8 @@ public class BillsController : ControllerBase
             bill.Status = status;
             bill.DueDate = DateOnly.FromDateTime(request.DueDate.ToUniversalTime());
             bill.PaymentDate = request.PaymentDate?.ToUniversalTime();
-            bill.AmountDue = request.AmountDue;
-            bill.AmountPaid = request.AmountPaid;
+            bill.AmountDue = new Money(request.AmountDue);
+            bill.AmountPaid = request.AmountPaid.HasValue ? new Money(request.AmountPaid.Value) : null;
 
             await _billsRepository.UpdateAsync(bill, 
                 b => b.Description, 
@@ -244,8 +243,8 @@ public class BillsController : ControllerBase
                 Status = bill.Status,
                 DueDate = new DateTime(bill.DueDate, TimeOnly.MinValue),
                 PaidDate = bill.PaymentDate,
-                AmountDue = bill.AmountDue,
-                AmountPaid = bill.AmountPaid
+                AmountDue = bill.AmountDue.Amount,
+                AmountPaid = bill.AmountPaid?.Amount
             };
         
             return Ok(response);

@@ -1,10 +1,12 @@
 using BitFinance.API.Middlewares;
 using BitFinance.API.Services;
-using BitFinance.API.Services.Interfaces;
-using BitFinance.Business.Interfaces;
-using BitFinance.Data.Caching;
-using BitFinance.Data.Repositories;
-using BitFinance.Data.Repositories.Interfaces;
+using BitFinance.Application.Interfaces;
+using BitFinance.Application.Services;
+using BitFinance.Domain.Interfaces.Repositories;
+using BitFinance.Infrastructure.Caching;
+using BitFinance.Infrastructure.FileStorage;
+using BitFinance.Infrastructure.Identity;
+using BitFinance.Infrastructure.Persistence.Repositories;
 using Microsoft.Extensions.Caching.Distributed;
 
 namespace BitFinance.API.Extensions;
@@ -16,6 +18,7 @@ public static class ServiceCollectionExtensions
         services.AddHostedService<BillStatusWorkerService>();
         
         services.AddScoped<IBillsRepository, BillsRepository>();
+        services.AddScoped<IBillDocumentsRepository, BillDocumentsRepository>();
         services.AddScoped<IOrganizationsRepository, OrganizationsRepository>();
         services.AddScoped<IUsersRepository, UsersRepository>();
         services.AddScoped<IExpensesRepository, ExpensesRepository>();

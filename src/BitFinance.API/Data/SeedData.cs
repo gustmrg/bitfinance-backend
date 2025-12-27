@@ -1,6 +1,7 @@
-using BitFinance.Business.Entities;
-using BitFinance.Business.Enums;
-using BitFinance.Data.Contexts;
+using BitFinance.Domain.Entities;
+using BitFinance.Domain.Enums;
+using BitFinance.Domain.ValueObjects;
+using BitFinance.Infrastructure.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
 
 namespace BitFinance.API.Data;
@@ -66,7 +67,7 @@ public static class SeedData
             CreatedAt = DateTime.UtcNow.AddHours(-3),
             DueDate = DateOnly.FromDateTime(DateTime.UtcNow),
             PaymentDate = null,
-            AmountDue = 120M,
+            AmountDue = new Money(120M),
             AmountPaid = null
         };
         
@@ -78,8 +79,8 @@ public static class SeedData
             CreatedAt = DateTime.UtcNow.AddHours(-3),
             DueDate = DateOnly.FromDateTime(DateTime.UtcNow),
             PaymentDate = DateTime.Now.ToUniversalTime().AddHours(-3),
-            AmountDue = 800M,
-            AmountPaid = 800M
+            AmountDue = new Money(800M),
+            AmountPaid = new Money(800M)
         };
         
         Bill bill3 = new()
@@ -90,8 +91,8 @@ public static class SeedData
             CreatedAt = DateTime.UtcNow.AddHours(-3),
             DueDate = DateOnly.FromDateTime(DateTime.UtcNow),
             PaymentDate = DateTime.UtcNow.AddHours(-3).AddDays(-2),
-            AmountDue = 500M,
-            AmountPaid = 500M
+            AmountDue = new Money(500M),
+            AmountPaid = new Money(500M)
         };
         
         Bill bill4 = new()
@@ -101,7 +102,7 @@ public static class SeedData
             Status = BillStatus.Due,
             CreatedAt = DateTime.UtcNow.AddHours(-3),
             DueDate = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(10),
-            AmountDue = 1000M
+            AmountDue = new Money(1000M)
         };
         
         Bill bill5 = new()
@@ -111,10 +112,10 @@ public static class SeedData
             Status = BillStatus.Due,
             CreatedAt = DateTime.UtcNow.AddHours(-3),
             DueDate = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(15),
-            AmountDue = 49.90M
+            AmountDue = new Money(49.90M)
         };
 
-        Bill bill6 = new() 
+        Bill bill6 = new()
         {
             Description = "Rent Payment",
             Category = BillCategory.Housing,
@@ -122,8 +123,8 @@ public static class SeedData
             CreatedAt = DateTime.UtcNow.AddHours(-3),
             DueDate = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(-2),
             PaymentDate = DateTime.UtcNow.AddHours(-3),
-            AmountDue = 2000M,
-            AmountPaid = 2000M
+            AmountDue = new Money(2000M),
+            AmountPaid = new Money(2000M)
         };
 
         Bill bill7 = new()
@@ -133,7 +134,7 @@ public static class SeedData
             Status = BillStatus.Cancelled,
             CreatedAt = DateTime.UtcNow.AddHours(-3),
             DueDate = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(20),
-            AmountDue = 250M
+            AmountDue = new Money(250M)
         };
         
         dbContext.AddRange(bill1, bill2, bill3, bill4, bill5, bill6, bill7);

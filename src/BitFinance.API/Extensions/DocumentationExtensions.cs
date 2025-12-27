@@ -1,6 +1,5 @@
 using Asp.Versioning;
-using BitFinance.API.Filters;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace BitFinance.API.Extensions;
 
@@ -10,20 +9,27 @@ public static class DocumentationExtensions
     {
         services.AddControllers();
         services.AddEndpointsApiExplorer();
-        
-        services.AddSwaggerGen(options =>
-        {
-            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-            {
-                In = ParameterLocation.Header,
-                Name = "Authorization",
-                Type = SecuritySchemeType.Http,
-                Scheme = "bearer",
-                BearerFormat = "JWT",
-                Description = "Enter 'Bearer' and then your token in the input below. Example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'."
-            });
 
-            options.OperationFilter<SecurityRequirementsOperationFilter>();
+        services.AddOpenApi(options =>
+        {
+            options.AddDocumentTransformer((document, _, _) =>
+            {
+                document.Info.Title = "BitFinance API";
+                document.Info.Version = "v1";
+                document.Info.Description = "API for BitFinance financial management application";
+
+                document.Components ??= new OpenApiComponents();
+                document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+                document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
+                {
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    Description = "Enter your JWT token"
+                };
+
+                return Task.CompletedTask;
+            });
         });
 
         services.AddApiVersioning(options =>
@@ -39,7 +45,7 @@ public static class DocumentationExtensions
             options.GroupNameFormat = "'v'V";
             options.SubstituteApiVersionInUrl = true;
         });
-        
+
         return services;
     }
 }

@@ -1,4 +1,4 @@
-using BitFinance.Data.Security.Interfaces;
+using BitFinance.Infrastructure.Security.Interfaces;
 
 namespace BitFinance.API.Middlewares;
 
