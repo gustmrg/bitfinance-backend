@@ -8,7 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace BitFinance.Infrastructure.Identity;
 
-public class TokenService(IConfiguration configuration) : ITokenService
+public class JwtTokenService(IConfiguration configuration) : ITokenService
 {
     public string GenerateToken(User user)
     {

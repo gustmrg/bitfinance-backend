@@ -27,7 +27,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUsersService, UsersService>();
         services.AddScoped<IBillsService, BillsService>();
         services.AddScoped<IExpensesService, ExpensesService>();
-        services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<ITokenService, JwtTokenService>();
+        services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IFileStorageService, LocalFileStorageService>();
         services.AddScoped<IFileValidationService, FileValidationService>();
         services.AddScoped<IBillDocumentService, BillDocumentService>();

@@ -1,12 +1,11 @@
 using System.Security.Claims;
 using Asp.Versioning;
+using BitFinance.API.Extensions;
 using BitFinance.Application.DTOs.Common;
 using BitFinance.Application.DTOs.Identity;
 using BitFinance.Application.DTOs.Organizations;
 using BitFinance.Application.Interfaces;
-using BitFinance.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BitFinance.API.Controllers;
@@ -14,150 +13,121 @@ namespace BitFinance.API.Controllers;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/identity")]
+[Authorize]
 public class IdentityController : ControllerBase
 {
-    private readonly IUsersService _usersService;
-    private readonly UserManager<User> _userManager;
-    private readonly SignInManager<User> _signInManager;
-    private readonly ITokenService _tokenService;
+    private readonly IIdentityService _identityService;
     private readonly ILogger<IdentityController> _logger;
-    private readonly IConfiguration _configuration;
 
-    public IdentityController(IUsersService usersService, UserManager<User> userManager, SignInManager<User> signInManager, ILogger<IdentityController> logger, ITokenService tokenService, IConfiguration configuration)
+    public IdentityController(
+        IIdentityService identityService,
+        ILogger<IdentityController> logger)
     {
-        _usersService = usersService;
-        _userManager = userManager;
-        _signInManager = signInManager;
+        _identityService = identityService;
         _logger = logger;
-        _tokenService = tokenService;
-        _configuration = configuration;
     }
-    
+
+    [AllowAnonymous]
     [HttpPost("register")]
-    public async Task<IActionResult> RegisterAsync([FromBody] RegisterRequest model)
+    public async Task<IActionResult> RegisterAsync([FromBody] RegisterRequest request)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var user = new User
+        var result = await _identityService.RegisterAsync(
+            request.Email,
+            request.Password,
+            request.FirstName,
+            request.LastName);
+
+        return result.ToActionResult(auth => new
         {
-            UserName = model.Email,
-            Email = model.Email,
-            FirstName = model.FirstName,
-            LastName = model.LastName
-        };
-        
-        var result = await _userManager.CreateAsync(user, model.Password);
-        
-        if (result.Succeeded)
-        {
-            _logger.LogInformation("User created a new account with password");
-            
-            await _signInManager.SignInAsync(user, isPersistent: false);
-            
-            var token = _tokenService.GenerateToken(user);
-            
-            return Ok(new
+            accessToken = auth.AccessToken,
+            expiresIn = auth.ExpiresAt,
+            user = new
             {
-                accessToken = token,
-                expiresIn = DateTime.UtcNow.AddMinutes(
-                    Convert.ToInt32(_configuration["Jwt:ExpirationInMinutes"])),
-                user = new
-                {
-                    id = user.Id,
-                    email = user.Email,
-                    userName = user.UserName
-                }
-            });
-        }
-        
-        return BadRequest(new { Errors = result.Errors });
+                id = auth.UserId,
+                email = auth.Email,
+                userName = auth.UserName
+            }
+        });
     }
 
+    [AllowAnonymous]
     [HttpPost("login")]
-    public async Task<IActionResult> LogInAsync([FromBody] LoginRequest model)
+    public async Task<IActionResult> LogInAsync([FromBody] LoginRequest request)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
-        
-        var user = await _userManager.FindByEmailAsync(model.Email);
-        
-        if (user == null)
-            return Unauthorized(new { message = "Invalid email or password" });
-        
-        var result = await _signInManager.PasswordSignInAsync(user, model.Password, false, lockoutOnFailure: true);
-        
-        if (result.Succeeded)
+
+        var result = await _identityService.LoginAsync(request.Email, request.Password);
+
+        return result.ToActionResult(auth => new
         {
-            _logger.LogInformation("User logged in: {Email}", model.Email);
-        
-            var token = _tokenService.GenerateToken(user);
-        
-            return Ok(new
+            accessToken = auth.AccessToken,
+            expiresIn = auth.ExpiresAt,
+            user = new
             {
-                accessToken = token,
-                expiresIn = DateTime.UtcNow.AddMinutes(Convert.ToInt32(_configuration["Jwt:ExpirationInMinutes"])),
-                user = new
-                {
-                    id = user.Id,
-                    email = user.Email,
-                    userName = user.UserName
-                }
-            });
-        }
-    
-        if (result.IsLockedOut)
-        {
-            _logger.LogWarning("User account locked out: {Email}", model.Email);
-            return StatusCode(StatusCodes.Status403Forbidden, new { message = "Account locked out" });
-        }
-    
-        return Unauthorized(new { message = "Invalid email or password" });
+                id = auth.UserId,
+                email = auth.Email,
+                userName = auth.UserName
+            }
+        });
     }
     
-    [Authorize]
     [HttpGet("me")]
     public async Task<IActionResult> GetMe()
     {
         var userId = User.Claims.FirstOrDefault(a => a.Type == ClaimTypes.NameIdentifier)?.Value;
 
-        if (string.IsNullOrEmpty(userId)) return BadRequest("Invalid user");
-            
-        var user = await _usersService.GetUserByIdAsync(userId);
-            
-        if (user == null) return BadRequest("Invalid user");
+        if (string.IsNullOrEmpty(userId))
+            return BadRequest("Invalid user");
 
-        List<OrganizationSummary> organizations = [];
-        organizations.AddRange(user.Organizations.Select(organization => new OrganizationSummary(organization.Id, organization.Name)));
+        var result = await _identityService.GetCurrentUserAsync(userId);
 
-        return Ok(new UserSummary(user.Id, user.FullName, user?.Email ?? string.Empty, ReplaceUserName(user?.UserName), organizations));
+        return result.ToActionResult(user =>
+        {
+            var organizations = user.Organizations
+                .Select(o => new OrganizationSummary(o.Id, o.Name))
+                .ToList();
+
+            return new UserSummary(
+                user.Id,
+                user.FullName,
+                user.Email ?? string.Empty,
+                ReplaceUserName(user.UserName),
+                organizations);
+        });
     }
-
-    [Authorize]
+    
     [HttpPost("manage/profile")]
     public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequest model)
     {
         var userId = User.Claims.FirstOrDefault(a => a.Type == ClaimTypes.NameIdentifier)?.Value;
 
-        if (string.IsNullOrEmpty(userId)) return BadRequest("Invalid user");
-            
-        var user = await _usersService.GetUserByIdAsync(userId);
-            
-        if (user == null) return BadRequest("Invalid user");
-        
-        user.FirstName = model.FirstName;
-        user.LastName = model.LastName;
-        
-        await  _usersService.UpdateUserAsync(user);
-        
-        List<OrganizationSummary> organizations = [];
-        organizations.AddRange(user.Organizations.Select(organization => new OrganizationSummary(organization.Id, organization.Name)));
+        if (string.IsNullOrEmpty(userId))
+            return BadRequest("Invalid user");
 
-        return Ok(new UserSummary(user.Id, user.FullName, user.Email ?? string.Empty, ReplaceUserName(user?.UserName), organizations));
+        var result = await _identityService.UpdateProfileAsync(
+            userId,
+            model.FirstName,
+            model.LastName);
+
+        return result.ToActionResult(user =>
+        {
+            var organizations = user.Organizations
+                .Select(o => new OrganizationSummary(o.Id, o.Name))
+                .ToList();
+
+            return new UserSummary(
+                user.Id,
+                user.FullName,
+                user.Email ?? string.Empty,
+                ReplaceUserName(user.UserName),
+                organizations);
+        });
     }
-    
+
     private static string ReplaceUserName(string? email)
-    {
-        return string.IsNullOrEmpty(email) ? string.Empty : email.Split('@')[0];
-    }
+        => string.IsNullOrEmpty(email) ? string.Empty : email.Split('@')[0];
 }
