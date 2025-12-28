@@ -206,6 +206,6 @@ public class IdentityService : IIdentityService
             refreshTokenExpiresAt,
             user.Id,
             user.Email ?? string.Empty,
-            user.UserName ?? string.Empty);
+            user.FullName);
     }
 }

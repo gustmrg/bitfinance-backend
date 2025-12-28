@@ -31,9 +31,6 @@ public class IdentityController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> RegisterAsync([FromBody] RegisterRequest request)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         var result = await _identityService.RegisterAsync(
             request.Email,
             request.Password,
@@ -51,7 +48,7 @@ public class IdentityController : ControllerBase
             {
                 id = auth.UserId,
                 email = auth.Email,
-                userName = auth.UserName
+                fullName = auth.FullName
             }
         });
     }
@@ -60,9 +57,6 @@ public class IdentityController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> LogInAsync([FromBody] LoginRequest request)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         var result = await _identityService.LoginAsync(request.Email, request.Password);
 
         if (result.IsSuccess)
@@ -76,11 +70,11 @@ public class IdentityController : ControllerBase
             {
                 id = auth.UserId,
                 email = auth.Email,
-                userName = auth.UserName
+                fullName = auth.FullName
             }
         });
     }
-    
+
     [HttpGet("me")]
     public async Task<IActionResult> GetMe()
     {
@@ -101,11 +95,10 @@ public class IdentityController : ControllerBase
                 user.Id,
                 user.FullName,
                 user.Email ?? string.Empty,
-                ReplaceUserName(user.UserName),
                 organizations);
         });
     }
-    
+
     [AllowAnonymous]
     [HttpPost("refresh")]
     public async Task<IActionResult> RefreshTokenAsync()
@@ -128,13 +121,13 @@ public class IdentityController : ControllerBase
             {
                 id = auth.UserId,
                 email = auth.Email,
-                userName = auth.UserName
+                fullName = auth.FullName
             }
         });
     }
 
     [HttpPost("manage/profile")]
-    public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequest model)
+    public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequest request)
     {
         var userId = User.Claims.FirstOrDefault(a => a.Type == ClaimTypes.NameIdentifier)?.Value;
 
@@ -143,8 +136,8 @@ public class IdentityController : ControllerBase
 
         var result = await _identityService.UpdateProfileAsync(
             userId,
-            model.FirstName,
-            model.LastName);
+            request.FirstName,
+            request.LastName);
 
         return result.ToActionResult(user =>
         {
@@ -156,7 +149,6 @@ public class IdentityController : ControllerBase
                 user.Id,
                 user.FullName,
                 user.Email ?? string.Empty,
-                ReplaceUserName(user.UserName),
                 organizations);
         });
     }
@@ -194,9 +186,6 @@ public class IdentityController : ControllerBase
 
         return NoContent();
     }
-
-    private static string ReplaceUserName(string? email)
-        => string.IsNullOrEmpty(email) ? string.Empty : email.Split('@')[0];
 
     private void SetRefreshTokenCookie(string refreshToken, DateTime expiresAt)
     {

@@ -8,6 +8,9 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\BitFinance.Domain\BitFinance.Domain.csproj" />
   </ItemGroup>
 </Project>

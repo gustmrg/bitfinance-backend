@@ -39,4 +39,4 @@ public record AuthenticationResult(
     DateTime RefreshTokenExpiresAt,
     string UserId,
     string Email,
-    string UserName);
+    string FullName);

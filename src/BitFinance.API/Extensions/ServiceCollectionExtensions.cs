@@ -1,5 +1,6 @@
 using BitFinance.API.Middlewares;
 using BitFinance.API.Services;
+using BitFinance.Application;
 using BitFinance.Application.Interfaces;
 using BitFinance.Application.Services;
 using BitFinance.Domain.Interfaces.Repositories;
@@ -8,6 +9,7 @@ using BitFinance.Infrastructure.FileStorage;
 using BitFinance.Infrastructure.Identity;
 using BitFinance.Infrastructure.Persistence.Repositories;
 using Microsoft.Extensions.Caching.Distributed;
+using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 
 namespace BitFinance.API.Extensions;
 
@@ -15,6 +17,8 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddDependencyInjection(this IServiceCollection services)
     {
+        services.AddApplication();
+        services.AddFluentValidationAutoValidation();
         services.AddHostedService<BillStatusWorkerService>();
         
         services.AddScoped<IBillsRepository, BillsRepository>();
