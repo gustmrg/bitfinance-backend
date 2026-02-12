@@ -45,8 +45,6 @@ jobs:
           tags: |
             # For releases: use release tag (e.g., v1.7.0 -> 1.7.0)
             type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
             # For workflow_dispatch: use input tag
             type=raw,value=${{ github.event.inputs.tag }},enable=${{ github.event_name == 'workflow_dispatch' }}
             # Always tag as latest for releases
