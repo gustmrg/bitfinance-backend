@@ -1,54 +1,73 @@
-﻿services:
+services:
   bitfinance-api:
-    image: gustmrg/bitfinance-backend:1.6.1
+    build:
+      context: ./src
+      dockerfile: BitFinance.API/Dockerfile
+      args:
+        BUILD_CONFIGURATION: Debug
+    image: bitfinance-backend:dev
+    container_name: bitfinance-api-dev
     ports:
       - "8080:8080"
       - "8081:8081"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080;http://+:8081
-      - ConnectionStrings__Database=Host=bitfinance-db;Port=5432;Database=bitfinance;Username=postgres;Password=postgres
-      - ConnectionStrings__Cache=bitfinance-cache:6379
-      - AppSettings__CacheEnabled=false
+      - ConnectionStrings__Database=Host=bitfinance-db;Port=5432;Database=${DB_NAME:-bitfinance};Username=${DB_USER:-postgres};Password=${DB_PASSWORD:-postgres}
+      - ConnectionStrings__Cache=${REDIS_CONNECTION_STRING:-bitfinance-cache:6379}
+      - AppSettings__CacheEnabled=${CACHE_ENABLED:-false}
       - AppSettings__LoggingEnabled=true
-      - Logging__LogLevel__Default=Information
-      - Logging__LogLevel__Microsoft.AspNetCore=Warning
-      - Jwt__Key=5334ac0df952a081aec3929438b144c23d34806aa9e2df4768f68f41cd9f6351
-      - Jwt__Issuer=bitfinance
-      - Jwt__Audience=bitfinance
-      - Jwt__ExpirationInMinutes=2880
+      - Logging__LogLevel__Default=Debug
+      - Logging__LogLevel__Microsoft.AspNetCore=Information
+      - Jwt__Key=${JWT_KEY:-development-key-must-be-at-least-32-characters-long}
+      - Jwt__Issuer=${JWT_ISSUER:-bitfinance-dev}
+      - Jwt__Audience=${JWT_AUDIENCE:-bitfinance-dev}
+      - Jwt__ExpirationInMinutes=${JWT_EXPIRATION:-2880}
       - Storage__LocalPath=/app/documents
     restart: unless-stopped
     networks:
       - bitfinance-network
     depends_on:
-      bitfinance-db: 
+      bitfinance-db:
         condition: service_healthy
     volumes:
       - api-logs:/app/logs
       - document-storage:/app/documents
-    healthcheck:
-      test: [ "CMD", "dotnet", "--info" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    develop:
+      watch:
+        - action: rebuild
+          path: ./src
 
   bitfinance-db:
     image: postgres:17-alpine
+    container_name: bitfinance-db-dev
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=bitfinance
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}
+      - POSTGRES_DB=${DB_NAME:-bitfinance}
     volumes:
-      - data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
     networks:
       - bitfinance-network
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d postgres" ]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-bitfinance}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  bitfinance-cache:
+    image: redis:7-alpine
+    container_name: bitfinance-cache-dev
+    ports:
+      - "6379:6379"
+    networks:
+      - bitfinance-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -58,6 +77,6 @@ networks:
     driver: bridge
 
 volumes:
-  data:
+  postgres-data:
   api-logs:
   document-storage:

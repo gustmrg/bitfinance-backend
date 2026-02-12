@@ -1,5 +1,6 @@
 using BitFinance.API.Middlewares;
 using Microsoft.AspNetCore.HttpOverrides;
+using Scalar.AspNetCore;
 
 namespace BitFinance.API.Extensions;
 
@@ -8,15 +9,15 @@ public static class MiddlewareExtensions
     public static IServiceCollection AddHttpOptions(this IServiceCollection services)
     {
         services.AddCors();
-        
+
         services.Configure<ForwardedHeadersOptions>(options =>
         {
             options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
         });
-        
+
         return services;
     }
-    
+
     public static WebApplication ConfigureMiddleware(this WebApplication app, IConfiguration configuration)
     {
         app.UseCors(options =>
@@ -33,8 +34,13 @@ public static class MiddlewareExtensions
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.UseSwagger();
-        app.UseSwaggerUI();
+        app.MapOpenApi();
+        app.MapScalarApiReference(options =>
+        {
+            options
+                .WithTitle("BitFinance API")
+                .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
+        });
         app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
         if (app.Environment.IsDevelopment())
@@ -46,10 +52,13 @@ public static class MiddlewareExtensions
         {
             app.UseHsts();
         }
-        
+
         app.UseHttpsRedirection();
         app.MapControllers();
-        
+
+        app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }))
+            .ExcludeFromDescription();
+
         return app;
     }
 }

@@ -15,6 +15,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<OrganizationInvite> OrganizationInvites => Set<OrganizationInvite>();
     public DbSet<BillDocument> BillDocuments => Set<BillDocument>();
     public DbSet<UserSettings> UserSettings => Set<UserSettings>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     
     protected override void OnModelCreating(ModelBuilder builder)
     {

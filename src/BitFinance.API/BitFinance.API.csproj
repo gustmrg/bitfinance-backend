@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <LangVersion>12</LangVersion>
+        <LangVersion>14</LangVersion>
         <AssemblyVersion>1.1.0</AssemblyVersion>
         <UserSecretsId>a87c241e-7db2-4324-9feb-de5acb79da0e</UserSecretsId>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
@@ -16,23 +16,22 @@
         <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.4.0" />
         <PackageReference Include="Azure.Identity" Version="1.15.0" />
         <PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.8.0" />
-        <PackageReference Include="BenchmarkDotNet" Version="0.13.12" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.4" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.4" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.4">
+        <PackageReference Include="BenchmarkDotNet" Version="0.14.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.1" />
-        <PackageReference Include="Npgsql" Version="8.0.4" />
-        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" />
-        <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
-        <PackageReference Include="Serilog.Enrichers.Environment" Version="2.3.0" />
-        <PackageReference Include="Serilog.Sinks.Elasticsearch" Version="9.0.3" />
-        <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="6.5.1" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0"/>
-        <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="7.0.12" />
+        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.0" />
+        <PackageReference Include="Npgsql" Version="10.0.0" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
+        <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+        <PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
+        <PackageReference Include="Serilog.Sinks.Elasticsearch" Version="10.0.0" />
+        <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="7.0.1" />
+        <PackageReference Include="Scalar.AspNetCore" Version="2.0.18" />
     </ItemGroup>
 
     <ItemGroup>
