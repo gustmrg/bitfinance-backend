@@ -19,6 +19,8 @@ public class DashboardController : ControllerBase
     }
 
     [HttpGet("upcoming-bills")]
+    [EndpointSummary("Get upcoming bills")]
+    [EndpointDescription("Returns a list of upcoming bills for the organization dashboard.")]
     public async Task<ActionResult> GetUpcomingBills([FromRoute] Guid organizationId)
     {
         var bills = await _billsService.GetUpcomingBills(organizationId);
@@ -39,6 +41,8 @@ public class DashboardController : ControllerBase
     }
     
     [HttpGet("recent-expenses")]
+    [EndpointSummary("Get recent expenses")]
+    [EndpointDescription("Returns a list of recent expenses for the organization dashboard.")]
     public async Task<ActionResult> GetRecentExpenses([FromRoute] Guid organizationId)
     {
         var expenses = await _expensesService.GetRecentExpenses(organizationId);

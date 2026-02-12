@@ -32,6 +32,8 @@ public class OrganizationsController : ControllerBase
     }
     
     [HttpGet]
+    [EndpointSummary("List user organizations")]
+    [EndpointDescription("Returns all organizations the authenticated user is a member of.")]
     public async Task<IActionResult> GetOrganizations()
     {
         var userId = User.Claims.FirstOrDefault(a => a.Type == ClaimTypes.NameIdentifier)?.Value;
@@ -55,6 +57,8 @@ public class OrganizationsController : ControllerBase
     }
 
     [HttpGet("{organizationId:guid}")]
+    [EndpointSummary("Get organization details")]
+    [EndpointDescription("Returns the details and member list of a specific organization.")]
     public async Task<IActionResult> GetOrganizationById(Guid organizationId)
     {
         var organization = await _organizationsRepository.GetByIdAsync(organizationId);
@@ -78,6 +82,8 @@ public class OrganizationsController : ControllerBase
     }
     
     [HttpPost]
+    [EndpointSummary("Create an organization")]
+    [EndpointDescription("Creates a new organization and adds the authenticated user as the first member.")]
     public async Task<IActionResult> CreateOrganization(CreateOrganizationRequest request)
     {
         var userId = User.Claims.FirstOrDefault(a => a.Type == ClaimTypes.NameIdentifier)?.Value;
@@ -104,6 +110,8 @@ public class OrganizationsController : ControllerBase
     }
     
     [HttpPatch("{organizationId:guid}")]
+    [EndpointSummary("Update an organization")]
+    [EndpointDescription("Updates the details of a specific organization.")]
     public async Task<IActionResult> UpdateOrganization(Guid organizationId, [FromBody] UpdateOrganizationRequest request)
     {
         var organization = await _organizationsRepository.GetByIdAsync(organizationId);
@@ -115,6 +123,8 @@ public class OrganizationsController : ControllerBase
     
     [HttpPost("{organizationId:guid}/invite")]
     [OrganizationAuthorization]
+    [EndpointSummary("Create an invite link")]
+    [EndpointDescription("Generates a one-time invite link for the organization, valid for 24 hours.")]
     public async Task<IActionResult> CreateInvite([FromRoute] Guid organizationId)
     {
         var invite = new OrganizationInvite
@@ -129,6 +139,8 @@ public class OrganizationsController : ControllerBase
     }
 
     [HttpPost("join")]
+    [EndpointSummary("Join an organization")]
+    [EndpointDescription("Adds the authenticated user to an organization using a valid invite.")]
     public async Task<IActionResult> JoinOrganization([FromBody] JoinOrganizationRequest request)
     {
         var userId = HttpContext.User.Claims.FirstOrDefault(a => a.Type == ClaimTypes.NameIdentifier)?.Value;

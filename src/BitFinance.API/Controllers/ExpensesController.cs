@@ -34,6 +34,8 @@ public class ExpensesController : ControllerBase
     }
 
     [HttpGet]
+    [EndpointSummary("List expenses")]
+    [EndpointDescription("Returns a paginated list of expenses for the organization. Supports optional date range filtering.")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -60,6 +62,8 @@ public class ExpensesController : ControllerBase
     
     [HttpGet]
     [Route("{expenseId:guid}")]
+    [EndpointSummary("Get expense details")]
+    [EndpointDescription("Returns the details of a specific expense.")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -99,6 +103,8 @@ public class ExpensesController : ControllerBase
     }
     
     [HttpPost]
+    [EndpointSummary("Create an expense")]
+    [EndpointDescription("Creates a new expense within the specified organization.")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
@@ -158,10 +164,12 @@ public class ExpensesController : ControllerBase
 
     [HttpPatch]
     [Route("{expenseId:guid}")]
+    [EndpointSummary("Update an expense")]
+    [EndpointDescription("Updates the details of an existing expense.")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<UpdateExpenseResponse>> UpdateExpense([FromRoute] Guid expenseId, [FromBody] UpdateExpenseRequest request)
+    public async Task<ActionResult<UpdateExpenseResponse>> UpdateExpense([FromRoute] Guid organizationId, [FromRoute] Guid expenseId, [FromBody] UpdateExpenseRequest request)
     {
         try
         {
@@ -198,7 +206,9 @@ public class ExpensesController : ControllerBase
 
     [HttpDelete]
     [Route("{expenseId:guid}")]
-    public async Task<ActionResult> DeleteExpenseById(Guid expenseId)
+    [EndpointSummary("Delete an expense")]
+    [EndpointDescription("Soft-deletes an expense by setting its deleted timestamp.")]
+    public async Task<ActionResult> DeleteExpenseById([FromRoute] Guid organizationId, Guid expenseId)
     {
         try
         {

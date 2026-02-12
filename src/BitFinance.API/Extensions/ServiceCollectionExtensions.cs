@@ -14,13 +14,15 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddDependencyInjection(this IServiceCollection services)
     {
         services.AddHostedService<BillStatusWorkerService>();
-        
+        services.AddHostedService<RefreshTokenCleanupService>();
+
         services.AddScoped<IBillsRepository, BillsRepository>();
         services.AddScoped<IOrganizationsRepository, OrganizationsRepository>();
         services.AddScoped<IUsersRepository, UsersRepository>();
         services.AddScoped<IExpensesRepository, ExpensesRepository>();
         services.AddScoped<IOrganizationInvitesRepository, OrganizationInvitesRepository>();
-        
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+
         services.AddScoped<IUsersService, UsersService>();
         services.AddScoped<IBillsService, BillsService>();
         services.AddScoped<IExpensesService, ExpensesService>();
@@ -28,11 +30,12 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFileStorageService, LocalFileStorageService>();
         services.AddScoped<IFileValidationService, FileValidationService>();
         services.AddScoped<IBillDocumentService, BillDocumentService>();
-        
+        services.AddScoped<ICookieService, CookieService>();
+
         services.AddSingleton<ICacheService, RedisCacheService>();
         services.AddSingleton<DistributedCacheEntryOptions>();
         services.AddTransient<GlobalExceptionHandlerMiddleware>();
-        
+
         return services;
     }
 }

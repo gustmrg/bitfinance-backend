@@ -20,13 +20,13 @@ public static class LoggingExtensions
         return host;
     }
     
-    public static IServiceCollection AddHttpLogging(this IServiceCollection services)
+    public static IServiceCollection AddCustomHttpLogging(this IServiceCollection services)
     {
         services.AddHttpLogging(options =>
         {
             options.LoggingFields = HttpLoggingFields.Request | HttpLoggingFields.Response;
         });
-        
+
         return services;
     }
 }

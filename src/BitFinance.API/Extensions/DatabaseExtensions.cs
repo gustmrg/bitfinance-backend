@@ -17,11 +17,10 @@ public static class DatabaseExtensions
         services.AddDbContext<ApplicationDbContext>(options => 
             options.UseNpgsql(connectionString));
 
-        services.AddIdentityCore<User>(options =>
-            {
-                options.SignIn.RequireConfirmedAccount = false;
-            })
+        services.AddIdentityCore<User>()
+            .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddSignInManager()
             .AddDefaultTokenProviders();
 
         services.AddIdentityApiEndpoints<User>()

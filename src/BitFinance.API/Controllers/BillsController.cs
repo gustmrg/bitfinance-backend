@@ -42,6 +42,8 @@ public class BillsController : ControllerBase
     }
     
     [HttpPost]
+    [EndpointSummary("Create a bill")]
+    [EndpointDescription("Creates a new bill within the specified organization.")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
@@ -103,6 +105,8 @@ public class BillsController : ControllerBase
     }
     
     [HttpGet]
+    [EndpointSummary("List bills")]
+    [EndpointDescription("Returns a paginated list of bills for the organization. Supports optional date range filtering.")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<PagedResponse<Bill>>> GetBillsAsync(
@@ -152,10 +156,12 @@ public class BillsController : ControllerBase
     
     [HttpGet]
     [Route("{billId:guid}")]
+    [EndpointSummary("Get bill details")]
+    [EndpointDescription("Returns the details and attached documents of a specific bill.")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<GetBillResponse>> GetBillById([FromRoute] Guid billId)
+    public async Task<ActionResult<GetBillResponse>> GetBillById([FromRoute] Guid organizationId, [FromRoute] Guid billId)
     {
         try
         {
@@ -200,10 +206,12 @@ public class BillsController : ControllerBase
     
     [HttpPatch]
     [Route("{billId:guid}")]
+    [EndpointSummary("Update a bill")]
+    [EndpointDescription("Updates the details of an existing bill.")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<UpdateBillResponse>> UpdateBill(Guid billId, [FromBody] UpdateBillRequest request)
+    public async Task<ActionResult<UpdateBillResponse>> UpdateBill([FromRoute] Guid organizationId, Guid billId, [FromBody] UpdateBillRequest request)
     {
         try
         {
@@ -262,7 +270,9 @@ public class BillsController : ControllerBase
     
     [HttpDelete]
     [Route("{billId:guid}")]
-    public async Task<ActionResult> DeleteBillById(Guid billId)
+    [EndpointSummary("Delete a bill")]
+    [EndpointDescription("Soft-deletes a bill by setting its deleted timestamp.")]
+    public async Task<ActionResult> DeleteBillById([FromRoute] Guid organizationId, Guid billId)
     {
         try
         {
@@ -294,10 +304,13 @@ public class BillsController : ControllerBase
 
     [HttpPost]
     [Route("{billId:guid}/documents")]
+    [EndpointSummary("Upload a bill document")]
+    [EndpointDescription("Uploads a file attachment to an existing bill.")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     public async Task<ActionResult<BillDocument>> UploadDocumentAsync(
+        [FromRoute] Guid organizationId,
         [FromRoute] Guid billId,
         [FromForm] UploadBillDocumentRequest request)
     {
@@ -339,7 +352,9 @@ public class BillsController : ControllerBase
     }
     
     [HttpGet("{billId:guid}/documents/{documentId}")]
-    public async Task<IActionResult> GetDocument(Guid billId, Guid documentId)
+    [EndpointSummary("Download a bill document")]
+    [EndpointDescription("Downloads a specific document attached to a bill.")]
+    public async Task<IActionResult> GetDocument([FromRoute] Guid organizationId, Guid billId, Guid documentId)
     {
         Bill? bill = await _billsRepository.GetByIdAsync(billId);
 
