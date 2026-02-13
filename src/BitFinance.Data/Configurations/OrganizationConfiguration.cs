@@ -30,6 +30,7 @@ public class OrganizationConfiguration : IEntityTypeConfiguration<Organization>
         
         builder.Property(o => o.TimeZoneId)
             .HasColumnName("timezone_id")
+            .HasDefaultValue("America/Sao_Paulo")
             .HasMaxLength(150);
         
         builder.HasMany(o => o.Bills)

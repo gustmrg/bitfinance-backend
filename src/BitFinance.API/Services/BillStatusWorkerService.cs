@@ -7,7 +7,7 @@ namespace BitFinance.API.Services;
 public class BillStatusWorkerService : BackgroundService
 {
     private readonly ILogger<BillStatusWorkerService> _logger;
-    private IServiceScopeFactory _serviceScopeFactory;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
 
     public BillStatusWorkerService(ILogger<BillStatusWorkerService> logger, IServiceScopeFactory serviceScopeFactory)
     {
@@ -24,14 +24,32 @@ public class BillStatusWorkerService : BackgroundService
                 _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
             }
 
-            await UpdateUpcomingBills();
-            await UpdateDueBills();
+            try
+            {
+                await UpdateUpcomingBills();
+                await UpdateDueBills();
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                break;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unhandled error in bill status worker cycle");
+            }
             
             var now = DateTime.UtcNow;
             var nextHour = now.Date.AddHours(now.Hour + 1);
             var delay = nextHour - now;
 
-            await Task.Delay(delay, stoppingToken);
+            try
+            {
+                await Task.Delay(delay, stoppingToken);
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                break;
+            }
         }
     }
     
@@ -48,8 +66,17 @@ public class BillStatusWorkerService : BackgroundService
             
             foreach (var organization in organizations)
             {
-                var billsUpdatedForOrg = await ProcessUpcomingBillsForOrganization(organization, billsRepository);
-                totalBillsUpdated += billsUpdatedForOrg;
+                try
+                {
+                    var billsUpdatedForOrg = await ProcessUpcomingBillsForOrganization(organization, billsRepository);
+                    totalBillsUpdated += billsUpdatedForOrg;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex,
+                        "Error while processing upcoming bills for organization {OrgId} ({OrgName}) with timezone {TimeZone}",
+                        organization.Id, organization.Name, organization.TimeZoneId);
+                }
             }
             
             _logger.LogInformation("Updated {TotalBills} upcoming bills across {OrgCount} organizations at {DateTime}", 
@@ -58,7 +85,6 @@ public class BillStatusWorkerService : BackgroundService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error occurred while updating upcoming bills");
-            throw;
         }
     }
     
@@ -75,8 +101,17 @@ public class BillStatusWorkerService : BackgroundService
 
             foreach (var organization in organizations)
             {
-                var billsUpdatedForOrg = await ProcessDueBillsForOrganization(organization, billsRepository);
-                totalBillsUpdated += billsUpdatedForOrg;
+                try
+                {
+                    var billsUpdatedForOrg = await ProcessDueBillsForOrganization(organization, billsRepository);
+                    totalBillsUpdated += billsUpdatedForOrg;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex,
+                        "Error while processing due bills for organization {OrgId} ({OrgName}) with timezone {TimeZone}",
+                        organization.Id, organization.Name, organization.TimeZoneId);
+                }
             }
             
             _logger.LogInformation("Updated {TotalBills} due bills across {OrgCount} organizations at {DateTime}", 
@@ -85,7 +120,6 @@ public class BillStatusWorkerService : BackgroundService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error occurred while updating due bills");
-            throw;
         }
     }
     

@@ -5,6 +5,8 @@ EXPOSE 8080
 EXPOSE 8081
 ENV ASPNETCORE_URLS=http://+:8080
 
+RUN apk add --no-cache tzdata
+
 # Add non-root user for security
 RUN adduser -D -u 1000 appuser
 USER appuser
