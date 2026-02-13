@@ -17,6 +17,10 @@ services:
       - Jwt__Issuer=${JWT_ISSUER}
       - Jwt__Audience=${JWT_AUDIENCE}
       - Jwt__ExpirationInMinutes=${JWT_EXPIRATION:-60}
+      - KeyVault__Url=${KEYVAULT_URL}
+      - AZURE_CLIENT_ID=${AZURE_CLIENT_ID}
+      - AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET}
+      - AZURE_TENANT_ID=${AZURE_TENANT_ID}
       - Storage__LocalPath=/app/documents
     restart: always
     networks:
