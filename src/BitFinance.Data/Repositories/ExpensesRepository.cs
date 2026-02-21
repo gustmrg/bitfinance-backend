@@ -59,6 +59,7 @@ public class ExpensesRepository : IExpensesRepository
     public async Task<Expense?> GetByIdAsync(Guid expenseId)
     {
         return await _dbContext.Set<Expense>()
+            .Include(e => e.CreatedByUser)
             .Where(e => e.Id == expenseId)
             .FirstOrDefaultAsync();
     }
@@ -67,6 +68,7 @@ public class ExpensesRepository : IExpensesRepository
     {
         _dbContext.Set<Expense>().Add(expense);
         await _dbContext.SaveChangesAsync();
+        await _dbContext.Entry(expense).Reference(e => e.CreatedByUser).LoadAsync();
         return expense;
     }
 
