@@ -1,5 +1,7 @@
 using System.Security.Cryptography;
 using BitFinance.API.Services.Interfaces;
+using BitFinance.API.Settings;
+using Microsoft.Extensions.Options;
 
 namespace BitFinance.API.Services;
 
@@ -9,15 +11,16 @@ public class LocalFileStorageService : IFileStorageService
     private readonly ILogger<LocalFileStorageService> _logger;
 
     public LocalFileStorageService(
-        IConfiguration configuration,
+        IOptions<StorageSettings> settings,
         ILogger<LocalFileStorageService> logger)
     {
-        _basePath = string.IsNullOrWhiteSpace(configuration["Storage:LocalPath"]) 
+        var localPath = settings.Value.LocalPath;
+        _basePath = string.IsNullOrWhiteSpace(localPath)
             ? Path.Combine(Directory.GetCurrentDirectory(), "uploads")
-            : configuration["Storage:LocalPath"]!;
-        
+            : localPath;
+
         _logger = logger;
-        
+
         Directory.CreateDirectory(_basePath);
     }
     
@@ -107,7 +110,8 @@ public class LocalFileStorageService : IFileStorageService
 
     public Task<bool> FileExistsAsync(string storagePath)
     {
-        throw new NotImplementedException();
+        var fullPath = Path.Combine(_basePath, storagePath);
+        return Task.FromResult(File.Exists(fullPath));
     }
 
     public string GenerateUniqueFileName(string originalFileName)
