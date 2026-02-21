@@ -34,6 +34,11 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IBillDocumentService, BillDocumentService>();
         services.AddScoped<ICookieService, CookieService>();
 
+        services.AddSingleton<IValidateOptions<JwtSettings>, JwtSettingsValidator>();
+        services.AddOptions<JwtSettings>()
+            .Bind(configuration.GetSection(JwtSettings.SectionName))
+            .ValidateOnStart();
+
         services.AddSingleton<IValidateOptions<StorageSettings>, StorageSettingsValidator>();
         services.AddOptions<StorageSettings>()
             .Bind(configuration.GetSection(StorageSettings.SectionName))

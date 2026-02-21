@@ -2,30 +2,31 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using BitFinance.API.Settings;
 using BitFinance.Business.Entities;
 using BitFinance.Business.Interfaces;
 using BitFinance.Data.Repositories.Interfaces;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace BitFinance.API.Services;
 
 public class TokenService : ITokenService
 {
-    private readonly IConfiguration _configuration;
+    private readonly JwtSettings _jwtSettings;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
 
-    private const int AccessTokenExpirationMinutes = 60;
     private const int RefreshTokenExpirationDays = 7;
 
-    public TokenService(IConfiguration configuration, IRefreshTokenRepository refreshTokenRepository)
+    public TokenService(IOptions<JwtSettings> jwtSettings, IRefreshTokenRepository refreshTokenRepository)
     {
-        _configuration = configuration;
+        _jwtSettings = jwtSettings.Value;
         _refreshTokenRepository = refreshTokenRepository;
     }
 
     public string GenerateAccessToken(User user)
     {
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
         var claims = new[]
@@ -39,10 +40,10 @@ public class TokenService : ITokenService
         };
 
         var token = new JwtSecurityToken(
-            issuer: _configuration["Jwt:Issuer"],
-            audience: _configuration["Jwt:Audience"],
+            issuer: _jwtSettings.Issuer,
+            audience: _jwtSettings.Audience,
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(AccessTokenExpirationMinutes),
+            expires: DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationInMinutes),
             signingCredentials: credentials
         );
 
