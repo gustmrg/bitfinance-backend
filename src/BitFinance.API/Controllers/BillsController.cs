@@ -362,11 +362,45 @@ public class BillsController : ControllerBase
         {
             return NotFound();
         }
-        
+
         var (stream, fileName, contentType) = await _documentService.GetDocumentAsync(documentId);
         return File(stream, contentType, fileName);
     }
-    
+
+    [HttpDelete("{billId:guid}/documents/{documentId:guid}")]
+    [EndpointSummary("Delete a bill document")]
+    [EndpointDescription("Deletes a specific document attached to a bill.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteDocument(
+        [FromRoute] Guid organizationId,
+        [FromRoute] Guid billId,
+        [FromRoute] Guid documentId)
+    {
+        try
+        {
+            Bill? bill = await _billsRepository.GetByIdAsync(billId);
+
+            if (bill is null)
+                return NotFound();
+
+            var result = await _documentService.DeleteDocumentAsync(documentId);
+
+            if (!result)
+                return NotFound();
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            Log.Error("{Timestamp} - Error on {MethodName} method request: {Message}",
+                DateTime.Now.ToString("s", CultureInfo.InvariantCulture),
+                nameof(DeleteDocument),
+                ex.Message);
+            return BadRequest();
+        }
+    }
+
     private Guid? GetCurrentUserId()
     {
         var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);

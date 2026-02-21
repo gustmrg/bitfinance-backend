@@ -7,7 +7,7 @@ builder.AddAzureKeyVault();
 builder.Services.AddHttpOptions();
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddDatabaseContext(builder.Configuration);
-builder.Services.AddDependencyInjection();
+builder.Services.AddDependencyInjection(builder.Configuration);
 builder.Services.AddCaching(builder.Configuration);
 builder.Services.AddApiDocumentation();
 builder.Services.AddCustomHttpLogging();

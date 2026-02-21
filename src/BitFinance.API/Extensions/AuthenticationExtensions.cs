@@ -1,7 +1,7 @@
 using System.Text;
+using BitFinance.API.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Azure.Security.KeyVault.Secrets;
 
 namespace BitFinance.API.Extensions;
 
@@ -9,6 +9,9 @@ public static class AuthenticationExtensions
 {
     public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
+        var jwtSettings = new JwtSettings();
+        configuration.GetSection(JwtSettings.SectionName).Bind(jwtSettings);
+
         services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -16,31 +19,18 @@ public static class AuthenticationExtensions
             })
             .AddJwtBearer(options =>
             {
-                var jwtKey = configuration["Jwt:Key"];
-                var jwtIssuer = configuration["Jwt:Issuer"];
-                var jwtAudience = configuration["Jwt:Audience"];
-                
-                if (string.IsNullOrWhiteSpace(jwtKey))
-                    throw new InvalidOperationException("JWT Key not found in configuration or Key Vault");
-                
-                if (string.IsNullOrWhiteSpace(jwtIssuer))
-                    throw new InvalidOperationException("JWT Issuer not found in configuration or Key Vault");
-                
-                if (string.IsNullOrWhiteSpace(jwtAudience))
-                    throw new InvalidOperationException("JWT Audience not found in configuration or Key Vault");
-                
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = jwtIssuer,
-                    ValidAudience = jwtAudience,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+                    ValidIssuer = jwtSettings.Issuer,
+                    ValidAudience = jwtSettings.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key))
                 };
             });
-        
+
         return services;
     }
 }
