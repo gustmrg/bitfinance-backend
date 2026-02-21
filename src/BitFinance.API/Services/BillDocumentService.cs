@@ -2,7 +2,6 @@ using BitFinance.API.Services.Interfaces;
 using BitFinance.API.Settings;
 using BitFinance.Business.Entities;
 using BitFinance.Business.Enums;
-using BitFinance.Data.Contexts;
 using BitFinance.Data.Repositories.Interfaces;
 using FluentValidation;
 using Microsoft.Extensions.Options;
@@ -13,7 +12,7 @@ public class BillDocumentService : IBillDocumentService
 {
     private readonly IFileStorageService _storageService;
     private readonly IFileValidationService _fileValidationService;
-    private readonly ApplicationDbContext _context;
+    private readonly IBillDocumentsRepository _billDocumentsRepository;
     private readonly ILogger<BillDocumentService> _logger;
     private readonly IBillsRepository _billsRepository;
     private readonly StorageSettings _storageSettings;
@@ -23,13 +22,13 @@ public class BillDocumentService : IBillDocumentService
     public BillDocumentService(
         IFileStorageService storageService,
         IFileValidationService fileValidationService,
-        ApplicationDbContext context,
+        IBillDocumentsRepository billDocumentsRepository,
         ILogger<BillDocumentService> logger,
         IBillsRepository billsRepository,
         IOptions<StorageSettings> storageSettings)
     {
         _storageService = storageService;
-        _context = context;
+        _billDocumentsRepository = billDocumentsRepository;
         _logger = logger;
         _billsRepository = billsRepository;
         _fileValidationService = fileValidationService;
@@ -89,17 +88,15 @@ public class BillDocumentService : IBillDocumentService
             UploadedByUserId = userId
         };
         
-        _context.BillDocuments.Add(document);
-        await _context.SaveChangesAsync();
+        await _billDocumentsRepository.CreateAsync(document);
 
         return document;
     }
 
     public async Task<(Stream stream, string fileName, string contentType)> GetDocumentAsync(Guid documentId)
     {
-        var document = await _context.BillDocuments.FindAsync(documentId);
-        if (document == null || document.DeletedAt != null)
-            throw new KeyNotFoundException($"Document {documentId} not found");
+        var document = await _billDocumentsRepository.GetByIdAsync(documentId)
+            ?? throw new KeyNotFoundException($"Document {documentId} not found");
 
         var stream = await _storageService.GetFileAsync(document.StoragePath);
         return (stream, document.OriginalFileName, document.ContentType);
@@ -107,14 +104,12 @@ public class BillDocumentService : IBillDocumentService
 
     public async Task<bool> DeleteDocumentAsync(Guid documentId)
     {
-        var document = await _context.BillDocuments.FindAsync(documentId);
+        var document = await _billDocumentsRepository.GetByIdAsync(documentId);
         if (document == null)
             return false;
-        
-        await _storageService.DeleteFileAsync(document.StoragePath);
 
-        _context.BillDocuments.Remove(document);
-        await _context.SaveChangesAsync();
+        await _storageService.DeleteFileAsync(document.StoragePath);
+        await _billDocumentsRepository.DeleteAsync(document);
         return true;
     }
 

@@ -25,6 +25,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IExpensesRepository, ExpensesRepository>();
         services.AddScoped<IOrganizationInvitesRepository, OrganizationInvitesRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<IBillDocumentsRepository, BillDocumentsRepository>();
 
         services.AddScoped<IUsersService, UsersService>();
         services.AddScoped<IBillsService, BillsService>();
