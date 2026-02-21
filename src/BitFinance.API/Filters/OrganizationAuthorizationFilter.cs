@@ -28,7 +28,7 @@ public class OrganizationAuthorizationFilter(IUsersService usersService) : IAsyn
         // Check if the user belongs to the organization
         if (!await usersService.IsUserInOrganizationAsync(userId, organizationId))
         {
-            context.Result = new ForbidResult("You do not have access to this organization.");
+            context.Result = new ForbidResult();
         }
     }
 }

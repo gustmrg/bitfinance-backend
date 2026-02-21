@@ -32,9 +32,8 @@ public class AuthorizationTests
     }
 
     [Fact]
-    public async Task GetBills_UserNotInOrganization_ReturnsErrorStatus()
+    public async Task GetBills_UserNotInOrganization_Returns403()
     {
-        // Create a client where IUsersService returns false for org membership
         var unauthorizedMock = Substitute.For<IUsersService>();
         unauthorizedMock.IsUserInOrganizationAsync(Arg.Any<string>(), Arg.Any<Guid>())
             .Returns(false);
@@ -56,10 +55,6 @@ public class AuthorizationTests
         var response = await client.GetAsync(
             $"/api/v1/organizations/{_organizationId}/bills");
 
-        // Note: The filter uses ForbidResult(string) which passes the message as an
-        // auth scheme name instead of using the default scheme. This causes a 500
-        // because no handler is registered for that scheme name. The correct fix
-        // would be to use new ForbidResult() without arguments.
-        response.IsSuccessStatusCode.Should().BeFalse();
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 }
