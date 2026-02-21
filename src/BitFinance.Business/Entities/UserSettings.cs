@@ -7,6 +7,5 @@ public class UserSettings
     public string? TimeZoneId { get; set; } = "America/Sao_Paulo";
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
-    public DateTime? DeletedAt { get; set; }
     public User User { get; set; }
 }

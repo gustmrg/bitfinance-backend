@@ -58,11 +58,6 @@ public class BillConfiguration : IEntityTypeConfiguration<Bill>
             .HasColumnType("timestampz")
             .HasPrecision(3);
         
-        builder.Property(b => b.DeletedAt)
-            .HasColumnName("deleted_at")
-            .HasColumnType("timestampz")
-            .HasPrecision(3);
-
         builder.ToTable("bills");
     }
 }

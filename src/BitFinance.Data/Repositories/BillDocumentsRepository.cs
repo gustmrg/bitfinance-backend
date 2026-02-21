@@ -19,7 +19,6 @@ public class BillDocumentsRepository : IBillDocumentsRepository
     {
         return await _dbContext.Set<BillDocument>()
             .AsNoTracking()
-            .Where(d => d.DeletedAt == null)
             .OrderByDescending(d => d.UploadedAt)
             .ToListAsync();
     }
@@ -27,7 +26,7 @@ public class BillDocumentsRepository : IBillDocumentsRepository
     public async Task<BillDocument?> GetByIdAsync(Guid id)
     {
         return await _dbContext.Set<BillDocument>()
-            .FirstOrDefaultAsync(d => d.Id == id && d.DeletedAt == null);
+            .FirstOrDefaultAsync(d => d.Id == id);
     }
 
     public async Task<BillDocument> CreateAsync(BillDocument entity)

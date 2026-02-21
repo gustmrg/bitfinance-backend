@@ -23,11 +23,6 @@ public class OrganizationConfiguration : IEntityTypeConfiguration<Organization>
             .HasColumnType("timestampz")
             .HasPrecision(3);
         
-        builder.Property(o => o.DeletedAt)
-            .HasColumnName("deleted_at")
-            .HasColumnType("timestampz")
-            .HasPrecision(3);
-        
         builder.Property(o => o.TimeZoneId)
             .HasColumnName("timezone_id")
             .HasDefaultValue("America/Sao_Paulo")

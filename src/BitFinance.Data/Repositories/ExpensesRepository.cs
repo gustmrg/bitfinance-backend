@@ -20,7 +20,6 @@ public class ExpensesRepository : IExpensesRepository
         return await _dbContext.Set<Expense>()
             .AsNoTracking()
             .Where(b => b.OrganizationId == organizationId)
-            .Where(b => b.DeletedAt == null)
             .ToListAsync();
     }
     
@@ -28,7 +27,6 @@ public class ExpensesRepository : IExpensesRepository
     {
         var query = _dbContext.Set<Expense>()
             .AsNoTracking()
-            .Where(b => b.DeletedAt == null)
             .Where(b => b.OrganizationId == organizationId);
 
         if (startDate.HasValue)
@@ -53,7 +51,7 @@ public class ExpensesRepository : IExpensesRepository
     {
         return await _dbContext.Set<Expense>()
             .AsNoTracking()
-            .Where(b => b.OrganizationId == organizationId && b.DeletedAt == null)
+            .Where(b => b.OrganizationId == organizationId)
             .OrderByDescending(e => e.OccurredAt)
             .ToListAsync();
     }
@@ -81,8 +79,7 @@ public class ExpensesRepository : IExpensesRepository
 
     public async Task DeleteAsync(Expense expense)
     {
-        expense.DeletedAt = DateTime.UtcNow;
-        _dbContext.Set<Expense>().Update(expense);
+        _dbContext.Set<Expense>().Remove(expense);
         await _dbContext.SaveChangesAsync();
     }
 
