@@ -220,7 +220,7 @@ public class BillsController : ControllerBase
             
             if (!isValidCategory || !isValidStatus) return UnprocessableEntity();
 
-            var bill = await _context.Bills.FirstOrDefaultAsync(b => b.Id == billId && b.DeletedAt == null);
+            var bill = await _context.Bills.FirstOrDefaultAsync(b => b.Id == billId);
 
             if (bill is null)
             {
@@ -271,7 +271,7 @@ public class BillsController : ControllerBase
     [HttpDelete]
     [Route("{billId:guid}")]
     [EndpointSummary("Delete a bill")]
-    [EndpointDescription("Soft-deletes a bill by setting its deleted timestamp.")]
+    [EndpointDescription("Deletes a bill and its associated documents.")]
     public async Task<ActionResult> DeleteBillById([FromRoute] Guid organizationId, Guid billId)
     {
         try
@@ -283,9 +283,9 @@ public class BillsController : ControllerBase
                 return NotFound();
             }
 
-            if (bill.DeletedAt is not null)
+            foreach (var document in bill.Documents)
             {
-                return BadRequest();
+                await _documentService.DeleteDocumentAsync(document.Id);
             }
 
             await _billsRepository.DeleteAsync(bill);

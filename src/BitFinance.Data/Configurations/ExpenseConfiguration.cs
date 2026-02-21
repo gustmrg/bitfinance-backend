@@ -39,11 +39,6 @@ public class ExpenseConfiguration : IEntityTypeConfiguration<Expense>
             .HasColumnType("timestampz")
             .HasPrecision(3);
         
-        builder.Property(x => x.DeletedAt)
-            .HasColumnName("deleted_at")
-            .HasColumnType("timestampz")
-            .HasPrecision(3);
-        
         builder.HasOne(x => x.Organization)
             .WithMany(o => o.Expenses)
             .HasForeignKey(e => e.OrganizationId)
@@ -53,8 +48,6 @@ public class ExpenseConfiguration : IEntityTypeConfiguration<Expense>
             .WithMany()
             .HasForeignKey(x => x.CreatedByUserId)
             .OnDelete(DeleteBehavior.Restrict);
-        
-        builder.HasQueryFilter(e => e.DeletedAt == null);
         
         builder.ToTable("expenses");
     }

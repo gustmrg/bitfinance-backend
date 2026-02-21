@@ -6,6 +6,5 @@ public class GetOrganizationByIdResponse
     public string Name { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
-    public DateTime? DeletedAt { get; set; }
     public List<UserResponseModel> Members { get; set; } = [];
 }

@@ -19,7 +19,6 @@ public class OrganizationsRepository : IOrganizationsRepository
     {
         return await _dbContext.Set<Organization>()
             .AsNoTracking()
-            .Where(x => x.DeletedAt == null)
             .ToListAsync();
     }
     
@@ -27,7 +26,6 @@ public class OrganizationsRepository : IOrganizationsRepository
     {
         return await _dbContext.Set<Organization>()
             .AsNoTracking()
-            .Where(x => x.DeletedAt == null)
             .Where(x => x.Members.Any(m => m.Id == userId))
             .ToListAsync();
     }
@@ -35,7 +33,7 @@ public class OrganizationsRepository : IOrganizationsRepository
     public async Task<Organization?> GetByIdAsync(Guid id)
     {
         return await _dbContext.Set<Organization>()
-            .Where(x => x.Id == id && x.DeletedAt == null)
+            .Where(x => x.Id == id)
             .Include(x => x.Members)
             .FirstOrDefaultAsync();
     }
@@ -60,8 +58,7 @@ public class OrganizationsRepository : IOrganizationsRepository
 
     public async Task DeleteAsync(Organization organization)
     {
-        organization.DeletedAt = DateTime.UtcNow;
-        _dbContext.Set<Organization>().Update(organization);
+        _dbContext.Set<Organization>().Remove(organization);
         await _dbContext.SaveChangesAsync();
     }
     

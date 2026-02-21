@@ -26,5 +26,4 @@ public class BillDocument
     // Audit fields
     public DateTime UploadedAt { get; set; }
     public Guid? UploadedByUserId { get; set; }
-    public DateTime? DeletedAt { get; set; }
 }

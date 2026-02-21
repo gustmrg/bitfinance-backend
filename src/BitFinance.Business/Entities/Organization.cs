@@ -8,7 +8,6 @@ public class Organization
     public string Name { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
-    public DateTime? DeletedAt { get; set; }
     public string TimeZoneId { get; set; } = "America/Sao_Paulo";
     public ICollection<User> Members { get; set; } = new List<User>();
     public ICollection<Bill> Bills { get; set; } = new List<Bill>();

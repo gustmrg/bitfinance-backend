@@ -99,7 +99,6 @@ public class OrganizationsController : ControllerBase
             Name = request.Name,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = null,
-            DeletedAt = null,
         };
         
         organization.Members.Add(user);

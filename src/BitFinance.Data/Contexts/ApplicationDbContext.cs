@@ -50,8 +50,5 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         }
         
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-
-        // builder.Entity<Bill>().HasQueryFilter(x => x.OrganizationId == _contextOrganizationId);
-        // builder.Entity<Expense>().HasQueryFilter(x => x.OrganizationId == _contextOrganizationId);
     }
 }

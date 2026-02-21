@@ -207,7 +207,7 @@ public class ExpensesController : ControllerBase
     [HttpDelete]
     [Route("{expenseId:guid}")]
     [EndpointSummary("Delete an expense")]
-    [EndpointDescription("Soft-deletes an expense by setting its deleted timestamp.")]
+    [EndpointDescription("Deletes an expense.")]
     public async Task<ActionResult> DeleteExpenseById([FromRoute] Guid organizationId, Guid expenseId)
     {
         try
@@ -217,11 +217,6 @@ public class ExpensesController : ControllerBase
             if (expense is null)
             {
                 return NotFound();
-            }
-
-            if (expense.DeletedAt is not null)
-            {
-                return BadRequest();
             }
 
             await _expensesRepository.DeleteAsync(expense);

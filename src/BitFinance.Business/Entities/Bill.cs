@@ -14,7 +14,6 @@ public class Bill
     public DateTimeOffset? PaymentDate { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
-    public DateTime? DeletedAt { get; set; }
     public Guid OrganizationId { get; set; }
     public Organization Organization { get; set; } = null!;
     public ICollection<BillDocument> Documents { get; set; } = new List<BillDocument>();

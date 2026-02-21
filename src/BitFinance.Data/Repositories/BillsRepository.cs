@@ -26,7 +26,6 @@ public class BillsRepository : IBillsRepository
     {
         List<Bill> list = await _dbContext.Set<Bill>()
             .AsNoTracking()
-            .Where(b => b.DeletedAt == null)
             .Include(b => b.Documents)
             .OrderBy(b => b.DueDate)
             .ToListAsync();
@@ -39,7 +38,6 @@ public class BillsRepository : IBillsRepository
     {
         var query = _dbContext.Set<Bill>()
             .AsNoTracking()
-            .Where(b => b.DeletedAt == null)
             .Where(b => b.OrganizationId == organizationId);
 
         if (startDate.HasValue)
@@ -64,7 +62,7 @@ public class BillsRepository : IBillsRepository
     {
         List<Bill> list = await _dbContext.Set<Bill>()
             .AsNoTracking()
-            .Where(b => b.DeletedAt == null && b.Status == billStatus)
+            .Where(b => b.Status == billStatus)
             .Include(b => b.Documents)
             .OrderBy(b => b.DueDate)
             .ToListAsync();
@@ -97,7 +95,7 @@ public class BillsRepository : IBillsRepository
             {
                 bill = await _dbContext.Set<Bill>()
                     .Include(b => b.Documents)
-                    .FirstOrDefaultAsync(x => x.Id == id && x.DeletedAt == null);
+                    .FirstOrDefaultAsync(x => x.Id == id);
 
                 if (bill is not null)
                 {
@@ -109,7 +107,7 @@ public class BillsRepository : IBillsRepository
         {
             bill = await _dbContext.Set<Bill>()
                 .Include(b => b.Documents)
-                .FirstOrDefaultAsync(x => x.Id == id && x.DeletedAt == null);
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
         
         return bill;
@@ -119,9 +117,8 @@ public class BillsRepository : IBillsRepository
     {
         return await _dbContext.Set<Bill>()
             .AsNoTracking()
-            .Where(x => x.OrganizationId == organizationId && 
-                        (x.Status == BillStatus.Upcoming || x.Status == BillStatus.Due) &&
-                        x.DeletedAt == null)
+            .Where(x => x.OrganizationId == organizationId &&
+                        (x.Status == BillStatus.Upcoming || x.Status == BillStatus.Due))
             .OrderByDescending(x => x.DueDate)
             .ToListAsync();
     }
@@ -180,14 +177,13 @@ public class BillsRepository : IBillsRepository
 
     public async Task DeleteAsync(Bill bill)
     {
-        bill.DeletedAt = DateTime.UtcNow;
-        _dbContext.Set<Bill>().Update(bill);
+        _dbContext.Set<Bill>().Remove(bill);
         await _dbContext.SaveChangesAsync();
-        
+
         if (IsCacheEnabled())
         {
             string key = _cache.GenerateKey<Bill>(bill.Id.ToString());
-            await _cache.SetAsync(key, bill);
+            await _cache.RemoveAsync(key);
         }
     }
 
