@@ -34,6 +34,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFileValidationService, FileValidationService>();
         services.AddScoped<IBillDocumentService, BillDocumentService>();
         services.AddScoped<ICookieService, CookieService>();
+        services.AddScoped<IOrganizationsService, OrganizationsService>();
+        services.AddScoped<IInvitationsService, InvitationsService>();
 
         services.AddSingleton<IValidateOptions<JwtSettings>, JwtSettingsValidator>();
         services.AddOptions<JwtSettings>()
