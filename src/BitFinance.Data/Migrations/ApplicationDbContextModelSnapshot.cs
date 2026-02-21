@@ -212,6 +212,66 @@ namespace BitFinance.Data.Migrations
                     b.ToTable("expenses", (string)null);
                 });
 
+            modelBuilder.Entity("BitFinance.Business.Entities.Invitation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasPrecision(3)
+                        .HasColumnType("timestampz")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("email");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasPrecision(3)
+                        .HasColumnType("timestampz")
+                        .HasColumnName("expires_at");
+
+                    b.Property<string>("InvitedByUserId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("invited_by_user_id");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("integer")
+                        .HasColumnName("role");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("token");
+
+                    b.HasKey("Id")
+                        .HasName("pk_invitations");
+
+                    b.HasIndex("InvitedByUserId");
+
+                    b.HasIndex("OrganizationId")
+                        .HasDatabaseName("ix_invitations_organization_id");
+
+                    b.HasIndex("Token")
+                        .IsUnique();
+
+                    b.ToTable("invitations", (string)null);
+                });
+
             modelBuilder.Entity("BitFinance.Business.Entities.Organization", b =>
                 {
                     b.Property<Guid>("Id")
@@ -228,6 +288,12 @@ namespace BitFinance.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("name");
+
+                    b.Property<int>("PlanTier")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("plan_tier");
 
                     b.Property<string>("TimeZoneId")
                         .IsRequired()
@@ -248,33 +314,31 @@ namespace BitFinance.Data.Migrations
                     b.ToTable("organizations", (string)null);
                 });
 
-            modelBuilder.Entity("BitFinance.Business.Entities.OrganizationInvite", b =>
+            modelBuilder.Entity("BitFinance.Business.Entities.OrganizationMember", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("expires_at");
-
-                    b.Property<bool>("IsUsed")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_used");
+                    b.Property<string>("UserId")
+                        .HasColumnType("text")
+                        .HasColumnName("user_id");
 
                     b.Property<Guid>("OrganizationId")
                         .HasColumnType("uuid")
                         .HasColumnName("organization_id");
 
-                    b.HasKey("Id")
-                        .HasName("pk_organization_invites");
+                    b.Property<DateTime>("JoinedAt")
+                        .HasPrecision(3)
+                        .HasColumnType("timestampz")
+                        .HasColumnName("joined_at");
 
-                    b.ToTable("organization_invites");
+                    b.Property<int>("Role")
+                        .HasColumnType("integer")
+                        .HasColumnName("role");
+
+                    b.HasKey("UserId", "OrganizationId");
+
+                    b.HasIndex("OrganizationId")
+                        .HasDatabaseName("ix_organization_members_organization_id");
+
+                    b.ToTable("organization_members", (string)null);
                 });
 
             modelBuilder.Entity("BitFinance.Business.Entities.RefreshToken", b =>
@@ -635,25 +699,6 @@ namespace BitFinance.Data.Migrations
                     b.ToTable("asp_net_user_tokens", (string)null);
                 });
 
-            modelBuilder.Entity("OrganizationUser", b =>
-                {
-                    b.Property<string>("MembersId")
-                        .HasColumnType("text")
-                        .HasColumnName("members_id");
-
-                    b.Property<Guid>("OrganizationsId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("organizations_id");
-
-                    b.HasKey("MembersId", "OrganizationsId")
-                        .HasName("pk_organization_user");
-
-                    b.HasIndex("OrganizationsId")
-                        .HasDatabaseName("ix_organization_user_organizations_id");
-
-                    b.ToTable("organization_user");
-                });
-
             modelBuilder.Entity("BitFinance.Business.Entities.Bill", b =>
                 {
                     b.HasOne("BitFinance.Business.Entities.Organization", "Organization")
@@ -697,6 +742,48 @@ namespace BitFinance.Data.Migrations
                     b.Navigation("CreatedByUser");
 
                     b.Navigation("Organization");
+                });
+
+            modelBuilder.Entity("BitFinance.Business.Entities.Invitation", b =>
+                {
+                    b.HasOne("BitFinance.Business.Entities.User", "InvitedBy")
+                        .WithMany()
+                        .HasForeignKey("InvitedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .IsRequired()
+                        .HasConstraintName("fk_invitations_asp_net_users_invited_by_id");
+
+                    b.HasOne("BitFinance.Business.Entities.Organization", "Organization")
+                        .WithMany("Invitations")
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_invitations_organizations_organization_id");
+
+                    b.Navigation("InvitedBy");
+
+                    b.Navigation("Organization");
+                });
+
+            modelBuilder.Entity("BitFinance.Business.Entities.OrganizationMember", b =>
+                {
+                    b.HasOne("BitFinance.Business.Entities.Organization", "Organization")
+                        .WithMany("Members")
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_organization_members_organizations_organization_id");
+
+                    b.HasOne("BitFinance.Business.Entities.User", "User")
+                        .WithMany("OrganizationMemberships")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_organization_members_asp_net_users_user_id");
+
+                    b.Navigation("Organization");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("BitFinance.Business.Entities.RefreshToken", b =>
@@ -788,23 +875,6 @@ namespace BitFinance.Data.Migrations
                         .HasConstraintName("fk_asp_net_user_tokens_asp_net_users_user_id");
                 });
 
-            modelBuilder.Entity("OrganizationUser", b =>
-                {
-                    b.HasOne("BitFinance.Business.Entities.User", null)
-                        .WithMany()
-                        .HasForeignKey("MembersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_organization_user_asp_net_users_members_id");
-
-                    b.HasOne("BitFinance.Business.Entities.Organization", null)
-                        .WithMany()
-                        .HasForeignKey("OrganizationsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_organization_user_organizations_organizations_id");
-                });
-
             modelBuilder.Entity("BitFinance.Business.Entities.Bill", b =>
                 {
                     b.Navigation("Documents");
@@ -815,10 +885,16 @@ namespace BitFinance.Data.Migrations
                     b.Navigation("Bills");
 
                     b.Navigation("Expenses");
+
+                    b.Navigation("Invitations");
+
+                    b.Navigation("Members");
                 });
 
             modelBuilder.Entity("BitFinance.Business.Entities.User", b =>
                 {
+                    b.Navigation("OrganizationMemberships");
+
                     b.Navigation("Settings")
                         .IsRequired();
                 });

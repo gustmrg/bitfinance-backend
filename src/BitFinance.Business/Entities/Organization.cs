@@ -1,3 +1,5 @@
+using BitFinance.Business.Enums;
+
 namespace BitFinance.Business.Entities;
 
 public class Organization
@@ -9,7 +11,20 @@ public class Organization
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public string TimeZoneId { get; set; } = "America/Sao_Paulo";
-    public ICollection<User> Members { get; set; } = new List<User>();
+    /// <summary>
+    /// The subscription plan tier for this organization. Determines feature access and resource limits.
+    /// </summary>
+    public PlanTier PlanTier { get; set; } = PlanTier.Free;
+
+    /// <summary>
+    /// The members of this organization, including their roles.
+    /// </summary>
+    public ICollection<OrganizationMember> Members { get; set; } = new List<OrganizationMember>();
+
+    /// <summary>
+    /// Pending and historical invitations for this organization.
+    /// </summary>
+    public ICollection<Invitation> Invitations { get; set; } = new List<Invitation>();
     public ICollection<Bill> Bills { get; set; } = new List<Bill>();
     public ICollection<Expense> Expenses { get; set; } = new List<Expense>();
 

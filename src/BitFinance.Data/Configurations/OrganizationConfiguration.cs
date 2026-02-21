@@ -28,10 +28,15 @@ public class OrganizationConfiguration : IEntityTypeConfiguration<Organization>
             .HasDefaultValue("America/Sao_Paulo")
             .HasMaxLength(150);
         
+        builder.Property(o => o.PlanTier)
+            .HasConversion<int>()
+            .HasDefaultValue(BitFinance.Business.Enums.PlanTier.Free)
+            .IsRequired();
+
         builder.HasMany(o => o.Bills)
             .WithOne(b => b.Organization)
             .HasForeignKey(b => b.OrganizationId);
-            
+
         builder.ToTable("organizations");
     }
 }

@@ -19,9 +19,7 @@ public class UsersService : IUsersService
 
         if (user == null) return false;
         
-        if (user.Organizations.All(o => o.Id != organizationId)) return false;
-
-        return true;
+        return user.OrganizationMemberships.Any(m => m.OrganizationId == organizationId);
     }
 
     public async Task<User?> GetUserByIdAsync(string userId)

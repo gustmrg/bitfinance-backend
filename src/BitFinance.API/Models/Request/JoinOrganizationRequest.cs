@@ -1,3 +1,3 @@
 namespace BitFinance.API.Models.Request;
 
-public record JoinOrganizationRequest(Guid InviteId);
+public record JoinOrganizationRequest(string Token);

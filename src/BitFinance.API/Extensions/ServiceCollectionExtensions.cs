@@ -23,7 +23,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IOrganizationsRepository, OrganizationsRepository>();
         services.AddScoped<IUsersRepository, UsersRepository>();
         services.AddScoped<IExpensesRepository, ExpensesRepository>();
-        services.AddScoped<IOrganizationInvitesRepository, OrganizationInvitesRepository>();
+        services.AddScoped<IInvitationsRepository, InvitationsRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IBillDocumentsRepository, BillDocumentsRepository>();
 

@@ -26,7 +26,7 @@ public class OrganizationsRepository : IOrganizationsRepository
     {
         return await _dbContext.Set<Organization>()
             .AsNoTracking()
-            .Where(x => x.Members.Any(m => m.Id == userId))
+            .Where(x => x.Members.Any(m => m.UserId == userId))
             .ToListAsync();
     }
 
@@ -35,6 +35,7 @@ public class OrganizationsRepository : IOrganizationsRepository
         return await _dbContext.Set<Organization>()
             .Where(x => x.Id == id)
             .Include(x => x.Members)
+                .ThenInclude(m => m.User)
             .FirstOrDefaultAsync();
     }
 
