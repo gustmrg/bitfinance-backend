@@ -19,3 +19,5 @@ var app = builder.Build();
 app.ConfigureMiddleware(builder.Configuration);
 
 app.Run();
+
+public partial class Program { }
