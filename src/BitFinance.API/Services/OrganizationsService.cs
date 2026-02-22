@@ -28,6 +28,7 @@ public class OrganizationsService : IOrganizationsService
     {
         var organization = new Organization
         {
+            Id = Guid.CreateVersion7(),
             Name = name,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = null,

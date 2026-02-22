@@ -8,20 +8,20 @@ public enum Frequency
     /// <summary>
     /// Occurs every day.
     /// </summary>
-    Daily = 0,
+    Daily = 1,
 
     /// <summary>
     /// Occurs every week.
     /// </summary>
-    Weekly = 1,
+    Weekly = 2,
 
     /// <summary>
     /// Occurs every month.
     /// </summary>
-    Monthly = 2,
+    Monthly = 3,
 
     /// <summary>
     /// Occurs once a year.
     /// </summary>
-    Annually = 3
+    Annually = 4
 }

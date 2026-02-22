@@ -8,15 +8,15 @@ public enum OrgRole
     /// <summary>
     /// Full control over the organization, including billing and deletion.
     /// </summary>
-    Owner = 0,
+    Owner = 1,
 
     /// <summary>
     /// Can manage members and settings, but cannot delete the organization or manage billing.
     /// </summary>
-    Admin = 1,
+    Admin = 2,
 
     /// <summary>
     /// Can use features within the organization's plan.
     /// </summary>
-    Member = 2
+    Member = 3
 }

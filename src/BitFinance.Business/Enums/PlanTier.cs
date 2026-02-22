@@ -9,15 +9,15 @@ public enum PlanTier
     /// <summary>
     /// Free tier with basic limits and no premium features.
     /// </summary>
-    Free = 0,
+    Free = 1,
 
     /// <summary>
     /// Basic paid tier with increased limits, file attachments, and email notifications.
     /// </summary>
-    Basic = 1,
+    Basic = 2,
 
     /// <summary>
     /// Premium tier with the highest limits, API access, and custom reports.
     /// </summary>
-    Premium = 2
+    Premium = 3
 }
