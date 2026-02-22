@@ -4,8 +4,8 @@ using BitFinance.API.Attributes;
 using BitFinance.API.Models;
 using BitFinance.API.Models.Request;
 using BitFinance.API.Models.Response;
-using BitFinance.Business.Entities;
-using BitFinance.Data.Repositories.Interfaces;
+using BitFinance.API.Services.Interfaces;
+using BitFinance.Business.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,20 +17,20 @@ namespace BitFinance.API.Controllers;
 [Route("api/v{version:apiVersion}/organizations")]
 public class OrganizationsController : ControllerBase
 {
-    private readonly IOrganizationsRepository _organizationsRepository;
-    private readonly IUsersRepository _usersRepository;
-    private readonly IOrganizationInvitesRepository _invitesRepository;
+    private readonly IOrganizationsService _organizationsService;
+    private readonly IInvitationsService _invitationsService;
+    private readonly IUsersService _usersService;
 
     public OrganizationsController(
-        IOrganizationsRepository organizationsRepository,
-        IUsersRepository usersRepository, 
-        IOrganizationInvitesRepository invitesRepository)
+        IOrganizationsService organizationsService,
+        IInvitationsService invitationsService,
+        IUsersService usersService)
     {
-        _organizationsRepository = organizationsRepository;
-        _usersRepository = usersRepository;
-        _invitesRepository = invitesRepository;
+        _organizationsService = organizationsService;
+        _invitationsService = invitationsService;
+        _usersService = usersService;
     }
-    
+
     [HttpGet]
     [EndpointSummary("List user organizations")]
     [EndpointDescription("Returns all organizations the authenticated user is a member of.")]
@@ -39,20 +39,17 @@ public class OrganizationsController : ControllerBase
         var userId = User.Claims.FirstOrDefault(a => a.Type == ClaimTypes.NameIdentifier)?.Value;
 
         if (string.IsNullOrEmpty(userId)) return BadRequest("Invalid user");
-            
-        var user = await _usersRepository.GetByIdAsync(userId);
-            
+
+        var user = await _usersService.GetUserByIdAsync(userId);
+
         if (user == null) return BadRequest("Invalid user");
-        
-        var organizations = await _organizationsRepository.GetAllByUserIdAsync(userId);
 
-        List<OrganizationResponseModel> response = [];
+        var organizations = await _organizationsService.GetAllByUserIdAsync(userId);
 
-        foreach (var organization in organizations)
-        {
-            response.Add(new OrganizationResponseModel(organization.Id, organization.Name));
-        }
-        
+        var response = organizations
+            .Select(o => new OrganizationResponseModel(o.Id, o.Name))
+            .ToList();
+
         return Ok(response);
     }
 
@@ -61,8 +58,8 @@ public class OrganizationsController : ControllerBase
     [EndpointDescription("Returns the details and member list of a specific organization.")]
     public async Task<IActionResult> GetOrganizationById(Guid organizationId)
     {
-        var organization = await _organizationsRepository.GetByIdAsync(organizationId);
-        
+        var organization = await _organizationsService.GetByIdAsync(organizationId);
+
         if (organization is null) return NotFound();
 
         var response = new GetOrganizationByIdResponse
@@ -73,14 +70,15 @@ public class OrganizationsController : ControllerBase
             UpdatedAt = organization.UpdatedAt,
         };
 
-        foreach (var member in organization.Members)
+        foreach (var membership in organization.Members)
         {
-            response.Members.Add(new UserResponseModel(member.Id, member.UserName ?? string.Empty, member.Email ?? string.Empty));
+            var user = membership.User;
+            response.Members.Add(new UserResponseModel(user.Id, user.UserName ?? string.Empty, user.Email ?? string.Empty));
         }
-        
+
         return Ok(response);
     }
-    
+
     [HttpPost]
     [EndpointSummary("Create an organization")]
     [EndpointDescription("Creates a new organization and adds the authenticated user as the first member.")]
@@ -89,78 +87,69 @@ public class OrganizationsController : ControllerBase
         var userId = User.Claims.FirstOrDefault(a => a.Type == ClaimTypes.NameIdentifier)?.Value;
 
         if (string.IsNullOrEmpty(userId)) return BadRequest("Invalid user");
-            
-        var user = await _usersRepository.GetByIdAsync(userId);
-            
+
+        var user = await _usersService.GetUserByIdAsync(userId);
+
         if (user == null) return BadRequest("Invalid user");
-        
-        var organization = new Organization
-        {
-            Name = request.Name,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = null,
-        };
-        
-        organization.Members.Add(user);
-        
-        await _organizationsRepository.CreateAsync(organization);
-        
+
+        var organization = await _organizationsService.CreateAsync(request.Name, user.Id);
+
         return CreatedAtAction(nameof(GetOrganizationById), new { organizationId = organization.Id }, new OrganizationResponseModel(organization.Id, organization.Name));
     }
-    
+
     [HttpPatch("{organizationId:guid}")]
     [EndpointSummary("Update an organization")]
     [EndpointDescription("Updates the details of a specific organization.")]
     public async Task<IActionResult> UpdateOrganization(Guid organizationId, [FromBody] UpdateOrganizationRequest request)
     {
-        var organization = await _organizationsRepository.GetByIdAsync(organizationId);
-        
+        var organization = await _organizationsService.UpdateAsync(organizationId, request.Name);
+
         if (organization is null) return NotFound();
-        
-        return Ok(organization);
+
+        return Ok(new OrganizationResponseModel(organization.Id, organization.Name));
     }
-    
+
     [HttpPost("{organizationId:guid}/invite")]
     [OrganizationAuthorization]
-    [EndpointSummary("Create an invite link")]
-    [EndpointDescription("Generates a one-time invite link for the organization, valid for 24 hours.")]
-    public async Task<IActionResult> CreateInvite([FromRoute] Guid organizationId)
+    [EndpointSummary("Create an invitation")]
+    [EndpointDescription("Creates an invitation for a user to join the organization, valid for 24 hours.")]
+    public async Task<IActionResult> CreateInvite([FromRoute] Guid organizationId, [FromBody] CreateInvitationRequest request)
     {
-        var invite = new OrganizationInvite
-        {
-            OrganizationId = organizationId,
-            ExpiresAt = DateTime.UtcNow.AddDays(1),
-        };
-        
-        await _invitesRepository.CreateAsync(invite);
+        var userId = User.Claims.FirstOrDefault(a => a.Type == ClaimTypes.NameIdentifier)?.Value;
 
-        return Ok(new CreateOrganizationInviteResponse(invite.Id, invite.ExpiresAt));
+        if (string.IsNullOrEmpty(userId)) return BadRequest("Invalid user");
+
+        var invitation = await _invitationsService.CreateInvitationAsync(
+            organizationId, request.Email, request.Role ?? OrgRole.Member, userId);
+
+        return Ok(new CreateInvitationResponse(invitation.Id, invitation.Token, invitation.ExpiresAt));
     }
 
     [HttpPost("join")]
     [EndpointSummary("Join an organization")]
-    [EndpointDescription("Adds the authenticated user to an organization using a valid invite.")]
+    [EndpointDescription("Adds the authenticated user to an organization using a valid invitation token.")]
     public async Task<IActionResult> JoinOrganization([FromBody] JoinOrganizationRequest request)
     {
-        var userId = HttpContext.User.Claims.FirstOrDefault(a => a.Type == ClaimTypes.NameIdentifier)?.Value;
-        var user = await _usersRepository.GetByIdAsync(userId!);
-        
+        var userId = User.Claims.FirstOrDefault(a => a.Type == ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(userId)) return BadRequest("Invalid user");
+
+        var user = await _usersService.GetUserByIdAsync(userId);
+
         if (user == null) return NotFound("Invalid user");
-        
-        var invite = await _invitesRepository.GetByIdAsync(request.InviteId);
-        
-        if (invite is null) return NotFound("Invalid invite");
-        
-        var organization = await _organizationsRepository.GetByIdAsync(invite.OrganizationId);
-        
-        if (organization is null) return NotFound("Organization not found");
-        
-        if (organization.Members.Contains(user)) return BadRequest("You cannot join this organization");
-        
-        if (invite.ExpiresAt < DateTime.UtcNow) return BadRequest("This invite has expired");
-        
-        organization.Members.Add(user);
-        await _organizationsRepository.UpdateAsync(organization);
+
+        var result = await _invitationsService.JoinOrganizationAsync(request.Token, user.Id);
+
+        if (!result.Success)
+        {
+            return result.Error switch
+            {
+                JoinOrganizationError.InvalidToken => NotFound(result.ErrorMessage),
+                JoinOrganizationError.OrganizationNotFound => NotFound(result.ErrorMessage),
+                _ => BadRequest(result.ErrorMessage),
+            };
+        }
+
         return Ok();
     }
 }

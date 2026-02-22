@@ -1,9 +1,27 @@
 namespace BitFinance.Business.Enums;
 
+/// <summary>
+/// Defines the recurrence frequency for recurring bills or expenses.
+/// </summary>
 public enum Frequency
 {
-    Daily = 0,
-    Weekly = 1,
-    Monthly = 2,
-    Annually = 3
+    /// <summary>
+    /// Occurs every day.
+    /// </summary>
+    Daily = 1,
+
+    /// <summary>
+    /// Occurs every week.
+    /// </summary>
+    Weekly = 2,
+
+    /// <summary>
+    /// Occurs every month.
+    /// </summary>
+    Monthly = 3,
+
+    /// <summary>
+    /// Occurs once a year.
+    /// </summary>
+    Annually = 4
 }

@@ -1,24 +1,76 @@
+using BitFinance.Business.Enums;
+
 namespace BitFinance.Business.Entities;
 
+/// <summary>
+/// Represents an organization (tenant) in the system. All bills and expenses are scoped to an organization.
+/// </summary>
 public class Organization
 {
     private const string DefaultTimeZoneId = "America/Sao_Paulo";
 
+    /// <summary>
+    /// Unique identifier for the organization.
+    /// </summary>
     public Guid Id { get; set; }
+
+    /// <summary>
+    /// The display name of the organization.
+    /// </summary>
     public string Name { get; set; }
+
+    /// <summary>
+    /// The date and time when this organization was created.
+    /// </summary>
     public DateTime CreatedAt { get; set; }
+
+    /// <summary>
+    /// The date and time when this organization was last updated.
+    /// </summary>
     public DateTime? UpdatedAt { get; set; }
+
+    /// <summary>
+    /// The IANA time zone identifier used for date/time calculations (e.g., "America/Sao_Paulo").
+    /// </summary>
     public string TimeZoneId { get; set; } = "America/Sao_Paulo";
-    public ICollection<User> Members { get; set; } = new List<User>();
+    /// <summary>
+    /// The subscription plan tier for this organization. Determines feature access and resource limits.
+    /// </summary>
+    public PlanTier PlanTier { get; set; } = PlanTier.Free;
+
+    /// <summary>
+    /// The members of this organization, including their roles.
+    /// </summary>
+    public ICollection<OrganizationMember> Members { get; set; } = new List<OrganizationMember>();
+
+    /// <summary>
+    /// Pending and historical invitations for this organization.
+    /// </summary>
+    public ICollection<Invitation> Invitations { get; set; } = new List<Invitation>();
+    /// <summary>
+    /// The bills associated with this organization.
+    /// </summary>
     public ICollection<Bill> Bills { get; set; } = new List<Bill>();
+
+    /// <summary>
+    /// The expenses recorded for this organization.
+    /// </summary>
     public ICollection<Expense> Expenses { get; set; } = new List<Expense>();
 
+    /// <summary>
+    /// Returns the current date and time in the organization's configured time zone.
+    /// </summary>
+    /// <returns>The current local <see cref="DateTime"/> for this organization.</returns>
     public DateTime GetCurrentLocalTime()
     {
         var timeZone = ResolveTimeZone(TimeZoneId);
         return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
     }
-    
+
+    /// <summary>
+    /// Returns the current date in the organization's configured time zone.
+    /// </summary>
+    /// <returns>The current local <see cref="DateOnly"/> for this organization.</returns>
     public DateOnly GetCurrentLocalDate()
     {
         return DateOnly.FromDateTime(GetCurrentLocalTime());
