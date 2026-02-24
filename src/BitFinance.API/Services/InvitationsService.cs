@@ -2,6 +2,7 @@ using BitFinance.API.Models;
 using BitFinance.API.Services.Interfaces;
 using BitFinance.Business.Entities;
 using BitFinance.Business.Enums;
+using BitFinance.Business.Helpers;
 using BitFinance.Data.Repositories.Interfaces;
 
 namespace BitFinance.API.Services;
@@ -19,9 +20,24 @@ public class InvitationsService : IInvitationsService
         _organizationsRepository = organizationsRepository;
     }
 
-    public async Task<Invitation> CreateInvitationAsync(
+    public async Task<CreateInvitationResult> CreateInvitationAsync(
         Guid organizationId, string email, OrgRole role, string invitedByUserId)
     {
+        if (role == OrgRole.Owner)
+            return CreateInvitationResult.Failed(CreateInvitationError.InvalidRole, "Cannot invite a user as Owner");
+
+        var organization = await _organizationsRepository.GetByIdAsync(organizationId);
+
+        if (organization is null)
+            return CreateInvitationResult.Failed(CreateInvitationError.OrganizationNotFound, "Organization not found");
+
+        var inviterMembership = organization.Members.FirstOrDefault(m => m.UserId == invitedByUserId);
+
+        if (inviterMembership is null || (inviterMembership.Role != OrgRole.Owner && inviterMembership.Role != OrgRole.Admin))
+            return CreateInvitationResult.Failed(CreateInvitationError.NotAuthorized, "Only owners and admins can create invitations");
+
+        var rawToken = TokenHasher.GenerateToken();
+
         var invitation = new Invitation
         {
             Id = Guid.NewGuid(),
@@ -30,18 +46,19 @@ public class InvitationsService : IInvitationsService
             Role = role,
             InvitedByUserId = invitedByUserId,
             Status = InvitationStatus.Pending,
-            Token = Guid.NewGuid().ToString("N"),
+            TokenHash = TokenHasher.HashToken(rawToken),
             ExpiresAt = DateTime.UtcNow.AddDays(1),
             CreatedAt = DateTime.UtcNow,
         };
 
         await _invitationsRepository.CreateAsync(invitation);
-        return invitation;
+        return CreateInvitationResult.Succeeded(invitation, rawToken);
     }
 
-    public async Task<JoinOrganizationResult> JoinOrganizationAsync(string token, string userId)
+    public async Task<JoinOrganizationResult> JoinOrganizationAsync(string token, string userId, string userEmail)
     {
-        var invitation = await _invitationsRepository.GetByTokenAsync(token);
+        var tokenHash = TokenHasher.HashToken(token);
+        var invitation = await _invitationsRepository.GetByTokenHashAsync(tokenHash);
 
         if (invitation is null)
             return JoinOrganizationResult.Failed(JoinOrganizationError.InvalidToken, "Invalid invitation");
@@ -51,6 +68,9 @@ public class InvitationsService : IInvitationsService
 
         if (invitation.ExpiresAt < DateTime.UtcNow)
             return JoinOrganizationResult.Failed(JoinOrganizationError.InvitationExpired, "This invitation has expired");
+
+        if (!string.Equals(invitation.Email, userEmail, StringComparison.OrdinalIgnoreCase))
+            return JoinOrganizationResult.Failed(JoinOrganizationError.EmailMismatch, "This invitation was sent to a different email address");
 
         var organization = invitation.Organization;
 

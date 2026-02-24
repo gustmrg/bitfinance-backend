@@ -119,10 +119,21 @@ public class OrganizationsController : ControllerBase
 
         if (string.IsNullOrEmpty(userId)) return BadRequest("Invalid user");
 
-        var invitation = await _invitationsService.CreateInvitationAsync(
+        var result = await _invitationsService.CreateInvitationAsync(
             organizationId, request.Email, request.Role ?? OrgRole.Member, userId);
 
-        return Ok(new CreateInvitationResponse(invitation.Id, invitation.Token, invitation.ExpiresAt));
+        if (!result.Success)
+        {
+            return result.Error switch
+            {
+                CreateInvitationError.NotAuthorized => Forbid(),
+                CreateInvitationError.OrganizationNotFound => NotFound(result.ErrorMessage),
+                _ => BadRequest(result.ErrorMessage),
+            };
+        }
+
+        var invitation = result.Invitation!;
+        return Ok(new CreateInvitationResponse(invitation.Id, result.RawToken!, invitation.ExpiresAt));
     }
 
     [HttpPost("join")]
@@ -138,7 +149,7 @@ public class OrganizationsController : ControllerBase
 
         if (user == null) return NotFound("Invalid user");
 
-        var result = await _invitationsService.JoinOrganizationAsync(request.Token, user.Id);
+        var result = await _invitationsService.JoinOrganizationAsync(request.Token, user.Id, user.Email ?? string.Empty);
 
         if (!result.Success)
         {
@@ -146,6 +157,7 @@ public class OrganizationsController : ControllerBase
             {
                 JoinOrganizationError.InvalidToken => NotFound(result.ErrorMessage),
                 JoinOrganizationError.OrganizationNotFound => NotFound(result.ErrorMessage),
+                JoinOrganizationError.EmailMismatch => BadRequest(result.ErrorMessage),
                 _ => BadRequest(result.ErrorMessage),
             };
         }

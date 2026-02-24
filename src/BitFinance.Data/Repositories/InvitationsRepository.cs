@@ -28,12 +28,12 @@ public class InvitationsRepository : IInvitationsRepository
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 
-    public async Task<Invitation?> GetByTokenAsync(string token)
+    public async Task<Invitation?> GetByTokenHashAsync(string tokenHash)
     {
         return await _dbContext.Set<Invitation>()
             .Include(i => i.Organization)
                 .ThenInclude(o => o.Members)
-            .FirstOrDefaultAsync(x => x.Token == token);
+            .FirstOrDefaultAsync(x => x.TokenHash == tokenHash);
     }
 
     public async Task<Invitation> CreateAsync(Invitation entity)

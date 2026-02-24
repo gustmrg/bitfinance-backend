@@ -23,4 +23,5 @@ public enum JoinOrganizationError
     InvitationExpired,
     OrganizationNotFound,
     AlreadyMember,
+    EmailMismatch,
 }

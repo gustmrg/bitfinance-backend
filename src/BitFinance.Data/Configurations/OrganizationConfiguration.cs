@@ -30,7 +30,6 @@ public class OrganizationConfiguration : IEntityTypeConfiguration<Organization>
         
         builder.Property(o => o.PlanTier)
             .HasConversion<int>()
-            .HasDefaultValue(BitFinance.Business.Enums.PlanTier.Free)
             .IsRequired();
 
         builder.HasMany(o => o.Bills)

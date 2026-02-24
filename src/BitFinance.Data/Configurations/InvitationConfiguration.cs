@@ -22,11 +22,11 @@ public class InvitationConfiguration : IEntityTypeConfiguration<Invitation>
             .HasConversion<int>()
             .IsRequired();
 
-        builder.Property(i => i.Token)
+        builder.Property(i => i.TokenHash)
             .HasMaxLength(256)
             .IsRequired();
 
-        builder.HasIndex(i => i.Token).IsUnique();
+        builder.HasIndex(i => i.TokenHash).IsUnique();
 
         builder.Property(i => i.ExpiresAt)
             .HasColumnType("timestampz")

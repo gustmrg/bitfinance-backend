@@ -36,9 +36,9 @@ public class Invitation
     public InvitationStatus Status { get; set; }
 
     /// <summary>
-    /// A unique token used in the invite link for accepting the invitation.
+    /// The SHA-256 hash of the invitation token. The raw token is never stored.
     /// </summary>
-    public string Token { get; set; }
+    public string TokenHash { get; set; }
 
     /// <summary>
     /// The date and time when this invitation expires.
