@@ -1,36 +1,18 @@
+# Production overlay — use on top of the base:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up --no-build
 services:
   bitfinance-api:
     image: gustmrg/bitfinance-backend:${IMAGE_TAG:-latest}
-    container_name: bitfinance-api
-    ports:
-      - "8080:8080"
+    restart: always
     environment:
-      - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_URLS=http://+:8080
       - ConnectionStrings__Database=Host=bitfinance-db;Port=5432;Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}
-      - ConnectionStrings__Cache=${REDIS_CONNECTION_STRING:-bitfinance-cache:6379}
-      - AppSettings__CacheEnabled=${CACHE_ENABLED:-true}
-      - AppSettings__LoggingEnabled=true
-      - Logging__LogLevel__Default=Warning
-      - Logging__LogLevel__Microsoft.AspNetCore=Warning
       - Jwt__Key=${JWT_KEY}
       - Jwt__Issuer=${JWT_ISSUER}
       - Jwt__Audience=${JWT_AUDIENCE}
-      - Jwt__ExpirationInMinutes=${JWT_EXPIRATION:-60}
       - KeyVault__Url=${KEYVAULT_URL}
       - AZURE_CLIENT_ID=${AZURE_CLIENT_ID}
       - AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET}
       - AZURE_TENANT_ID=${AZURE_TENANT_ID}
-      - Storage__LocalPath=/app/documents
-    restart: always
-    networks:
-      - bitfinance-network
-    depends_on:
-      bitfinance-db:
-        condition: service_healthy
-    volumes:
-      - api-logs:/app/logs
-      - document-storage:/app/documents
     deploy:
       resources:
         limits:
@@ -46,24 +28,13 @@ services:
         max-file: "3"
 
   bitfinance-db:
-    image: postgres:17-alpine
-    container_name: bitfinance-db
+    restart: always
     ports:
       - "127.0.0.1:5432:5432"
     environment:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    networks:
-      - bitfinance-network
-    restart: always
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
     deploy:
       resources:
         limits:
@@ -71,26 +42,10 @@ services:
           memory: 256M
 
   bitfinance-cache:
-    image: redis:7-alpine
-    container_name: bitfinance-cache
+    restart: always
     command: redis-server --appendonly yes --maxmemory 100mb --maxmemory-policy allkeys-lru
     volumes:
       - redis-data:/data
-    networks:
-      - bitfinance-network
-    restart: always
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-networks:
-  bitfinance-network:
-    driver: bridge
 
 volumes:
-  postgres-data:
-  api-logs:
-  document-storage:
   redis-data:
