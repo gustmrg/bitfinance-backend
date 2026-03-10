@@ -12,4 +12,5 @@ public interface IExpensesRepository
     Task<Expense> CreateAsync(Expense expense);
     Task<Expense> UpdateAsync(Expense expense);
     Task DeleteAsync(Expense expense);
+    Task<int> GetMonthlyCountByOrganizationAsync(Guid organizationId, DateTime monthStartUtc, DateTime monthEndUtc);
 }

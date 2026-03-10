@@ -26,4 +26,5 @@ public enum CreateInvitationError
     NotAuthorized,
     InvalidRole,
     OrganizationNotFound,
+    PlanLimitReached,
 }

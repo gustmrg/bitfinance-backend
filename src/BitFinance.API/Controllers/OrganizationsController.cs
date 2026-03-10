@@ -128,6 +128,7 @@ public class OrganizationsController : ControllerBase
             {
                 CreateInvitationError.NotAuthorized => Forbid(),
                 CreateInvitationError.OrganizationNotFound => NotFound(result.ErrorMessage),
+                CreateInvitationError.PlanLimitReached => StatusCode(403, new { error = result.ErrorMessage }),
                 _ => BadRequest(result.ErrorMessage),
             };
         }

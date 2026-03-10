@@ -87,4 +87,12 @@ public class ExpensesRepository : IExpensesRepository
     {
         return await _dbContext.Expenses.CountAsync();
     }
+
+    public async Task<int> GetMonthlyCountByOrganizationAsync(Guid organizationId, DateTime monthStartUtc, DateTime monthEndUtc)
+    {
+        return await _dbContext.Expenses
+            .CountAsync(e => e.OrganizationId == organizationId
+                          && e.CreatedAt >= monthStartUtc
+                          && e.CreatedAt < monthEndUtc);
+    }
 }

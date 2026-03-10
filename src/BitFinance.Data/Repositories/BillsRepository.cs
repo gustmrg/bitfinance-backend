@@ -82,6 +82,14 @@ public class BillsRepository : IBillsRepository
         return await _dbContext.Bills.CountAsync();
     }
 
+    public async Task<int> GetMonthlyCountByOrganizationAsync(Guid organizationId, DateTime monthStartUtc, DateTime monthEndUtc)
+    {
+        return await _dbContext.Bills
+            .CountAsync(b => b.OrganizationId == organizationId
+                          && b.CreatedAt >= monthStartUtc
+                          && b.CreatedAt < monthEndUtc);
+    }
+
     public async Task<Bill?> GetByIdAsync(Guid id)
     {
         Bill? bill;

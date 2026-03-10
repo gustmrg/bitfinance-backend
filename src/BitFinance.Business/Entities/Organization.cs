@@ -76,6 +76,22 @@ public class Organization
         return DateOnly.FromDateTime(GetCurrentLocalTime());
     }
 
+    /// <summary>
+    /// Returns the UTC start (inclusive) and end (exclusive) of the current month in the organization's time zone.
+    /// </summary>
+    public (DateTime StartUtc, DateTime EndUtc) GetCurrentMonthBoundariesUtc()
+    {
+        var timeZone = ResolveTimeZone(TimeZoneId);
+        var localNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
+        var monthStart = new DateTime(localNow.Year, localNow.Month, 1, 0, 0, 0, DateTimeKind.Unspecified);
+        var monthEnd = monthStart.AddMonths(1);
+
+        var startUtc = TimeZoneInfo.ConvertTimeToUtc(monthStart, timeZone);
+        var endUtc = TimeZoneInfo.ConvertTimeToUtc(monthEnd, timeZone);
+
+        return (startUtc, endUtc);
+    }
+
     private static TimeZoneInfo ResolveTimeZone(string? timeZoneId)
     {
         foreach (var candidate in GetTimeZoneCandidates(timeZoneId))

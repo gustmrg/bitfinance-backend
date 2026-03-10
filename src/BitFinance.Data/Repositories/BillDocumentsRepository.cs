@@ -57,4 +57,11 @@ public class BillDocumentsRepository : IBillDocumentsRepository
     {
         await _dbContext.SaveChangesAsync();
     }
+
+    public async Task<long> GetTotalStorageByOrganizationAsync(Guid organizationId)
+    {
+        return await _dbContext.BillDocuments
+            .Where(d => d.Bill.OrganizationId == organizationId)
+            .SumAsync(d => d.FileSizeInBytes);
+    }
 }

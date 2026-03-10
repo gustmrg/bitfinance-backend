@@ -12,4 +12,5 @@ public interface IBillsRepository : IRepository<Bill, Guid>
     Task<int> GetEntriesCountAsync();
     Task<List<Bill>> GetUpcomingBills(Guid organizationId);
     Task UpdateRangeAsync(List<Bill> bills);
+    Task<int> GetMonthlyCountByOrganizationAsync(Guid organizationId, DateTime monthStartUtc, DateTime monthEndUtc);
 }
