@@ -7,7 +7,10 @@ public static class TokenHasher
 {
     public static string GenerateToken()
     {
-        return Convert.ToHexString(RandomNumberGenerator.GetBytes(32)).ToLowerInvariant();
+        return Convert.ToBase64String(RandomNumberGenerator.GetBytes(8))
+            .Replace("+", "-")
+            .Replace("/", "_")
+            .TrimEnd('=');
     }
 
     public static string HashToken(string token)
