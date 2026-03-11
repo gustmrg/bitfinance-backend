@@ -250,7 +250,7 @@ public class IdentityController : ControllerBase
         if (user == null) return BadRequest("Invalid user");
 
         List<OrganizationViewModel> organizations = [];
-        organizations.AddRange(user.Organizations.Select(organization => new OrganizationViewModel(organization.Id, organization.Name)));
+        organizations.AddRange(user.OrganizationMemberships.Select(m => new OrganizationViewModel(m.Organization.Id, m.Organization.Name)));
 
         return Ok(new UserViewModel(user.Id, user.FullName, user?.Email ?? string.Empty, ReplaceUserName(user?.UserName), organizations));
     }
@@ -275,7 +275,7 @@ public class IdentityController : ControllerBase
         await _usersService.UpdateUserAsync(user);
 
         List<OrganizationViewModel> organizations = [];
-        organizations.AddRange(user.Organizations.Select(organization => new OrganizationViewModel(organization.Id, organization.Name)));
+        organizations.AddRange(user.OrganizationMemberships.Select(m => new OrganizationViewModel(m.Organization.Id, m.Organization.Name)));
 
         return Ok(new UserViewModel(user.Id, user.FullName, user.Email ?? string.Empty, ReplaceUserName(user?.UserName), organizations));
     }

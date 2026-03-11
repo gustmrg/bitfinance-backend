@@ -2,6 +2,7 @@ using BitFinance.API.Services.Interfaces;
 using BitFinance.API.Settings;
 using BitFinance.Business.Entities;
 using BitFinance.Business.Enums;
+using BitFinance.Business.Exceptions;
 using BitFinance.Data.Repositories.Interfaces;
 using FluentValidation;
 using Microsoft.Extensions.Options;
@@ -15,6 +16,7 @@ public class BillDocumentService : IBillDocumentService
     private readonly IBillDocumentsRepository _billDocumentsRepository;
     private readonly ILogger<BillDocumentService> _logger;
     private readonly IBillsRepository _billsRepository;
+    private readonly IOrganizationsRepository _organizationsRepository;
     private readonly StorageSettings _storageSettings;
 
     private const string DocumentTypeFolder = "bills";
@@ -25,12 +27,14 @@ public class BillDocumentService : IBillDocumentService
         IBillDocumentsRepository billDocumentsRepository,
         ILogger<BillDocumentService> logger,
         IBillsRepository billsRepository,
+        IOrganizationsRepository organizationsRepository,
         IOptions<StorageSettings> storageSettings)
     {
         _storageService = storageService;
         _billDocumentsRepository = billDocumentsRepository;
         _logger = logger;
         _billsRepository = billsRepository;
+        _organizationsRepository = organizationsRepository;
         _fileValidationService = fileValidationService;
         _storageSettings = storageSettings.Value;
     }
@@ -58,7 +62,21 @@ public class BillDocumentService : IBillDocumentService
             _logger.LogError("Bill with ID {BillId} not found.", billId);
             throw new KeyNotFoundException($"Bill with ID {billId} not found.");
         }
-        
+
+        var organization = await _organizationsRepository.GetByIdAsync(bill.OrganizationId);
+        if (organization is null)
+            throw new KeyNotFoundException($"Organization for bill {billId} not found.");
+
+        var entitlement = PlanEntitlement.For(organization.EffectivePlanTier);
+
+        if (!entitlement.HasFileAttachments)
+            throw new PlanLimitExceededException("File attachments are not available on your current plan.");
+
+        var currentStorageBytes = await _billDocumentsRepository.GetTotalStorageByOrganizationAsync(organization.Id);
+        if (currentStorageBytes + fileStream.Length > entitlement.MaxStorageBytes)
+            throw new PlanLimitExceededException(
+                $"Storage limit of {entitlement.MaxStorageBytes / (1024 * 1024)} MB reached.");
+
         var storageResult = await _storageService.SaveFileAsync(
             fileStream, 
             fileName, 

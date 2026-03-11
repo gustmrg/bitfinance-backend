@@ -9,6 +9,7 @@ using BitFinance.API.Models.Response;
 using BitFinance.API.Services.Interfaces;
 using BitFinance.Business.Entities;
 using BitFinance.Business.Enums;
+using BitFinance.Business.Exceptions;
 using BitFinance.Data.Contexts;
 using BitFinance.Data.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -29,16 +30,19 @@ public class BillsController : ControllerBase
     private readonly ILogger<BillsController> _logger;
     private readonly IBillsRepository _billsRepository;
     private readonly IBillDocumentService _documentService;
-    
-    public BillsController(ApplicationDbContext context, 
-        ILogger<BillsController> logger, 
-        IBillsRepository billsRepository, 
-        IBillDocumentService documentService)
+    private readonly IOrganizationsRepository _organizationsRepository;
+
+    public BillsController(ApplicationDbContext context,
+        ILogger<BillsController> logger,
+        IBillsRepository billsRepository,
+        IBillDocumentService documentService,
+        IOrganizationsRepository organizationsRepository)
     {
         _context = context;
         _logger = logger;
         _billsRepository = billsRepository;
         _documentService = documentService;
+        _organizationsRepository = organizationsRepository;
     }
     
     [HttpPost]
@@ -60,7 +64,18 @@ public class BillsController : ControllerBase
             var isValidStatus = Enum.TryParse(request.Status, true, out BillStatus status);
             
             if (!isValidCategory || !isValidStatus) return UnprocessableEntity();
-            
+
+            var organization = await _organizationsRepository.GetByIdAsync(organizationId);
+            if (organization is null) return NotFound();
+
+            var entitlement = PlanEntitlement.For(organization.EffectivePlanTier);
+            var (monthStartUtc, monthEndUtc) = organization.GetCurrentMonthBoundariesUtc();
+            var currentBillCount = await _billsRepository.GetMonthlyCountByOrganizationAsync(
+                organizationId, monthStartUtc, monthEndUtc);
+
+            if (currentBillCount >= entitlement.MaxBillsPerMonth)
+                return StatusCode(403, new { error = $"Monthly bill limit of {entitlement.MaxBillsPerMonth} reached." });
+
             Bill bill = new()
             {
                 Description = request.Description,
@@ -344,6 +359,10 @@ public class BillsController : ControllerBase
             };
 
             return Ok(response);
+        }
+        catch (PlanLimitExceededException ex)
+        {
+            return StatusCode(403, new { error = ex.Message });
         }
         catch (Exception e)
         {

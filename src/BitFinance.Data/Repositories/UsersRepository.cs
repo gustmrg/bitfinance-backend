@@ -23,7 +23,8 @@ public class UsersRepository : IUsersRepository
     public async Task<User?> GetByIdAsync(string id)
     {
         return await _dbContext.Set<User>()
-            .Include(u => u.Organizations)
+            .Include(u => u.OrganizationMemberships)
+                .ThenInclude(m => m.Organization)
             .FirstOrDefaultAsync(u => u.Id == id);
     }
 

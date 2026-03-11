@@ -23,7 +23,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IOrganizationsRepository, OrganizationsRepository>();
         services.AddScoped<IUsersRepository, UsersRepository>();
         services.AddScoped<IExpensesRepository, ExpensesRepository>();
-        services.AddScoped<IOrganizationInvitesRepository, OrganizationInvitesRepository>();
+        services.AddScoped<IInvitationsRepository, InvitationsRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IBillDocumentsRepository, BillDocumentsRepository>();
 
@@ -34,6 +34,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFileValidationService, FileValidationService>();
         services.AddScoped<IBillDocumentService, BillDocumentService>();
         services.AddScoped<ICookieService, CookieService>();
+        services.AddScoped<IOrganizationsService, OrganizationsService>();
+        services.AddScoped<IInvitationsService, InvitationsService>();
 
         services.AddSingleton<IValidateOptions<JwtSettings>, JwtSettingsValidator>();
         services.AddOptions<JwtSettings>()

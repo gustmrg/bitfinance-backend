@@ -7,7 +7,6 @@ using BitFinance.API.Models.Request;
 using BitFinance.API.Models.Response;
 using BitFinance.Business.Entities;
 using BitFinance.Business.Enums;
-using BitFinance.Data.Contexts;
 using BitFinance.Data.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -24,13 +23,16 @@ public class ExpensesController : ControllerBase
 {
     private readonly ILogger<ExpensesController> _logger;
     private readonly IExpensesRepository _expensesRepository;
+    private readonly IOrganizationsRepository _organizationsRepository;
 
     public ExpensesController(
-        ILogger<ExpensesController> logger, 
-        IExpensesRepository expensesRepository)
+        ILogger<ExpensesController> logger,
+        IExpensesRepository expensesRepository,
+        IOrganizationsRepository organizationsRepository)
     {
         _logger = logger;
         _expensesRepository = expensesRepository;
+        _organizationsRepository = organizationsRepository;
     }
 
     [HttpGet]
@@ -124,7 +126,18 @@ public class ExpensesController : ControllerBase
             
             var isValidStatus = Enum.TryParse(request.Status, true, out ExpenseStatus status);
             if (!isValidStatus) return UnprocessableEntity();
-            
+
+            var organization = await _organizationsRepository.GetByIdAsync(organizationId);
+            if (organization is null) return NotFound();
+
+            var entitlement = PlanEntitlement.For(organization.EffectivePlanTier);
+            var (monthStartUtc, monthEndUtc) = organization.GetCurrentMonthBoundariesUtc();
+            var currentExpenseCount = await _expensesRepository.GetMonthlyCountByOrganizationAsync(
+                organizationId, monthStartUtc, monthEndUtc);
+
+            if (currentExpenseCount >= entitlement.MaxExpensesPerMonth)
+                return StatusCode(403, new { error = $"Monthly expense limit of {entitlement.MaxExpensesPerMonth} reached." });
+
             Expense expense = new()
             {
                 Description = request.Description,

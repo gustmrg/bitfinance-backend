@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using BitFinance.API.Settings;
 using BitFinance.Business.Entities;
+using BitFinance.Business.Helpers;
 using BitFinance.Business.Interfaces;
 using BitFinance.Data.Repositories.Interfaces;
 using Microsoft.Extensions.Options;
@@ -134,10 +135,9 @@ public class TokenService : ITokenService
     public string HashToken(string token)
     {
         if (string.IsNullOrEmpty(token))
-            return string.Empty;    
-        
-        return Convert.ToBase64String(
-            SHA256.HashData(Encoding.UTF8.GetBytes(token)));
+            return string.Empty;
+
+        return TokenHasher.HashToken(token);
     }
 
     [Obsolete("Use GenerateAccessToken instead")]

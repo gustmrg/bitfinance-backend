@@ -12,7 +12,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Bill> Bills => Set<Bill>();
     public DbSet<Organization> Organizations => Set<Organization>();
     public DbSet<Expense> Expenses => Set<Expense>();
-    public DbSet<OrganizationInvite> OrganizationInvites => Set<OrganizationInvite>();
+    public DbSet<OrganizationMember> OrganizationMembers => Set<OrganizationMember>();
+    public DbSet<Invitation> Invitations => Set<Invitation>();
     public DbSet<BillDocument> BillDocuments => Set<BillDocument>();
     public DbSet<UserSettings> UserSettings => Set<UserSettings>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
