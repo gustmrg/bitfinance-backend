@@ -67,7 +67,7 @@ public class BillDocumentService : IBillDocumentService
         if (organization is null)
             throw new KeyNotFoundException($"Organization for bill {billId} not found.");
 
-        var entitlement = PlanEntitlement.For(organization.PlanTier);
+        var entitlement = PlanEntitlement.For(organization.EffectivePlanTier);
 
         if (!entitlement.HasFileAttachments)
             throw new PlanLimitExceededException("File attachments are not available on your current plan.");

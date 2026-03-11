@@ -39,6 +39,20 @@ public class Organization
     public PlanTier PlanTier { get; set; } = PlanTier.Free;
 
     /// <summary>
+    /// The UTC date and time when the current plan tier expires.
+    /// After expiration, <see cref="EffectivePlanTier"/> returns <see cref="PlanTier.Free"/>.
+    /// For lifetime plans, set to a far-future date. Always non-null to prevent accidental lifetime access.
+    /// </summary>
+    public DateTime PlanExpiresAt { get; set; } = DateTime.UtcNow.AddMonths(1);
+
+    /// <summary>
+    /// Returns the effective plan tier, accounting for expiration.
+    /// If <see cref="PlanExpiresAt"/> is in the past, returns <see cref="PlanTier.Free"/>.
+    /// </summary>
+    public PlanTier EffectivePlanTier =>
+        PlanExpiresAt < DateTime.UtcNow ? PlanTier.Free : PlanTier;
+
+    /// <summary>
     /// The members of this organization, including their roles.
     /// </summary>
     public ICollection<OrganizationMember> Members { get; set; } = new List<OrganizationMember>();

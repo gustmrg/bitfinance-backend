@@ -68,7 +68,7 @@ public class BillsController : ControllerBase
             var organization = await _organizationsRepository.GetByIdAsync(organizationId);
             if (organization is null) return NotFound();
 
-            var entitlement = PlanEntitlement.For(organization.PlanTier);
+            var entitlement = PlanEntitlement.For(organization.EffectivePlanTier);
             var (monthStartUtc, monthEndUtc) = organization.GetCurrentMonthBoundariesUtc();
             var currentBillCount = await _billsRepository.GetMonthlyCountByOrganizationAsync(
                 organizationId, monthStartUtc, monthEndUtc);

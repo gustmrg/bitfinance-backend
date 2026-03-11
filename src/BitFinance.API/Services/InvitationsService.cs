@@ -36,7 +36,7 @@ public class InvitationsService : IInvitationsService
         if (inviterMembership is null || (inviterMembership.Role != OrgRole.Owner && inviterMembership.Role != OrgRole.Admin))
             return CreateInvitationResult.Failed(CreateInvitationError.NotAuthorized, "Only owners and admins can create invitations");
 
-        var entitlement = PlanEntitlement.For(organization.PlanTier);
+        var entitlement = PlanEntitlement.For(organization.EffectivePlanTier);
         if (organization.Members.Count >= entitlement.MaxMembers)
             return CreateInvitationResult.Failed(CreateInvitationError.PlanLimitReached,
                 $"Your plan allows a maximum of {entitlement.MaxMembers} members.");

@@ -32,6 +32,14 @@ public class OrganizationConfiguration : IEntityTypeConfiguration<Organization>
             .HasConversion<int>()
             .IsRequired();
 
+        builder.Property(o => o.PlanExpiresAt)
+            .HasColumnName("plan_expires_at")
+            .HasColumnType("timestampz")
+            .HasPrecision(3)
+            .IsRequired();
+
+        builder.Ignore(o => o.EffectivePlanTier);
+
         builder.HasMany(o => o.Bills)
             .WithOne(b => b.Organization)
             .HasForeignKey(b => b.OrganizationId);
