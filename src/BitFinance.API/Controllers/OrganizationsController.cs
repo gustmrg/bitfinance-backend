@@ -140,7 +140,7 @@ public class OrganizationsController : ControllerBase
     [HttpPost("join")]
     [EndpointSummary("Join an organization")]
     [EndpointDescription("Adds the authenticated user to an organization using a valid invitation token.")]
-    public async Task<IActionResult> JoinOrganization([FromBody] JoinOrganizationRequest request)
+    public async Task<IActionResult> JoinOrganization([FromQuery] string token)
     {
         var userId = User.Claims.FirstOrDefault(a => a.Type == ClaimTypes.NameIdentifier)?.Value;
 
@@ -150,7 +150,7 @@ public class OrganizationsController : ControllerBase
 
         if (user == null) return NotFound("Invalid user");
 
-        var result = await _invitationsService.JoinOrganizationAsync(request.Token, user.Id, user.Email ?? string.Empty);
+        var result = await _invitationsService.JoinOrganizationAsync(token, user.Id, user.Email ?? string.Empty);
 
         if (!result.Success)
         {
