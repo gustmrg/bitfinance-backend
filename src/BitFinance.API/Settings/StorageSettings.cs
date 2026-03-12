@@ -8,10 +8,8 @@ public class StorageSettings
 
     public string BucketName { get; set; } = string.Empty;
     public string Region { get; set; } = "us-east-1";
-    public string Prefix { get; set; } = "documents";
+    public string Prefix { get; set; } = string.Empty;
     public string ServiceUrl { get; set; } = string.Empty;
-    public int MaxFileSizeInMB { get; set; } = 10;
-    public string[] AllowedExtensions { get; set; } = [".pdf", ".jpg", ".jpeg", ".png", ".doc", ".docx"];
 }
 
 public class StorageSettingsValidator : IValidateOptions<StorageSettings>
@@ -25,12 +23,6 @@ public class StorageSettingsValidator : IValidateOptions<StorageSettings>
 
         if (string.IsNullOrWhiteSpace(options.Region))
             errors.Add("Storage:Region is required.");
-
-        if (options.MaxFileSizeInMB <= 0)
-            errors.Add("Storage:MaxFileSizeInMB must be greater than 0.");
-
-        if (options.AllowedExtensions.Length == 0)
-            errors.Add("Storage:AllowedExtensions must contain at least one file extension.");
 
         return errors.Count > 0
             ? ValidateOptionsResult.Fail(errors)

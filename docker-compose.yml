@@ -22,7 +22,7 @@ services:
       - Jwt__Issuer=${JWT_ISSUER:-bitfinance}
       - Jwt__Audience=${JWT_AUDIENCE:-bitfinance}
       - Jwt__ExpirationInMinutes=${JWT_EXPIRATION:-60}
-      - Storage__BucketName=${S3_BUCKET_NAME:-bitfinance-documents}
+      - Storage__BucketName=${S3_BUCKET_NAME:-bitfinance}
       - Storage__Region=${S3_REGION:-us-east-1}
     restart: unless-stopped
     networks:

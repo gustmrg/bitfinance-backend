@@ -47,7 +47,7 @@ public class BillDocumentService : IBillDocumentService
         DocumentType documentType,
         Guid? userId = null)
     {
-        var validationResult = _fileValidationService.ValidateFile(fileStream, fileName, fileStream.Length, contentType);
+        var validationResult = _fileValidationService.ValidateFile(fileStream, fileName, fileStream.Length, contentType, FileUploadRules.Documents());
 
         if (!validationResult.IsValid)
         {
