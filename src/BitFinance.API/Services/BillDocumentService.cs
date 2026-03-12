@@ -100,7 +100,6 @@ public class BillDocumentService : IBillDocumentService
             FileSizeInBytes = storageResult.FileSizeInBytes ?? 0,
             StoragePath = storageResult.StoragePath!,
             DocumentType = documentType,
-            StorageProvider = GetStorageProvider(),
             FileHash = storageResult.FileHash,
             UploadedAt = DateTime.UtcNow,
             UploadedByUserId = userId
@@ -131,9 +130,4 @@ public class BillDocumentService : IBillDocumentService
         return true;
     }
 
-    private StorageProvider GetStorageProvider() => _storageSettings.Provider switch
-    {
-        "S3" => StorageProvider.AmazonS3,
-        _ => StorageProvider.Local
-    };
 }

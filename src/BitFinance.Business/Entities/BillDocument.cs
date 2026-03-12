@@ -53,11 +53,6 @@ public class BillDocument
     public DocumentType DocumentType { get; set; }
 
     /// <summary>
-    /// The storage provider used to persist this file (e.g., Local, S3).
-    /// </summary>
-    public StorageProvider StorageProvider { get; set; }
-
-    /// <summary>
     /// An optional description or note about the document.
     /// </summary>
     public string? Description { get; set; }

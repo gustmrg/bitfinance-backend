@@ -22,7 +22,8 @@ services:
       - Jwt__Issuer=${JWT_ISSUER:-bitfinance}
       - Jwt__Audience=${JWT_AUDIENCE:-bitfinance}
       - Jwt__ExpirationInMinutes=${JWT_EXPIRATION:-60}
-      - Storage__LocalPath=/app/documents
+      - Storage__BucketName=${S3_BUCKET_NAME:-bitfinance-documents}
+      - Storage__Region=${S3_REGION:-us-east-1}
     restart: unless-stopped
     networks:
       - bitfinance-network
@@ -31,7 +32,6 @@ services:
         condition: service_healthy
     volumes:
       - api-logs:/app/logs
-      - document-storage:/app/documents
 
   bitfinance-db:
     image: postgres:17-alpine
@@ -70,4 +70,3 @@ networks:
 volumes:
   postgres-data:
   api-logs:
-  document-storage:

@@ -52,7 +52,7 @@ public class S3FileStorageService : IFileStorageService
 
             var putRequest = new PutObjectRequest
             {
-                BucketName = _settings.S3.BucketName,
+                BucketName = _settings.BucketName,
                 Key = key,
                 InputStream = memoryStream,
                 ContentType = contentType
@@ -84,7 +84,7 @@ public class S3FileStorageService : IFileStorageService
     {
         var response = await _s3Client.GetObjectAsync(new GetObjectRequest
         {
-            BucketName = _settings.S3.BucketName,
+            BucketName = _settings.BucketName,
             Key = storagePath
         });
 
@@ -97,7 +97,7 @@ public class S3FileStorageService : IFileStorageService
         {
             var response = await _s3Client.DeleteObjectAsync(new DeleteObjectRequest
             {
-                BucketName = _settings.S3.BucketName,
+                BucketName = _settings.BucketName,
                 Key = storagePath
             });
 
@@ -116,7 +116,7 @@ public class S3FileStorageService : IFileStorageService
         {
             await _s3Client.GetObjectMetadataAsync(new GetObjectMetadataRequest
             {
-                BucketName = _settings.S3.BucketName,
+                BucketName = _settings.BucketName,
                 Key = storagePath
             });
 
@@ -142,8 +142,8 @@ public class S3FileStorageService : IFileStorageService
     {
         var parts = new List<string>();
 
-        if (!string.IsNullOrWhiteSpace(_settings.S3.Prefix))
-            parts.Add(_settings.S3.Prefix);
+        if (!string.IsNullOrWhiteSpace(_settings.Prefix))
+            parts.Add(_settings.Prefix);
 
         if (!string.IsNullOrWhiteSpace(subDirectory))
             parts.Add(subDirectory);

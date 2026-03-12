@@ -1,3 +1,4 @@
+using Amazon.Runtime;
 using Amazon.S3;
 using BitFinance.API.Middlewares;
 using BitFinance.API.Services;
@@ -57,19 +58,27 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddFileStorageProvider(this IServiceCollection services, IConfiguration configuration)
     {
-        var provider = configuration.GetValue<string>("Storage:Provider") ?? "Local";
+        var region = configuration.GetValue<string>("Storage:Region") ?? "us-east-1";
+        var serviceUrl = configuration.GetValue<string>("Storage:ServiceUrl");
 
-        switch (provider)
+        if (!string.IsNullOrWhiteSpace(serviceUrl))
         {
-            case "S3":
-                var region = configuration.GetValue<string>("Storage:S3:Region") ?? "us-east-1";
-                services.AddSingleton<IAmazonS3>(_ => new AmazonS3Client(Amazon.RegionEndpoint.GetBySystemName(region)));
-                services.AddScoped<IFileStorageService, S3FileStorageService>();
-                break;
-            default:
-                services.AddScoped<IFileStorageService, LocalFileStorageService>();
-                break;
+            var s3Config = new AmazonS3Config
+            {
+                ServiceURL = serviceUrl,
+                ForcePathStyle = true
+            };
+            var accessKey = configuration.GetValue<string>("AWS_ACCESS_KEY_ID") ?? "";
+            var secretKey = configuration.GetValue<string>("AWS_SECRET_ACCESS_KEY") ?? "";
+            var credentials = new BasicAWSCredentials(accessKey, secretKey);
+            services.AddSingleton<IAmazonS3>(_ => new AmazonS3Client(credentials, s3Config));
         }
+        else
+        {
+            services.AddSingleton<IAmazonS3>(_ => new AmazonS3Client(Amazon.RegionEndpoint.GetBySystemName(region)));
+        }
+
+        services.AddScoped<IFileStorageService, S3FileStorageService>();
 
         return services;
     }
