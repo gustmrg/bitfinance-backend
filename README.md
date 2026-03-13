@@ -2,23 +2,7 @@
 
 <a name="readme-top"></a>
 
-<!--
-*** Thanks for checking out the Best-README-Template. If you have a suggestion
-*** that would make this better, please fork the repo and create a pull request
-*** or simply open an issue with the tag "enhancement".
-*** Don't forget to give the project a star!
-*** Thanks again! Now go create something AMAZING! :D
--->
-
 <!-- PROJECT SHIELDS -->
-<!--
-*** I'm using markdown "reference style" links for readability.
-*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
-*** See the bottom of this document for the declaration of the reference variables
-*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
-*** https://www.markdownguide.org/basic-syntax/#reference-style-links
--->
-
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
@@ -31,28 +15,27 @@
 
 <h3 align="center">BitFinance</h3>
   <p align="center">
-    Gerenciador de orçamento financeiro de forma simples
+    Simple and effective financial budget management
     <br />
 </div>
 
 <!-- TABLE OF CONTENTS -->
 <details>
-  <summary>Conteúdo</summary>
+  <summary>Contents</summary>
   <ol>
     <li>
-      <a href="#about-the-project">Sobre o projeto</a>
+      <a href="#about-the-project">About the Project</a>
       <ul>
-        <li><a href="#built-with">Tecnologias</a></li>
+        <li><a href="#built-with">Built With</a></li>
       </ul>
     </li>
     <li>
-      <a href="#getting-started">Preparando o ambiente</a>
+      <a href="#getting-started">Getting Started</a>
       <ul>
-        <li><a href="#prerequisites">Pré-requisitos</a></li>
-        <li><a href="#installation">Instalação</a></li>
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
-    <li><a href="#usage">Uso</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#license">License</a></li>
   </ol>
@@ -60,115 +43,106 @@
 
 <!-- ABOUT THE PROJECT -->
 
-## Sobre o Projeto
+## About the Project
 
-O BitFinance é um aplicativo de finanças projetado para simplificar o acompanhamento e gerenciamento de gastos. Com uma interface simples, permite que usuários registrem e monitorem despesas de forma eficiente, proporcionando controle total sobre o orçamento, facilitando a organização das finanças da família ou da empresa.
+BitFinance is a multi-tenant financial management application designed to simplify tracking and managing budgets for families and organizations. It provides a clean API that allows users to record bills, track expenses, manage members within an organization, and control access through a subscription-based plan system.
 
-Desenvolvi este projeto com o objetivo de solucionar o problema da dificuldade de acompanhar os meus gastos financeiros, ajudando a entender onde estão os maiores custos e de melhorar a educação financeira.
+Key capabilities include:
+- **Organizations** — create and manage shared financial workspaces for families or teams
+- **Bills** — track recurring payments and one-off bills with due dates, categories, and document attachments
+- **Expenses** — record and categorize spending with full audit history
+- **File Attachments** — attach invoices or receipts to bills and expenses, stored locally (MinIO) or in S3-compatible storage
+- **Subscription Plans** — Free, Basic, and Premium tiers with plan-based entitlements (limits on bills, expenses, uploads, and invitations)
+- **Secure Authentication** — JWT access tokens with refresh token rotation, HTTP-only cookies, and multi-device session management
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-### Tecnologias
+### Built With
 
-[![.NET][dotnet]][dotnet-url] [![React][React.js]][React-url] [![TailwindCSS][TailwindCSS]][Tailwindcss-url]
+[![.NET][dotnet]][dotnet-url] [![PostgreSQL][Postgresql.org]][Postgresql-url] [![Redis][Redis]][Redis-url] [![Docker][Docker]][Docker-url]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- GETTING STARTED
+<!-- GETTING STARTED -->
+
 ## Getting Started
-
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
+- [.NET 10 SDK](https://dotnet.microsoft.com/download)
+- [Docker](https://www.docker.com/) and Docker Compose
 
 ### Installation
 
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
+1. Clone the repository
    ```sh
-   git clone https://github.com/github_username/repo_name.git
+   git clone https://github.com/gustmrg/bitfinance-backend.git
+   cd bitfinance-backend
    ```
-3. Install NPM packages
+
+2. Copy the environment file and fill in your values
    ```sh
-   npm install
+   cp .env.example .env
    ```
-4. Enter your API in `config.js`
-   ```js
-   const API_KEY = 'ENTER YOUR API';
+
+3. Start the infrastructure (PostgreSQL, Redis, MinIO)
+   ```sh
+   docker compose up -d
    ```
+
+4. Apply database migrations
+   ```sh
+   dotnet ef database update --project src/BitFinance.Data --startup-project src/BitFinance.API
+   ```
+
+5. Run the API
+   ```sh
+   dotnet run --project src/BitFinance.API
+   ```
+
+The API will be available at `https://localhost:8080` (see console output for the exact port).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
--->
-
-<!-- USAGE EXAMPLES
-## Usage
-
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
--->
 
 <!-- ROADMAP -->
 
 ## Roadmap
 
-- [x] Autenticação/Autorização
-- [x] Gerenciamento de contas a pagar (adicionar/atualizar/excluir)
-- [x] Gerenciamento de despesas (adicionar/atualizar/excluir)
-- [x] Gerenciamento de residências/famílias (adicionar/atualizar/excluir)
-- [x] Enviar link de convite para adicionar usuários em residências/famílias
-- [x] Containers Docker
-- [x] Salvar documentos (boleto/comprovante)
-- [x] Salvar arquivos localmente
-- [ ] Salvar arquivos no S3 (AWS)
-- [ ] Notificações de datas de vencimento
+- [x] Authentication & authorization (JWT + refresh token rotation)
+- [x] Bills management (create, update, delete)
+- [x] Expenses management (create, update, delete)
+- [x] Organization/family management (create, update, delete)
+- [x] Member invitations via invite link
+- [x] Docker containers (development & production)
+- [x] File attachments (invoices, receipts) for bills and expenses
+- [x] Local file storage with MinIO
+- [x] Subscription plans (Free, Basic, Premium)
+- [x] Plan-based entitlements (feature limits per tier)
+- [x] Cloud file storage on AWS S3
+- [ ] Due date notifications
+- [ ] Dashboard analytics
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- LICENSE -->
 
-## Licença
+## License
 
-Este projeto está sob a licença MIT. Veja `LICENSE.md` para mais informações.
+Distributed under the MIT License. See `LICENSE.md` for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 
-[contributors-shield]: https://img.shields.io/github/contributors/github_username/repo_name.svg?style=for-the-badge
-[contributors-url]: https://github.com/github_username/repo_name/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/github_username/repo_name.svg?style=for-the-badge
-[forks-url]: https://github.com/github_username/repo_name/network/members
-[stars-shield]: https://img.shields.io/github/stars/github_username/repo_name.svg?style=for-the-badge
-[stars-url]: https://github.com/github_username/repo_name/stargazers
-[issues-shield]: https://img.shields.io/github/issues/github_username/repo_name.svg?style=for-the-badge
-[issues-url]: https://github.com/github_username/repo_name/issues
 [license-shield]: https://img.shields.io/github/license/gustmrg/bitfinance.svg?style=for-the-badge
 [license-url]: https://github.com/gustmrg/bitfinance/blob/main/LICENSE.md
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/gustmrg
-[product-screenshot]: images/screenshot.png
-[Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
-[Next-url]: https://nextjs.org/
-[React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
-[React-url]: https://reactjs.org/
-[TailwindCSS]: https://img.shields.io/badge/TailwindCSS-35495E?style=for-the-badge&logo=tailwindcss&logoColor=06B6D4
-[Tailwindcss-url]: https://tailwindcss.com
 [dotnet]: https://img.shields.io/badge/.NET-512BD4?style=for-the-badge&logo=dotnet&logoColor=white
 [dotnet-url]: https://dotnet.microsoft.com/
 [Postgresql.org]: https://img.shields.io/badge/postgresql-4169E1?style=for-the-badge&logo=postgresql&logoColor=white
 [Postgresql-url]: https://www.postgresql.org
-[SqlServer]: https://img.shields.io/badge/microsoft_sql_server-CC2927?style=for-the-badge&logo=microsoftsqlserver&logoColor=white
-[SqlServer-url]: https://www.microsoft.com/sql-server/
+[Redis]: https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white
+[Redis-url]: https://redis.io
+[Docker]: https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white
+[Docker-url]: https://www.docker.com
