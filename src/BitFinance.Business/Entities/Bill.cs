@@ -70,5 +70,5 @@ public class Bill
     /// <summary>
     /// The documents attached to this bill (e.g., receipts, invoices).
     /// </summary>
-    public ICollection<BillDocument> Documents { get; set; } = new List<BillDocument>();
+    public ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
 }

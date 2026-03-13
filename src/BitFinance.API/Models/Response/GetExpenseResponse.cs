@@ -15,5 +15,6 @@ public class GetExpenseResponse
     public ExpenseCategory Category { get; set; }
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public ExpenseStatus Status { get; set; }
-    
+
+    public ICollection<AttachmentResponseModel> Attachments { get; set; } = new List<AttachmentResponseModel>();
 }

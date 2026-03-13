@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Asp.Versioning;
 using BitFinance.API.InputModels;
+using BitFinance.API.Models.Request;
 using BitFinance.API.Models.Response;
 using BitFinance.API.Services.Interfaces;
 using BitFinance.API.ViewModels;
@@ -24,6 +25,7 @@ public class IdentityController : ControllerBase
     private readonly ITokenService _tokenService;
     private readonly ICookieService _cookieService;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
+    private readonly IAttachmentService _attachmentService;
     private readonly ILogger<IdentityController> _logger;
 
     private const int AccessTokenExpirationMinutes = 60;
@@ -35,7 +37,8 @@ public class IdentityController : ControllerBase
         ILogger<IdentityController> logger,
         ITokenService tokenService,
         ICookieService cookieService,
-        IRefreshTokenRepository refreshTokenRepository)
+        IRefreshTokenRepository refreshTokenRepository,
+        IAttachmentService attachmentService)
     {
         _usersService = usersService;
         _userManager = userManager;
@@ -44,6 +47,7 @@ public class IdentityController : ControllerBase
         _tokenService = tokenService;
         _cookieService = cookieService;
         _refreshTokenRepository = refreshTokenRepository;
+        _attachmentService = attachmentService;
     }
 
     [HttpPost("register")]
@@ -278,6 +282,57 @@ public class IdentityController : ControllerBase
         organizations.AddRange(user.OrganizationMemberships.Select(m => new OrganizationViewModel(m.Organization.Id, m.Organization.Name)));
 
         return Ok(new UserViewModel(user.Id, user.FullName, user.Email ?? string.Empty, ReplaceUserName(user?.UserName), organizations));
+    }
+
+    [Authorize]
+    [HttpPost("manage/avatar")]
+    [EndpointSummary("Upload avatar")]
+    [EndpointDescription("Uploads or replaces the authenticated user's avatar image.")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UploadAvatar([FromForm] UploadAvatarRequest request)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var userId = User.Claims.FirstOrDefault(a => a.Type == ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized("User is not authenticated.");
+
+        try
+        {
+            using var stream = request.File.OpenReadStream();
+            var attachment = await _attachmentService.UploadUserAvatarAsync(
+                userId, stream, request.File.FileName, request.File.ContentType);
+
+            return Ok(new { attachment.Id, attachment.FileName, attachment.ContentType });
+        }
+        catch (Exception e)
+        {
+            return BadRequest(new { error = e.Message });
+        }
+    }
+
+    [Authorize]
+    [HttpDelete("manage/avatar")]
+    [EndpointSummary("Delete avatar")]
+    [EndpointDescription("Deletes the authenticated user's avatar image.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteAvatar()
+    {
+        var userId = User.Claims.FirstOrDefault(a => a.Type == ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized("User is not authenticated.");
+
+        var user = await _usersService.GetUserByIdAsync(userId);
+        if (user?.Avatar is null)
+            return NotFound();
+
+        await _attachmentService.DeleteAttachmentAsync(user.Avatar.Id);
+        return NoContent();
     }
 
     private static string ReplaceUserName(string? email)

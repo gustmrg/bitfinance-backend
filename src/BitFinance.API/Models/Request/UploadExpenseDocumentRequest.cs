@@ -4,7 +4,7 @@ using BitFinance.Business.Enums;
 
 namespace BitFinance.API.Models.Request;
 
-public class UploadBillDocumentRequest
+public class UploadExpenseDocumentRequest
 {
     [Required]
     [AllowedFileExtensions(".pdf", ".jpg", ".jpeg", ".png", ".doc", ".docx")]

@@ -11,10 +11,9 @@ public interface IFileStorageService
     /// <param name="fileStream">The file content stream.</param>
     /// <param name="fileName">The file name to use for storage.</param>
     /// <param name="contentType">The MIME content type of the file.</param>
-    /// <param name="entityId">The ID of the parent entity (used to organize storage paths).</param>
-    /// <param name="subDirectory">An optional subdirectory within the entity's storage path.</param>
+    /// <param name="directoryPath">The directory path within the bucket where the file should be stored.</param>
     /// <returns>A <see cref="FileStorageResult"/> with the outcome of the operation.</returns>
-    Task<FileStorageResult> SaveFileAsync(Stream fileStream, string fileName, string contentType, Guid entityId, string subDirectory = "");
+    Task<FileStorageResult> SaveFileAsync(Stream fileStream, string fileName, string contentType, string directoryPath);
 
     /// <summary>
     /// Retrieves a file stream from storage.

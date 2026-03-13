@@ -29,6 +29,24 @@ public class FileUploadRules
         }
     };
 
+    public static FileUploadRules Avatars() => new()
+    {
+        MaxFileSizeInBytes = 2 * 1024 * 1024,
+        AllowedExtensions = [".jpg", ".jpeg", ".png"],
+        AllowedContentTypes =
+        [
+            "image/jpeg",
+            "image/jpg",
+            "image/png"
+        ],
+        FileSignatures = new Dictionary<string, byte[]>
+        {
+            { ".jpg", [0xFF, 0xD8, 0xFF] },
+            { ".jpeg", [0xFF, 0xD8, 0xFF] },
+            { ".png", [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A] }
+        }
+    };
+
     public static FileUploadRules Images() => new()
     {
         MaxFileSizeInBytes = 5 * 1024 * 1024,

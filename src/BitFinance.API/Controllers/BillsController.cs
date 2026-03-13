@@ -29,22 +29,22 @@ public class BillsController : ControllerBase
     private readonly ApplicationDbContext _context;
     private readonly ILogger<BillsController> _logger;
     private readonly IBillsRepository _billsRepository;
-    private readonly IBillDocumentService _documentService;
+    private readonly IAttachmentService _attachmentService;
     private readonly IOrganizationsRepository _organizationsRepository;
 
     public BillsController(ApplicationDbContext context,
         ILogger<BillsController> logger,
         IBillsRepository billsRepository,
-        IBillDocumentService documentService,
+        IAttachmentService attachmentService,
         IOrganizationsRepository organizationsRepository)
     {
         _context = context;
         _logger = logger;
         _billsRepository = billsRepository;
-        _documentService = documentService;
+        _attachmentService = attachmentService;
         _organizationsRepository = organizationsRepository;
     }
-    
+
     [HttpPost]
     [EndpointSummary("Create a bill")]
     [EndpointDescription("Creates a new bill within the specified organization.")]
@@ -59,10 +59,10 @@ public class BillsController : ControllerBase
             {
                 return UnprocessableEntity();
             }
-            
+
             var isValidCategory = Enum.TryParse(request.Category, true, out BillCategory category);
             var isValidStatus = Enum.TryParse(request.Status, true, out BillStatus status);
-            
+
             if (!isValidCategory || !isValidStatus) return UnprocessableEntity();
 
             var organization = await _organizationsRepository.GetByIdAsync(organizationId);
@@ -90,7 +90,7 @@ public class BillsController : ControllerBase
             };
 
             await _billsRepository.CreateAsync(bill);
-            
+
             var response = new CreateBillResponse
             {
                 Id = bill.Id,
@@ -103,7 +103,7 @@ public class BillsController : ControllerBase
                 AmountDue = bill.AmountDue,
                 AmountPaid = bill.AmountPaid
             };
-            
+
             return CreatedAtAction(nameof(GetBillById), new
             {
                 billId = bill.Id, organizationId = bill.OrganizationId
@@ -112,20 +112,20 @@ public class BillsController : ControllerBase
         catch (Exception ex)
         {
             Log.Error("{Timestamp} - Error on {MethodName} method request: {Message}",
-                DateTime.Now.ToString("s", CultureInfo.InvariantCulture), 
-                nameof(CreateBillAsync), 
+                DateTime.Now.ToString("s", CultureInfo.InvariantCulture),
+                nameof(CreateBillAsync),
                 ex.Message);
             return BadRequest();
         }
     }
-    
+
     [HttpGet]
     [EndpointSummary("List bills")]
     [EndpointDescription("Returns a paginated list of bills for the organization. Supports optional date range filtering.")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<PagedResponse<Bill>>> GetBillsAsync(
-        [FromRoute] Guid organizationId, 
+    public async Task<ActionResult<PagedResponse<GetBillResponse>>> GetBillsAsync(
+        [FromRoute] Guid organizationId,
         [FromQuery] int page = 1, int pageSize = 100, DateTime? from = null, DateTime? to = null)
     {
         try
@@ -145,16 +145,17 @@ public class BillsController : ControllerBase
                     PaymentDate = bill.PaymentDate,
                     AmountDue = bill.AmountDue,
                     AmountPaid = bill.AmountPaid,
-                    Documents = bill.Documents.Select(doc => new DocumentResponseModel
+                    Attachments = bill.Attachments.Select(a => new AttachmentResponseModel
                     {
-                        Id = doc.Id,
-                        FileName = doc.FileName,
-                        ContentType = doc.ContentType,
-                        DocumentType = doc.DocumentType
+                        Id = a.Id,
+                        FileName = a.FileName,
+                        ContentType = a.ContentType,
+                        FileCategory = a.FileCategory,
+                        AttachmentType = a.AttachmentType
                     }).ToList()
                 })
                 .ToList();
-            
+
             var response = new PagedResponse<GetBillResponse>(billsDto, page, pageSize, totalRecords, totalPages);
 
             return Ok(response);
@@ -168,7 +169,7 @@ public class BillsController : ControllerBase
             return BadRequest();
         }
     }
-    
+
     [HttpGet]
     [Route("{billId:guid}")]
     [EndpointSummary("Get bill details")]
@@ -198,12 +199,13 @@ public class BillsController : ControllerBase
                 PaymentDate = bill.PaymentDate,
                 AmountDue = bill.AmountDue,
                 AmountPaid = bill.AmountPaid,
-                Documents = bill.Documents.Select(doc => new DocumentResponseModel
+                Attachments = bill.Attachments.Select(a => new AttachmentResponseModel
                 {
-                    Id = doc.Id,
-                    FileName = doc.FileName,
-                    ContentType = doc.ContentType,
-                    DocumentType = doc.DocumentType
+                    Id = a.Id,
+                    FileName = a.FileName,
+                    ContentType = a.ContentType,
+                    FileCategory = a.FileCategory,
+                    AttachmentType = a.AttachmentType
                 }).ToList()
             };
 
@@ -212,13 +214,13 @@ public class BillsController : ControllerBase
         catch (Exception ex)
         {
             Log.Error("{Timestamp} - Error on {MethodName} method request: {Message}",
-                DateTime.Now.ToString("s", CultureInfo.InvariantCulture), 
-                nameof(GetBillById), 
+                DateTime.Now.ToString("s", CultureInfo.InvariantCulture),
+                nameof(GetBillById),
                 ex.Message);
             return BadRequest();
         }
     }
-    
+
     [HttpPatch]
     [Route("{billId:guid}")]
     [EndpointSummary("Update a bill")]
@@ -232,7 +234,7 @@ public class BillsController : ControllerBase
         {
             bool isValidCategory = Enum.TryParse(request.Category, true, out BillCategory category);
             bool isValidStatus = Enum.TryParse(request.Status, true, out BillStatus status);
-            
+
             if (!isValidCategory || !isValidStatus) return UnprocessableEntity();
 
             var bill = await _context.Bills.FirstOrDefaultAsync(b => b.Id == billId);
@@ -241,7 +243,7 @@ public class BillsController : ControllerBase
             {
                 return NotFound();
             }
-            
+
             bill.Description = request.Description;
             bill.Category = category;
             bill.Status = status;
@@ -250,11 +252,11 @@ public class BillsController : ControllerBase
             bill.AmountDue = request.AmountDue;
             bill.AmountPaid = request.AmountPaid;
 
-            await _billsRepository.UpdateAsync(bill, 
-                b => b.Description, 
-                b => b.Category, 
-                b => b.Status, 
-                b => b.DueDate, 
+            await _billsRepository.UpdateAsync(bill,
+                b => b.Description,
+                b => b.Category,
+                b => b.Status,
+                b => b.DueDate,
                 b => b.PaymentDate,
                 b => b.AmountDue,
                 b => b.AmountPaid);
@@ -270,19 +272,19 @@ public class BillsController : ControllerBase
                 AmountDue = bill.AmountDue,
                 AmountPaid = bill.AmountPaid
             };
-        
+
             return Ok(response);
         }
         catch (Exception ex)
         {
             Log.Error("{Timestamp} - Error on {MethodName} method request: {Message}",
-                DateTime.Now.ToString("s", CultureInfo.InvariantCulture), 
-                nameof(UpdateBill), 
+                DateTime.Now.ToString("s", CultureInfo.InvariantCulture),
+                nameof(UpdateBill),
                 ex.Message);
             return BadRequest();
         }
     }
-    
+
     [HttpDelete]
     [Route("{billId:guid}")]
     [EndpointSummary("Delete a bill")]
@@ -298,9 +300,9 @@ public class BillsController : ControllerBase
                 return NotFound();
             }
 
-            foreach (var document in bill.Documents)
+            foreach (var attachment in bill.Attachments)
             {
-                await _documentService.DeleteDocumentAsync(document.Id);
+                await _attachmentService.DeleteAttachmentAsync(attachment.Id);
             }
 
             await _billsRepository.DeleteAsync(bill);
@@ -310,8 +312,8 @@ public class BillsController : ControllerBase
         catch (Exception ex)
         {
             Log.Error("{Timestamp} - Error on {MethodName} method request: {Message}",
-                DateTime.Now.ToString("s", CultureInfo.InvariantCulture), 
-                nameof(DeleteBillById), 
+                DateTime.Now.ToString("s", CultureInfo.InvariantCulture),
+                nameof(DeleteBillById),
                 ex.Message);
             return BadRequest();
         }
@@ -324,7 +326,7 @@ public class BillsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<BillDocument>> UploadDocumentAsync(
+    public async Task<ActionResult<UploadDocumentResponse>> UploadDocumentAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid billId,
         [FromForm] UploadBillDocumentRequest request)
@@ -333,29 +335,30 @@ public class BillsController : ControllerBase
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-        
+
             var userId = GetCurrentUserId();
-        
-            if (userId is null) 
+
+            if (userId is null)
                 return Unauthorized("User is not authenticated.");
-        
+
             using var stream = request.File.OpenReadStream();
-            var document = await _documentService.UploadDocumentAsync(
+            var attachment = await _attachmentService.UploadBillAttachmentAsync(
+                organizationId,
                 billId,
                 stream,
                 request.File.FileName,
                 request.File.ContentType,
-                request.DocumentType,
+                request.FileCategory,
                 userId
             );
-        
+
             var response = new UploadDocumentResponse
             {
-                Id = document.Id,
-                BillId = document.BillId,
-                FileName = document.FileName,
-                ContentType = document.ContentType,
-                DocumentType = document.DocumentType
+                Id = attachment.Id,
+                FileName = attachment.FileName,
+                ContentType = attachment.ContentType,
+                FileCategory = attachment.FileCategory,
+                AttachmentType = attachment.AttachmentType
             };
 
             return Ok(response);
@@ -369,7 +372,7 @@ public class BillsController : ControllerBase
             return BadRequest(new { error = e.Message });
         }
     }
-    
+
     [HttpGet("{billId:guid}/documents/{documentId}")]
     [EndpointSummary("Download a bill document")]
     [EndpointDescription("Downloads a specific document attached to a bill.")]
@@ -382,7 +385,7 @@ public class BillsController : ControllerBase
             return NotFound();
         }
 
-        var (stream, fileName, contentType) = await _documentService.GetDocumentAsync(documentId);
+        var (stream, fileName, contentType) = await _attachmentService.GetAttachmentAsync(documentId);
         return File(stream, contentType, fileName);
     }
 
@@ -403,7 +406,7 @@ public class BillsController : ControllerBase
             if (bill is null)
                 return NotFound();
 
-            var result = await _documentService.DeleteDocumentAsync(documentId);
+            var result = await _attachmentService.DeleteAttachmentAsync(documentId);
 
             if (!result)
                 return NotFound();
@@ -420,9 +423,8 @@ public class BillsController : ControllerBase
         }
     }
 
-    private Guid? GetCurrentUserId()
+    private string? GetCurrentUserId()
     {
-        var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-        return userIdClaim != null ? Guid.Parse(userIdClaim.Value) : null;
+        return User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
     }
 }

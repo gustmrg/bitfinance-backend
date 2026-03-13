@@ -26,7 +26,7 @@ public class BillsRepository : IBillsRepository
     {
         List<Bill> list = await _dbContext.Set<Bill>()
             .AsNoTracking()
-            .Include(b => b.Documents)
+            .Include(b => b.Attachments)
             .OrderBy(b => b.DueDate)
             .ToListAsync();
 
@@ -51,7 +51,7 @@ public class BillsRepository : IBillsRepository
         }
         
         return await query
-            .Include(b => b.Documents)
+            .Include(b => b.Attachments)
             .OrderBy(b => b.DueDate)
             .Skip(pageSize * (page - 1))
             .Take(pageSize)
@@ -63,7 +63,7 @@ public class BillsRepository : IBillsRepository
         List<Bill> list = await _dbContext.Set<Bill>()
             .AsNoTracking()
             .Where(b => b.Status == billStatus)
-            .Include(b => b.Documents)
+            .Include(b => b.Attachments)
             .OrderBy(b => b.DueDate)
             .ToListAsync();
 
@@ -102,7 +102,7 @@ public class BillsRepository : IBillsRepository
             if (bill is null)
             {
                 bill = await _dbContext.Set<Bill>()
-                    .Include(b => b.Documents)
+                    .Include(b => b.Attachments)
                     .FirstOrDefaultAsync(x => x.Id == id);
 
                 if (bill is not null)
@@ -114,7 +114,7 @@ public class BillsRepository : IBillsRepository
         else
         {
             bill = await _dbContext.Set<Bill>()
-                .Include(b => b.Documents)
+                .Include(b => b.Attachments)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
         
