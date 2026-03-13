@@ -24,12 +24,12 @@ public class S3FileStorageService : IFileStorageService
         _logger = logger;
     }
 
-    public async Task<FileStorageResult> SaveFileAsync(Stream fileStream, string fileName, string contentType, Guid entityId, string subDirectory = "")
+    public async Task<FileStorageResult> SaveFileAsync(Stream fileStream, string fileName, string contentType, string directoryPath)
     {
         try
         {
             var uniqueFileName = GenerateUniqueFileName(fileName);
-            var key = BuildObjectKey(subDirectory, entityId, uniqueFileName);
+            var key = BuildObjectKey(directoryPath, uniqueFileName);
 
             using var sha256 = SHA256.Create();
             using var memoryStream = new MemoryStream();
@@ -52,7 +52,7 @@ public class S3FileStorageService : IFileStorageService
 
             var putRequest = new PutObjectRequest
             {
-                BucketName = _settings.S3.BucketName,
+                BucketName = _settings.BucketName,
                 Key = key,
                 InputStream = memoryStream,
                 ContentType = contentType
@@ -84,7 +84,7 @@ public class S3FileStorageService : IFileStorageService
     {
         var response = await _s3Client.GetObjectAsync(new GetObjectRequest
         {
-            BucketName = _settings.S3.BucketName,
+            BucketName = _settings.BucketName,
             Key = storagePath
         });
 
@@ -97,7 +97,7 @@ public class S3FileStorageService : IFileStorageService
         {
             var response = await _s3Client.DeleteObjectAsync(new DeleteObjectRequest
             {
-                BucketName = _settings.S3.BucketName,
+                BucketName = _settings.BucketName,
                 Key = storagePath
             });
 
@@ -116,7 +116,7 @@ public class S3FileStorageService : IFileStorageService
         {
             await _s3Client.GetObjectMetadataAsync(new GetObjectMetadataRequest
             {
-                BucketName = _settings.S3.BucketName,
+                BucketName = _settings.BucketName,
                 Key = storagePath
             });
 
@@ -130,27 +130,20 @@ public class S3FileStorageService : IFileStorageService
 
     public string GenerateUniqueFileName(string originalFileName)
     {
-        var extension = Path.GetExtension(originalFileName);
-        var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(originalFileName);
-        var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-        var guid = Guid.NewGuid().ToString("N")[..8];
+        var extension = Path.GetExtension(originalFileName)?.ToLowerInvariant();
+        var uuid = Guid.NewGuid().ToString();
 
-        return $"{fileNameWithoutExtension}_{timestamp}_{guid}{extension}";
+        return $"{uuid}{extension}";
     }
 
-    private string BuildObjectKey(string subDirectory, Guid entityId, string fileName)
+    private string BuildObjectKey(string directoryPath, string fileName)
     {
         var parts = new List<string>();
 
-        if (!string.IsNullOrWhiteSpace(_settings.S3.Prefix))
-            parts.Add(_settings.S3.Prefix);
+        if (!string.IsNullOrWhiteSpace(_settings.Prefix))
+            parts.Add(_settings.Prefix);
 
-        if (!string.IsNullOrWhiteSpace(subDirectory))
-            parts.Add(subDirectory);
-
-        parts.Add(DateTime.UtcNow.Year.ToString());
-        parts.Add(DateTime.UtcNow.Month.ToString("00"));
-        parts.Add(entityId.ToString());
+        parts.Add(directoryPath);
         parts.Add(fileName);
 
         return string.Join("/", parts);

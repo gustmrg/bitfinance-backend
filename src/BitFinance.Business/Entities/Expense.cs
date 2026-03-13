@@ -66,4 +66,6 @@ public class Expense
     /// Navigation property to the user who created this expense.
     /// </summary>
     public User CreatedByUser { get; set; } = null!;
+
+    public ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
 }

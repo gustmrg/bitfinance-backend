@@ -41,6 +41,7 @@ public class ExpensesRepository : IExpensesRepository
         
         return await query
             .Include(e => e.CreatedByUser)
+            .Include(e => e.Attachments)
             .OrderBy(e => e.CreatedAt)
             .Skip(pageSize * (page - 1))
             .Take(pageSize)
@@ -59,6 +60,8 @@ public class ExpensesRepository : IExpensesRepository
     public async Task<Expense?> GetByIdAsync(Guid expenseId)
     {
         return await _dbContext.Set<Expense>()
+            .Include(e => e.CreatedByUser)
+            .Include(e => e.Attachments)
             .Where(e => e.Id == expenseId)
             .FirstOrDefaultAsync();
     }

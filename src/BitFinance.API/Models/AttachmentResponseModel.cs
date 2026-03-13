@@ -1,9 +1,9 @@
 using System.Text.Json.Serialization;
 using BitFinance.Business.Enums;
 
-namespace BitFinance.API.Models.Response;
+namespace BitFinance.API.Models;
 
-public record UploadDocumentResponse
+public record AttachmentResponseModel
 {
     public Guid Id { get; set; }
     public string FileName { get; set; } = null!;

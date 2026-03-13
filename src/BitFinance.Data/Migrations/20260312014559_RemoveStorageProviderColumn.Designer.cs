@@ -3,6 +3,7 @@ using System;
 using BitFinance.Data.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BitFinance.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260312014559_RemoveStorageProviderColumn")]
+    partial class RemoveStorageProviderColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,99 +24,6 @@ namespace BitFinance.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("BitFinance.Business.Entities.Attachment", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<int>("AttachmentType")
-                        .HasColumnType("integer")
-                        .HasColumnName("attachment_type");
-
-                    b.Property<Guid?>("BillId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("bill_id");
-
-                    b.Property<string>("ContentType")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("content_type");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text")
-                        .HasColumnName("description");
-
-                    b.Property<Guid?>("ExpenseId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("expense_id");
-
-                    b.Property<int>("FileCategory")
-                        .HasColumnType("integer")
-                        .HasColumnName("file_category");
-
-                    b.Property<string>("FileHash")
-                        .HasColumnType("text")
-                        .HasColumnName("file_hash");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("file_name");
-
-                    b.Property<long>("FileSizeInBytes")
-                        .HasColumnType("bigint")
-                        .HasColumnName("file_size_in_bytes");
-
-                    b.Property<Guid?>("OrganizationId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("organization_id");
-
-                    b.Property<string>("OriginalFileName")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("original_file_name");
-
-                    b.Property<string>("StoragePath")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("storage_path");
-
-                    b.Property<DateTime>("UploadedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("uploaded_at");
-
-                    b.Property<string>("UploadedByUserId")
-                        .HasColumnType("text")
-                        .HasColumnName("uploaded_by_user_id");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("text")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_attachments");
-
-                    b.HasIndex("BillId")
-                        .HasDatabaseName("ix_attachments_bill_id");
-
-                    b.HasIndex("ExpenseId")
-                        .HasDatabaseName("ix_attachments_expense_id");
-
-                    b.HasIndex("OrganizationId")
-                        .HasDatabaseName("ix_attachments_organization_id");
-
-                    b.HasIndex("UserId")
-                        .IsUnique()
-                        .HasDatabaseName("ix_attachments_user_id");
-
-                    b.ToTable("attachments", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_attachments_single_owner", "(CASE WHEN bill_id IS NOT NULL THEN 1 ELSE 0 END +\n                  CASE WHEN expense_id IS NOT NULL THEN 1 ELSE 0 END +\n                  CASE WHEN user_id IS NOT NULL THEN 1 ELSE 0 END) = 1");
-                        });
-                });
 
             modelBuilder.Entity("BitFinance.Business.Entities.Bill", b =>
                 {
@@ -175,6 +85,70 @@ namespace BitFinance.Data.Migrations
                         .HasDatabaseName("ix_bills_organization_id");
 
                     b.ToTable("bills", (string)null);
+                });
+
+            modelBuilder.Entity("BitFinance.Business.Entities.BillDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("BillId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("bill_id");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("content_type");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<int>("DocumentType")
+                        .HasColumnType("integer")
+                        .HasColumnName("document_type");
+
+                    b.Property<string>("FileHash")
+                        .HasColumnType("text")
+                        .HasColumnName("file_hash");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("file_name");
+
+                    b.Property<long>("FileSizeInBytes")
+                        .HasColumnType("bigint")
+                        .HasColumnName("file_size_in_bytes");
+
+                    b.Property<string>("OriginalFileName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("original_file_name");
+
+                    b.Property<string>("StoragePath")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("storage_path");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("uploaded_at");
+
+                    b.Property<Guid?>("UploadedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("uploaded_by_user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_bill_documents");
+
+                    b.HasIndex("BillId")
+                        .HasDatabaseName("ix_bill_documents_bill_id");
+
+                    b.ToTable("bill_documents");
                 });
 
             modelBuilder.Entity("BitFinance.Business.Entities.Expense", b =>
@@ -727,41 +701,6 @@ namespace BitFinance.Data.Migrations
                     b.ToTable("asp_net_user_tokens", (string)null);
                 });
 
-            modelBuilder.Entity("BitFinance.Business.Entities.Attachment", b =>
-                {
-                    b.HasOne("BitFinance.Business.Entities.Bill", "Bill")
-                        .WithMany("Attachments")
-                        .HasForeignKey("BillId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("fk_attachments_bills_bill_id");
-
-                    b.HasOne("BitFinance.Business.Entities.Expense", "Expense")
-                        .WithMany("Attachments")
-                        .HasForeignKey("ExpenseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("fk_attachments_expenses_expense_id");
-
-                    b.HasOne("BitFinance.Business.Entities.Organization", "Organization")
-                        .WithMany()
-                        .HasForeignKey("OrganizationId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("fk_attachments_organizations_organization_id");
-
-                    b.HasOne("BitFinance.Business.Entities.User", "User")
-                        .WithOne("Avatar")
-                        .HasForeignKey("BitFinance.Business.Entities.Attachment", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("fk_attachments_asp_net_users_user_id");
-
-                    b.Navigation("Bill");
-
-                    b.Navigation("Expense");
-
-                    b.Navigation("Organization");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("BitFinance.Business.Entities.Bill", b =>
                 {
                     b.HasOne("BitFinance.Business.Entities.Organization", "Organization")
@@ -772,6 +711,18 @@ namespace BitFinance.Data.Migrations
                         .HasConstraintName("fk_bills_organizations_organization_id");
 
                     b.Navigation("Organization");
+                });
+
+            modelBuilder.Entity("BitFinance.Business.Entities.BillDocument", b =>
+                {
+                    b.HasOne("BitFinance.Business.Entities.Bill", "Bill")
+                        .WithMany("Documents")
+                        .HasForeignKey("BillId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_bill_documents_bills_bill_id");
+
+                    b.Navigation("Bill");
                 });
 
             modelBuilder.Entity("BitFinance.Business.Entities.Expense", b =>
@@ -928,12 +879,7 @@ namespace BitFinance.Data.Migrations
 
             modelBuilder.Entity("BitFinance.Business.Entities.Bill", b =>
                 {
-                    b.Navigation("Attachments");
-                });
-
-            modelBuilder.Entity("BitFinance.Business.Entities.Expense", b =>
-                {
-                    b.Navigation("Attachments");
+                    b.Navigation("Documents");
                 });
 
             modelBuilder.Entity("BitFinance.Business.Entities.Organization", b =>
@@ -949,8 +895,6 @@ namespace BitFinance.Data.Migrations
 
             modelBuilder.Entity("BitFinance.Business.Entities.User", b =>
                 {
-                    b.Navigation("Avatar");
-
                     b.Navigation("OrganizationMemberships");
 
                     b.Navigation("Settings")

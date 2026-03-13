@@ -28,9 +28,8 @@ public class User : IdentityUser
     /// </summary>
     public UserSettings Settings { get; set; } = new();
 
-    /// <summary>
-    /// The user's full name, composed of first and last name.
-    /// </summary>
+    public Attachment? Avatar { get; set; }
+
     [NotMapped]
     public string FullName => $"{FirstName} {LastName}";
 }
